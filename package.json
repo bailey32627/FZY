@@ -15,6 +15,7 @@
   "author": "Brad Bailey",
   "license": "ISC",
   "devDependencies": {
-    "rollup": "^3.20.2"
+    "rollup": "^3.20.2",
+    "fzy": "0.0.x"
   }
 }
