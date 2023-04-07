@@ -1,0 +1,20 @@
+{
+  "name": "fzy",
+  "version": "1.0.0",
+  "description": "3D library",
+  "type": "module",
+  "main": "./build/fzy.js",
+  "module": "./build/fzy.module.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+		"build": "rollup -c utils/build/rollup.config.js"
+  },
+  "keywords": [
+    "3D"
+  ],
+  "author": "Brad Bailey",
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^3.20.2"
+  }
+}
