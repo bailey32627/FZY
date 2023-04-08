@@ -54,8 +54,8 @@ class Shader {
   */
   constructor( name, vertex, fragment ) {
     this._name = name;
-    this.vertexShader = loadShader( vertex, GLUtil.context.VERTEX_SHADER );
-    this.fragmentShader = loadShader( fragment, GLUtil.context.FRAGMENT_SHADER );
+    this.vertexShader = this.loadShader( vertex, GLUtil.context.VERTEX_SHADER );
+    this.fragmentShader = this.loadShader( fragment, GLUtil.context.FRAGMENT_SHADER );
 
     this.createProgram( this.vertexShader, this.fragmentShader );
   }
@@ -80,7 +80,7 @@ class Shader {
   * @param type The webGL type of shader
   * @return A new webGL shader with the compiled source code
   */
-  #loadShader( source, type ) {
+  loadShader( source, type ) {
     let shader = GLUtil.context.createShader( type );
 
     GLUtil.context.shaderSource( shader, source );
@@ -98,7 +98,7 @@ class Shader {
   * @param vertexShader The compiled vertex shader to use
   * @param fragmentShader The compiled fragment shader to use
   */
-  #createProgram( vertexShader, fragmentShader ) {
+  createProgram( vertexShader, fragmentShader ) {
     this._program = GLUtil.context.createProgram();
     GLUtil.context.attachShader( this._program, vertexShader );
     GLUtil.context.attachShader( this._program, fragmentShader );
@@ -109,6 +109,22 @@ class Shader {
       throw new Error( `Error linking shader: ${ this._name } : ${error}` );
   }
 }
+
+const ShaderLib = {
+  basic: {
+    vertexShader:  `
+    attribute vec3 position;
+    void main() {
+      gl_Position = vec4( position, 1.0 );
+    }`,
+
+    fragmentShader:  `
+    precision mediump float;
+    void main() {
+      gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+    }`
+  }
+};
 
 class Engine {
 
@@ -132,7 +148,7 @@ class Engine {
     GLUtil.context.clearColor( 0, 0, 0, 1 );
 
     // load the shaders and set it to be used
-    this.loadShaders();
+    this._shader = new Shader( 'basic', ShaderLib.basic.vertexShader, ShaderLib.basic.fragmentShader );
     this._shader.use();
 
     this.run();
@@ -153,25 +169,6 @@ class Engine {
   */
   shutdown() {
 
-  }
-
-  /**
-  * loads the shader resources on startup
-  */
-  #loadShaders() {
-    let vertexShaderSource = `
-    attribute vec3 position;
-    void main() {
-      gl_Position = vec4( position, 1.0 );
-    }`;
-
-    let fragmentShaderSource = `
-    precision mediump float;
-    void main() {
-      gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-    }`;
-
-    this._shader = new Shader( "basic", vertexShaderSource, fragmentShaderSource );
   }
 }
 

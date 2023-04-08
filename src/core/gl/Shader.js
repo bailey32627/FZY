@@ -16,8 +16,8 @@ class Shader {
   */
   constructor( name, vertex, fragment ) {
     this._name = name;
-    this.vertexShader = loadShader( vertex, GLUtil.context.VERTEX_SHADER );
-    this.fragmentShader = loadShader( fragment, GLUtil.context.FRAGMENT_SHADER );
+    this.vertexShader = this.loadShader( vertex, GLUtil.context.VERTEX_SHADER );
+    this.fragmentShader = this.loadShader( fragment, GLUtil.context.FRAGMENT_SHADER );
 
     this.createProgram( this.vertexShader, this.fragmentShader );
   }
@@ -42,7 +42,7 @@ class Shader {
   * @param type The webGL type of shader
   * @return A new webGL shader with the compiled source code
   */
-  #loadShader( source, type ) {
+  loadShader( source, type ) {
     let shader = GLUtil.context.createShader( type );
 
     GLUtil.context.shaderSource( shader, source );
@@ -60,7 +60,7 @@ class Shader {
   * @param vertexShader The compiled vertex shader to use
   * @param fragmentShader The compiled fragment shader to use
   */
-  #createProgram( vertexShader, fragmentShader ) {
+  createProgram( vertexShader, fragmentShader ) {
     this._program = GLUtil.context.createProgram();
     GLUtil.context.attachShader( this._program, vertexShader );
     GLUtil.context.attachShader( this._program, fragmentShader );
