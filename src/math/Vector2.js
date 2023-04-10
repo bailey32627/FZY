@@ -205,13 +205,13 @@ class Vector2 {
     let l = this.length();
     if( l <= 0 )
     {
-      this._x = 0;
-      this._y = 0;
+      this.x = 0;
+      this.y = 0;
       return;
     }
     l = 1.0 / l;
-    this._x *= l;
-    this._y *= l;
+    this.x *= l;
+    this.y *= l;
   }
 
   /**
@@ -220,9 +220,9 @@ class Vector2 {
   * @param tolerance The tolerance of the comparision, EPSILON by default
   * @return true if both components are within the tolerance
   */
-  equals( v, tolerance = EPSILON ) {
-    if( Math.abs( this._x - v.x() ) > tolerance ) { return false; }
-    if( Math.abs( this._y - v.y() ) > tolerance ) { return false; }
+  isEqual( v, tolerance = EPSILON ) {
+    if( Math.abs( this.x - v.x() ) > tolerance ) { return false; }
+    if( Math.abs( this.y - v.y() ) > tolerance ) { return false; }
     return true;
   }
 
@@ -232,7 +232,7 @@ class Vector2 {
   * @return The distance between the vectors
   */
   squaredDistance( v ) {
-    return (( v.x() - this._x ) * ( v.x() - this._x ) + ( v.y() - this._y ) * ( v.y() - this._y ));
+    return (( v.x - this.x ) * ( v.x - this.x ) + ( v.y - this.y ) * ( v.y - this.y ));
   }
 
   /**
