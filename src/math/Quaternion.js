@@ -179,7 +179,7 @@ class Quaternion {
   * @param a Quaternion
   * @param b Quaternion
   */
-  multiplyQuaternion( a, b ) {
+  multiplyQuaternions( a, b ) {
     this.x = a.x * b.w + a.y * b.z - a.z * b.y + a.w * b.x;
     this.y = -a.x * b.z + a.y * b.w + a.z * b.x + a.w * b.y;
     this.z = a.x * b.y - a.y * b.x + a.z * b.w + a.w * b.z;
