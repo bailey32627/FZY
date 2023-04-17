@@ -46,6 +46,21 @@ class GLUtil {
     // reset the viewport to the canvas size
     gl.viewport( 0, 0, w, h );
   }
+
+  /**
+  @brief Creates and fills an array buffer
+  @param floatArray Float32Array
+  @param isStatic boolean indicating if the buffer is static
+  */
+  static createArrayBuffer( floatArray, isStatic ) {
+    if ( isStatic === undefined ) { isStatic = true; }
+
+    var buffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, buffer );
+    gl.bufferData( gl.ARRAY_BUFFER, floatArray, (isStatic)? gl.STATIC_DRAW : gl.DYNAMIC_DRAW );
+    gl.bindBuffer( gl.ARRAY_BUFFER, null );
+    return buffer;
+  }
 }
 
 export { gl };

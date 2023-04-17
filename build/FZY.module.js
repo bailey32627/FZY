@@ -46,6 +46,21 @@ class GLUtil {
     // reset the viewport to the canvas size
     gl.viewport( 0, 0, w, h );
   }
+
+  /**
+  @brief Creates and fills an array buffer
+  @param floatArray Float32Array
+  @param isStatic boolean indicating if the buffer is static
+  */
+  static createArrayBuffer( floatArray, isStatic ) {
+    if ( isStatic === undefined ) { isStatic = true; }
+
+    var buffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, buffer );
+    gl.bufferData( gl.ARRAY_BUFFER, floatArray, (isStatic)? gl.STATIC_DRAW : gl.DYNAMIC_DRAW );
+    gl.bindBuffer( gl.ARRAY_BUFFER, null );
+    return buffer;
+  }
 }
 
 // Represents a webGL Shader
@@ -57,16 +72,28 @@ class Shader {
 
   /**
   @brief Creates an instance of a shader program, links the program and frees the shaders
+  @param name The name of the shader
   @param vShader vertex shader
   @param fShader fragment Shader
   @param doValidate true to debug
   */
-  constructor( vShader, fShader, doValidate ) {
+  constructor( name, vShader, fShader, doValidate ) {
     let vSdr = this.#createShader( vShader, gl.VERTEX_SHADER );
     let fSdr = this.#createShader( fShader, gl.FRAGMENT_SHADER );
     this._program = this.#createProgram( vSdr, fSdr, doValidate );
+    this._name = name;
+    this._attributes = new Map();
+    this._uniforms = new Map();
+
+    this.#detectAttributes( );
+    this.#detectUniforms( );
   }
 
+  /**
+  @brief Creates a shader from the source provided and type
+  @src The source code for the shader
+  @type The type of shader this is ( ie gl.VERTEX_SHADER or gl.FRAGMENT_SHADER )
+   */
   #createShader( src, type ) {
     var shader = gl.createShader( type );
     gl.shaderSource( shader, src );
@@ -109,6 +136,50 @@ class Shader {
   use( ) {
     gl.useProgram( this.program );
   }
+
+  /**
+  @brief Detects the active attribtues in this shader
+  */
+  #detectAttributes( ) {
+    let attribCount = gl.getProgramParameter( this._program, gl.ACTIVE_ATTRIBUTES );
+    for ( let i = 0; i < attribCount; ++i ) {
+      let info = gl.getActiveAttrib( this._program, i );
+      if( !info ) { break }      this._attributes[ info.name ] = gl.getAttribLocation( this._program, info.name );
+    }
+  }
+
+  /**
+  @brief Retrieves the attributes location from the shader
+  */
+  getAttributeLocation( name ) {
+    if( this._attributes[ name ] === undefined ) {
+      throw new Error( `Unable to find attribute named ${name} in shader ${this._name}` );
+    }
+    return this._attributes[ name ];
+  }
+
+  /**
+  @brief Detects the active uniforms in this shader
+  */
+  #detectUniforms( ) {
+    let uniformCount = gl.getProgramParameter( this._program, gl.ACTIVE_UNIFORMS );
+    for ( let i = 0; i < uniformCount; ++i ){
+      let info = gl.getActiveUniform( this._program, i );
+      if( !info ) { break; }
+      this._uniforms[ info.name ] = gl.getUniformLocation( this._program, info.name );
+    }
+  }
+
+  /**
+  @brief Retrieves the uniforms location in the shader
+  @param name The name of the uniform
+  */
+  getUniformLocation( name ) {
+    if( this._uniforms[ name ] === undefined ) {
+      throw new Error( `Unable to find uniform named ${name} in shader ${this._name}`);
+    }
+    return this._uniforms[ name ];
+  }
 }
 
 const ShaderLib = {
@@ -134,6 +205,62 @@ const ShaderLib = {
   }
 };
 
+class RenderLoop {
+  constructor( callback, fps ) {
+    var oThis = this;
+
+    this.lastFrame = null;     // The time in illiseconds of the last frame
+    this.callback = callback;  // what fucntion to call for each frame
+    this.isActive = false;     // control the on/off state of the render loop
+    this.fps = 0;              // Save the value of fast to loop
+
+    if ( !fps && fps > 0 ) { // build a run method that limits the framerate
+      this.fpsLimit = 1000/fps; // calculate how many milliseconds per frame in one second of time
+
+      this.run = function( ) {
+        // calculate the deltatime between frames and the fps currently
+        var current = performance.now(),
+        delta = ( current - oThis.lastFrame ),
+        deltaTime = delta / 1000.0;  // what fraction of a single second is the delta time
+
+        if( delta >= oThis.fpsLimit ) { // now execute frame since the time has elasped
+          oThis.fps = Math.floor( 1/deltaTime );
+          oThis.lastFrame = current;
+          oThis.callback( deltaTime );
+        }
+
+        if ( oThis.isActive ){ window.requestAnimationFrame( oThis.run ); }
+      };
+
+    } else {
+
+       // build a run method that optimsied as much as possible
+       this.run = function( ){
+         // calculate the deltatime betweeen frames and the fps currently
+         var current = performance.now(),
+         deltaTime = ( current - oThis.lastFrame ) / 1000.0; // ms between frames / 1 seconds
+
+         // new execute frame since the time has elasped
+         oThis.fps = Math.floor( 1/ deltaTime );
+         oThis.lastFrame = current;
+         oThis.callback( deltaTime );
+         if( oThis.isActive ) { window.requestAnimationFrame( oThis.run ); }
+       };
+    }
+  }
+
+  start( ) {
+    this.isActive = true;
+    this.lastFrame = performance.now();
+    window.requestAnimationFrame( this.run );
+    return this;
+  }
+
+  stop( ) {
+    this.isActive = false;
+  }
+}
+
 let instance;  // instance for the singleton
 
 class EngineSingleton {
@@ -150,31 +277,29 @@ class EngineSingleton {
     GLUtil.setSize( 500, 500 );
     GLUtil.clear( );
 
-    let shader = new Shader( ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
+    let shader = new Shader( 'point', ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
     gl.useProgram( shader._program );
-    let aPositionLoc = gl.getAttribLocation( shader._program, "a_position" );
-    let uPointSizeLoc = gl.getUniformLocation( shader._program, "uPointSize" );
+    let aPositionLoc = shader.getAttributeLocation( "a_position" );
+    this.uPointSizeLoc = shader.getUniformLocation( 'uPointSize' );
     gl.useProgram( null );
     var aryVerts = new Float32Array([ 0, 0, 0, 0.5, 0.5, 0 ] );
-    var bufVerts = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufVerts );
-    gl.bufferData( gl.ARRAY_BUFFER, aryVerts, gl.STATIC_DRAW );
-    gl.bindBuffer( gl.ARRAY_BUFFER, null );
+    var bufVerts = GLUtil.createArrayBuffer( aryVerts );
 
     // Set up for drawing
     gl.useProgram( shader._program );
-    gl.uniform1f( uPointSizeLoc, 50.0 );
+    gl.uniform1f( this.uPointSizeLoc, 50.0 );
 
     gl.bindBuffer( gl.ARRAY_BUFFER, bufVerts );
     gl.enableVertexAttribArray( aPositionLoc );
     gl.vertexAttribPointer( aPositionLoc, 3, gl.FLOAT, false, 0, 0 );
     gl.bindBuffer( gl.ARRAY_BUFFER, null );
 
-    gl.drawArrays( gl.POINTS, 0, 2 );
+    this.rLoop = new RenderLoop( this.onRender ).start();
   }
 
-  loop( ) {
-
+  onRender(dt ) {
+    GLUtil.clear();
+    gl.drawArrays( gl.POINTS, 0, 2 );
   }
 
   shutdown( ) {

@@ -2,6 +2,7 @@ import { gl } from './gl/GLUtil.js';
 import { GLUtil } from './gl/GLUtil.js';
 import { Shader } from './gl/Shader.js';
 import { ShaderLib } from './gl/ShaderLib.js';
+import { RenderLoop } from './renderer/RenderLoop.js';
 
 let instance;  // instance for the singleton
 
@@ -19,31 +20,29 @@ class EngineSingleton {
     GLUtil.setSize( 500, 500 );
     GLUtil.clear( );
 
-    let shader = new Shader( ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
+    let shader = new Shader( 'point', ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
     gl.useProgram( shader._program );
-    let aPositionLoc = gl.getAttribLocation( shader._program, "a_position" );
-    let uPointSizeLoc = gl.getUniformLocation( shader._program, "uPointSize" );
+    let aPositionLoc = shader.getAttributeLocation( "a_position" );
+    this.uPointSizeLoc = shader.getUniformLocation( 'uPointSize' );
     gl.useProgram( null );
     var aryVerts = new Float32Array([ 0, 0, 0, 0.5, 0.5, 0 ] );
-    var bufVerts = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufVerts );
-    gl.bufferData( gl.ARRAY_BUFFER, aryVerts, gl.STATIC_DRAW );
-    gl.bindBuffer( gl.ARRAY_BUFFER, null );
+    var bufVerts = GLUtil.createArrayBuffer( aryVerts );
 
     // Set up for drawing
     gl.useProgram( shader._program );
-    gl.uniform1f( uPointSizeLoc, 50.0 );
+    gl.uniform1f( this.uPointSizeLoc, 50.0 );
 
     gl.bindBuffer( gl.ARRAY_BUFFER, bufVerts );
     gl.enableVertexAttribArray( aPositionLoc );
     gl.vertexAttribPointer( aPositionLoc, 3, gl.FLOAT, false, 0, 0 );
     gl.bindBuffer( gl.ARRAY_BUFFER, null );
 
-    gl.drawArrays( gl.POINTS, 0, 2 );
+    this.rLoop = new RenderLoop( this.onRender ).start();
   }
 
-  loop( ) {
-
+  onRender(dt ) {
+    GLUtil.clear();
+    gl.drawArrays( gl.POINTS, 0, 2 );
   }
 
   shutdown( ) {
