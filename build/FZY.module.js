@@ -188,10 +188,14 @@ const ShaderLib = {
     in vec3 a_position;
 
     uniform float uPointSize;
+    uniform float uAngle;
 
     void main( void ) {
       gl_PointSize = uPointSize;
-      gl_Position = vec4( a_position, 1.0 );
+      gl_Position = vec4(
+        cos(uAngle) * 0.8 * a_position.x,
+        sin(uAngle) * 0.8 * a_position.y,
+        a_position.z, 1.0 );
     }`,
 
     fragmentShader:  `#version 300 es
@@ -205,70 +209,23 @@ const ShaderLib = {
   }
 };
 
-class RenderLoop {
-  constructor( callback, fps ) {
-    var oThis = this;
-
-    this.lastFrame = null;     // The time in illiseconds of the last frame
-    this.callback = callback;  // what fucntion to call for each frame
-    this.isActive = false;     // control the on/off state of the render loop
-    this.fps = 0;              // Save the value of fast to loop
-
-    if ( !fps && fps > 0 ) { // build a run method that limits the framerate
-      this.fpsLimit = 1000/fps; // calculate how many milliseconds per frame in one second of time
-
-      this.run = function( ) {
-        // calculate the deltatime between frames and the fps currently
-        var current = performance.now(),
-        delta = ( current - oThis.lastFrame ),
-        deltaTime = delta / 1000.0;  // what fraction of a single second is the delta time
-
-        if( delta >= oThis.fpsLimit ) { // now execute frame since the time has elasped
-          oThis.fps = Math.floor( 1/deltaTime );
-          oThis.lastFrame = current;
-          oThis.callback( deltaTime );
-        }
-
-        if ( oThis.isActive ){ window.requestAnimationFrame( oThis.run ); }
-      };
-
-    } else {
-
-       // build a run method that optimsied as much as possible
-       this.run = function( ){
-         // calculate the deltatime betweeen frames and the fps currently
-         var current = performance.now(),
-         deltaTime = ( current - oThis.lastFrame ) / 1000.0; // ms between frames / 1 seconds
-
-         // new execute frame since the time has elasped
-         oThis.fps = Math.floor( 1/ deltaTime );
-         oThis.lastFrame = current;
-         oThis.callback( deltaTime );
-         if( oThis.isActive ) { window.requestAnimationFrame( oThis.run ); }
-       };
-    }
-  }
-
-  start( ) {
-    this.isActive = true;
-    this.lastFrame = performance.now();
-    window.requestAnimationFrame( this.run );
-    return this;
-  }
-
-  stop( ) {
-    this.isActive = false;
-  }
-}
-
 let instance;  // instance for the singleton
 
 class EngineSingleton {
+
   constructor( ) {
     if( instance ) {
       throw new Error( "Cannot create another instance of singleton Engine" );
     }
     instance = this;
+    this.frameNumber = 0;
+    this.previousTime = 0;
+
+    this.pointSize = 0;
+    this.pointSizeStep = 3;
+    this.angle = 0;
+    this.angleStep = ( Math.PI / 180.0 ) * 90;
+    this.uAngle = -1;
   }
 
   initialize( canvasID ) {
@@ -277,27 +234,49 @@ class EngineSingleton {
     GLUtil.setSize( 500, 500 );
     GLUtil.clear( );
 
-    let shader = new Shader( 'point', ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
-    gl.useProgram( shader._program );
-    let aPositionLoc = shader.getAttributeLocation( "a_position" );
-    this.uPointSizeLoc = shader.getUniformLocation( 'uPointSize' );
+    this.shader = new Shader( 'point', ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
+    gl.useProgram( this.shader._program );
+    let aPositionLoc = this.shader.getAttributeLocation( "a_position" );
     gl.useProgram( null );
     var aryVerts = new Float32Array([ 0, 0, 0, 0.5, 0.5, 0 ] );
     var bufVerts = GLUtil.createArrayBuffer( aryVerts );
 
     // Set up for drawing
-    gl.useProgram( shader._program );
-    gl.uniform1f( this.uPointSizeLoc, 50.0 );
+    gl.useProgram( this.shader._program );
+
 
     gl.bindBuffer( gl.ARRAY_BUFFER, bufVerts );
     gl.enableVertexAttribArray( aPositionLoc );
     gl.vertexAttribPointer( aPositionLoc, 3, gl.FLOAT, false, 0, 0 );
     gl.bindBuffer( gl.ARRAY_BUFFER, null );
 
-    this.rLoop = new RenderLoop( this.onRender ).start();
+    this.fpsLimit = 1000 / 60; // calculate how many milliseconds per frame in one second of time
+
+    this.loop();
   }
 
-  onRender(dt ) {
+  loop( ) {
+    let current = performance.now();
+    let delta = current - this.previousTime;
+
+    this.update( delta );
+    this.render( delta );
+
+    this.previousTime = performance.now();
+    requestAnimationFrame( this.loop.bind( this ) );
+  }
+
+  update( delta ) {
+  }
+
+  render( delta ) {
+    this.pointSize += this.pointSizeStep * delta;
+    let size = ( Math.sin( this.pointSize ) * 10.0 ) + 30.0;
+
+    this.angle += this.angleStep * delta;
+    gl.uniform1f( this.shader.getUniformLocation( "uAngle" ), this.angle );
+
+    gl.uniform1f( this.shader.getUniformLocation( "uPointSize"), size );
     GLUtil.clear();
     gl.drawArrays( gl.POINTS, 0, 2 );
   }
