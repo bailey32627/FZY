@@ -1,5 +1,14 @@
 var gl = undefined;
 
+const Attributes = {
+  POSITION_NAME: 'a_position',
+  POSITION_LOC: 0,
+  NORMAL_NAME: 'a_normal',
+  NORMAL_LOC: 1,
+  UV_NAME: 'a_uvs',
+  UV_LOC: 2
+};
+
 class GLUtil {
 
   canvas = undefined;
@@ -61,7 +70,9 @@ class GLUtil {
     gl.bindBuffer( gl.ARRAY_BUFFER, null );
     return buffer;
   }
+
 }
 
 export { gl };
 export { GLUtil };
+export { Attributes };

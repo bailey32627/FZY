@@ -1,5 +1,14 @@
 var gl = undefined;
 
+const Attributes = {
+  POSITION_NAME: 'a_position',
+  POSITION_LOC: 0,
+  NORMAL_NAME: 'a_normal',
+  NORMAL_LOC: 1,
+  UV_NAME: 'a_uvs',
+  UV_LOC: 2
+};
+
 class GLUtil {
 
   canvas = undefined;
@@ -61,6 +70,7 @@ class GLUtil {
     gl.bindBuffer( gl.ARRAY_BUFFER, null );
     return buffer;
   }
+
 }
 
 // Represents a webGL Shader
@@ -72,21 +82,26 @@ class Shader {
 
   /**
   @brief Creates an instance of a shader program, links the program and frees the shaders
-  @param name The name of the shader
   @param vShader vertex shader
   @param fShader fragment Shader
   @param doValidate true to debug
   */
-  constructor( name, vShader, fShader, doValidate ) {
+  constructor( vShader, fShader, doValidate = false ) {
     let vSdr = this.#createShader( vShader, gl.VERTEX_SHADER );
     let fSdr = this.#createShader( fShader, gl.FRAGMENT_SHADER );
     this._program = this.#createProgram( vSdr, fSdr, doValidate );
-    this._name = name;
-    this._attributes = new Map();
-    this._uniforms = new Map();
+    this.attribLoc = this.#getStandardAttribLocations( );
+    this.uniformLoc = this.#getStandardUniformLocations();
+  }
 
-    this.#detectAttributes( );
-    this.#detectUniforms( );
+  /**
+  @brief cleans up resources when shader is no longer needed
+  */
+  destroy( ) {
+    if( gl.getParameter( gl.CURRENT_PROGRAM ) === this._program ) {
+      gl.useProgram( null );
+    }
+    gl.deleteProgram( this._program );
   }
 
   /**
@@ -111,6 +126,12 @@ class Shader {
     let prog = gl.createProgram( );
     gl.attachShader( prog, vShader );
     gl.attachShader( prog, fShader );
+
+    // for predefined locations fo rspecific attributes.
+    gl.bindAttribLocation( prog, Attributes.POSITION_LOC, Attributes.POSITION_NAME );
+    gl.bindAttribLocation( prog, Attributes.NORMAL_LOC, Attributes.NORMAL_NAME );
+    gl.bindAttribLocation( prog, Attributes.UV_LOC, Attributes.UV_NAME );
+
     gl.linkProgram( prog );
 
     // check if successful
@@ -133,52 +154,57 @@ class Shader {
     return prog;
   }
 
-  use( ) {
-    gl.useProgram( this.program );
+  /**
+  @brief Activates the shader for use
+  */
+  activate( ) {
+    gl.useProgram( this._program );
+    return this;
   }
 
   /**
-  @brief Detects the active attribtues in this shader
+  @brief Deactivates the shader so it will no longer be used
   */
-  #detectAttributes( ) {
-    let attribCount = gl.getProgramParameter( this._program, gl.ACTIVE_ATTRIBUTES );
-    for ( let i = 0; i < attribCount; ++i ) {
-      let info = gl.getActiveAttrib( this._program, i );
-      if( !info ) { break }      this._attributes[ info.name ] = gl.getAttribLocation( this._program, info.name );
-    }
+  deactivate( ) {
+    gl.useProgram( null );
+    return this;
   }
 
   /**
-  @brief Retrieves the attributes location from the shader
+  @brief Retrieves the standard attribute locations from this shader
   */
-  getAttributeLocation( name ) {
-    if( this._attributes[ name ] === undefined ) {
-      throw new Error( `Unable to find attribute named ${name} in shader ${this._name}` );
-    }
-    return this._attributes[ name ];
+  #getStandardAttribLocations( ) {
+    return {
+      position: gl.getAttribLocation( this._program, Attributes.POSITION_NAME ),
+      normal: gl.getAttribLocation( this._program, Attributes.NORMAL_NAME ),
+      uv: gl.getAttribLocation( this._program, Attributes.UV_NAME )
+    };
   }
 
   /**
-  @brief Detects the active uniforms in this shader
+  @brief Retrieves the standard uniform locations from this shader
   */
-  #detectUniforms( ) {
-    let uniformCount = gl.getProgramParameter( this._program, gl.ACTIVE_UNIFORMS );
-    for ( let i = 0; i < uniformCount; ++i ){
-      let info = gl.getActiveUniform( this._program, i );
-      if( !info ) { break; }
-      this._uniforms[ info.name ] = gl.getUniformLocation( this._program, info.name );
-    }
+  #getStandardUniformLocations() {
+    return {};
   }
 
   /**
-  @brief Retrieves the uniforms location in the shader
-  @param name The name of the uniform
+  @brief Prepares the shader for rendering
   */
-  getUniformLocation( name ) {
-    if( this._uniforms[ name ] === undefined ) {
-      throw new Error( `Unable to find uniform named ${name} in shader ${this._name}`);
+  prepareToRender( ) { } // abstract method, extended object may need to do something before rendering
+
+  /**
+  @brief Renders a model with this shader
+  */
+  renderModel( model ) {
+    gl.bindVertexArray( model.mesh.vao );  // enable vao, this will set all the predefined attributes for the shader
+    if ( model.mesh.indexCount ) {
+      gl.drawElements( model.mesh.mode, model.mesh.indexCount, gl.UNSIGNED_SHORT, 0 );
+    } else {
+      gl.drawArrays( model.mesh.mode, 0, model.mesh.vertexCount );
     }
-    return this._uniforms[ name ];
+    gl.bindVertexArray( null );
+    return this;
   }
 }
 
@@ -187,7 +213,7 @@ const ShaderLib = {
     vertexShader:  `#version 300 es
     in vec3 a_position;
 
-    uniform float uPointSize;
+    uniform mediump float uPointSize;
     uniform float uAngle;
 
     void main( void ) {
@@ -201,15 +227,134 @@ const ShaderLib = {
     fragmentShader:  `#version 300 es
     precision mediump float;
 
+    uniform float uPointSize;
+
     out vec4 finalColor;
 
     void main( void ){
-      finalColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+      float c = ( 40.0 - uPointSize ) / 20.0;
+      finalColor = vec4( c, c, c, 1.0 );
     }`
   }
 };
 
+class GeometryManager {
+  constructor( ) {
+    this.polygons = new Map();
+  }
+
+  /**
+  @brief creates a vetex array object for the geometry
+  @param name The name of this geometry
+  @param verticesArray array of compact vertices
+  @param indicesArray Array of shorts
+  */
+  createMesh( name, positions = null, normals = null, uvs = null, indices = null ) {
+    let rtn = { mode: gl.TRIANGLES };
+    // create and bind the vao
+    rtn.vao = gl.createVertexArray();
+    gl.bindVertexArray( rtn.vao );  // bind it so all the calls to vertexAttribPointer/enableVertexAttribArray is aved to the vao
+
+    // set up vertices
+    if( positions !== undefined && positions != null ){
+      rtn.positionBuffer = gl.createBuffer( );
+      rtn.positionComponentLen = 3;
+      rtn.vertexCount = positions.length / rtn.positionComponentLen;
+
+      gl.bindBuffer( gl.ARRAY_BUFFER, rtn.positionBuffer );
+      gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( positions ), gl.STATIC_DRAW );
+      gl.enableVertexAttribArray( Attributes.POSITION_LOC );
+      gl.vertexAttribPointer( Attributes.POSITION_LOC, 3, gl.FLOAT, false, 0, 0 );
+    }
+
+    // set up normals
+    if( normals !== undefined && normals != null ) {
+      rtn.normalBuffer = gl.createBuffer();
+      gl.bindBuffer( gl.ARRAY_BUFFER, rtn.normalBuffer );
+      gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( normals ), gl.STATIC_DRAW );
+      gl.enableVertexAttribArray( Attributes.NORMAL_LOC );
+      gl.vertexAttribPointer( Attributes.NORMAL_LOC, 3, gl.FLOAT, false, 0, 0 );
+    }
+
+    // setup uvs
+    if( uvs !== undefined && uvs != null ) {
+      rtn.uvBuffer = gl.createBuffer( );
+      gl.bindBuffer( gl.ARRAY_BUFFER, rtn.uvBuffer );
+      gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( uvs ), gl.STATIC_DRAW );
+      gl.enableVertexAttribArray( Attributes.UV_LOC );
+      gl.vertexAttribPointer( Attributes.UV_LOC, 2, gl.FLOAT, false, 0, 0 );
+    }
+
+    if ( indices !== undefined && indices != null ) {
+      rtn.indexBuffer = this.createBuffer();
+      rtn.indexCount = indices.length;
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, rtn.indexBuffer );
+      gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( indices ), gl.STATIC_DRAW );
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+    }
+
+    // clean up
+    gl.bindVertexArray( null ); // unbind the VAO, very IMPORTANT
+    gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind any buffers that might be set
+
+    this.polygons[ name ] = rtn;
+    return rtn;
+  }
+
+  /**
+  @brief gets the geometry from the manager
+  @param name The name of the geometry to retrieve
+  */
+  getGeometry( name ) {
+    return this.polygons[ name ];
+  }
+
+  /**
+  @brief Removes the geometry from the manger
+  @param name The name of the geometry to remove
+  */
+  removeGeometry( name ) {
+    this.polygons.delete( name );
+  }
+
+}
+
+let Geometry = new GeometryManager();
+
+class Model {
+  constructor( meshData ) {
+    this.mesh = meshData;
+  }
+
+  /**
+  @brief Prepare the mesh for rendering
+  */
+  prepareToRender() {
+
+  }
+}
+
 let instance;  // instance for the singleton
+
+class TestShader extends Shader {
+  constructor() {
+    let vs = ShaderLib.point.vertexShader;
+    let fs = ShaderLib.point.fragmentShader;
+    super( vs, fs, true );
+
+    // shader uses custom uniforms, this i sthe time to get its location for future use
+    this.uniformLoc.uPointSize = gl.getUniformLocation( this._program, "uPointSize" );
+    this.uniformLoc.uAngle = gl.getUniformLocation( this._program, "uAngle" );
+
+    this.deactivate();
+  }
+
+  set( size, angle ) {
+    gl.uniform1f( this.uniformLoc.uPointSize, size );
+    gl.uniform1f( this.uniformLoc.uAngle, angle );
+    return this;
+  }
+}
 
 class EngineSingleton {
 
@@ -226,6 +371,7 @@ class EngineSingleton {
     this.angle = 0;
     this.angleStep = ( Math.PI / 180.0 ) * 90;
     this.uAngle = -1;
+    this.model;
   }
 
   initialize( canvasID ) {
@@ -234,24 +380,16 @@ class EngineSingleton {
     GLUtil.setSize( 500, 500 );
     GLUtil.clear( );
 
-    this.shader = new Shader( 'point', ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
-    gl.useProgram( this.shader._program );
-    let aPositionLoc = this.shader.getAttributeLocation( "a_position" );
-    gl.useProgram( null );
-    var aryVerts = new Float32Array([ 0, 0, 0, 0.5, 0.5, 0 ] );
-    var bufVerts = GLUtil.createArrayBuffer( aryVerts );
+    // setup shader
+    this.shader = new TestShader();
 
-    // Set up for drawing
-    gl.useProgram( this.shader._program );
+    // setup mesh
+    let mesh = Geometry.createMesh( "dots", [0, 0, 0] );
+    mesh.mode = gl.POINTS;
 
+    this.model = new Model( mesh );
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufVerts );
-    gl.enableVertexAttribArray( aPositionLoc );
-    gl.vertexAttribPointer( aPositionLoc, 3, gl.FLOAT, false, 0, 0 );
-    gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-    this.fpsLimit = 1000 / 60; // calculate how many milliseconds per frame in one second of time
-
+    // start the loop
     this.loop();
   }
 
@@ -270,15 +408,11 @@ class EngineSingleton {
   }
 
   render( delta ) {
-    this.pointSize += this.pointSizeStep * delta;
-    let size = ( Math.sin( this.pointSize ) * 10.0 ) + 30.0;
-
-    this.angle += this.angleStep * delta;
-    gl.uniform1f( this.shader.getUniformLocation( "uAngle" ), this.angle );
-
-    gl.uniform1f( this.shader.getUniformLocation( "uPointSize"), size );
     GLUtil.clear();
-    gl.drawArrays( gl.POINTS, 0, 2 );
+    this.shader.activate().set(
+      (Math.sin( ( this.pointSize += this.pointSizeStep * delta ) ) * 10.0 ) + 30.0,
+      ( this.angle += this.angleStep * delta )
+    ).renderModel( this.model ); 
   }
 
   shutdown( ) {

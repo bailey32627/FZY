@@ -2,8 +2,30 @@ import { gl } from './gl/GLUtil.js';
 import { GLUtil } from './gl/GLUtil.js';
 import { Shader } from './gl/Shader.js';
 import { ShaderLib } from './gl/ShaderLib.js';
+import { Geometry } from './graphics/Geometry.js';
+import { Model } from './graphics/Model.js';
 
 let instance;  // instance for the singleton
+
+class TestShader extends Shader {
+  constructor() {
+    let vs = ShaderLib.point.vertexShader;
+    let fs = ShaderLib.point.fragmentShader;
+    super( vs, fs, true );
+
+    // shader uses custom uniforms, this i sthe time to get its location for future use
+    this.uniformLoc.uPointSize = gl.getUniformLocation( this._program, "uPointSize" );
+    this.uniformLoc.uAngle = gl.getUniformLocation( this._program, "uAngle" );
+
+    this.deactivate();
+  }
+
+  set( size, angle ) {
+    gl.uniform1f( this.uniformLoc.uPointSize, size );
+    gl.uniform1f( this.uniformLoc.uAngle, angle );
+    return this;
+  }
+}
 
 class EngineSingleton {
 
@@ -20,6 +42,7 @@ class EngineSingleton {
     this.angle = 0;
     this.angleStep = ( Math.PI / 180.0 ) * 90;
     this.uAngle = -1;
+    this.model;
   }
 
   initialize( canvasID ) {
@@ -28,24 +51,16 @@ class EngineSingleton {
     GLUtil.setSize( 500, 500 );
     GLUtil.clear( );
 
-    this.shader = new Shader( 'point', ShaderLib.point.vertexShader, ShaderLib.point.fragmentShader, true );
-    gl.useProgram( this.shader._program );
-    let aPositionLoc = this.shader.getAttributeLocation( "a_position" );
-    gl.useProgram( null );
-    var aryVerts = new Float32Array([ 0, 0, 0, 0.5, 0.5, 0 ] );
-    var bufVerts = GLUtil.createArrayBuffer( aryVerts );
+    // setup shader
+    this.shader = new TestShader();
 
-    // Set up for drawing
-    gl.useProgram( this.shader._program );
+    // setup mesh
+    let mesh = Geometry.createMesh( "dots", [0, 0, 0] );
+    mesh.mode = gl.POINTS;
 
+    this.model = new Model( mesh );
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufVerts );
-    gl.enableVertexAttribArray( aPositionLoc );
-    gl.vertexAttribPointer( aPositionLoc, 3, gl.FLOAT, false, 0, 0 );
-    gl.bindBuffer( gl.ARRAY_BUFFER, null );
-
-    this.fpsLimit = 1000 / 60; // calculate how many milliseconds per frame in one second of time
-
+    // start the loop
     this.loop();
   }
 
@@ -64,15 +79,11 @@ class EngineSingleton {
   }
 
   render( delta ) {
-    this.pointSize += this.pointSizeStep * delta;
-    let size = ( Math.sin( this.pointSize ) * 10.0 ) + 30.0;
-
-    this.angle += this.angleStep * delta;
-    gl.uniform1f( this.shader.getUniformLocation( "uAngle" ), this.angle );
-
-    gl.uniform1f( this.shader.getUniformLocation( "uPointSize"), size );
     GLUtil.clear();
-    gl.drawArrays( gl.POINTS, 0, 2 );
+    this.shader.activate().set(
+      (Math.sin( ( this.pointSize += this.pointSizeStep * delta ) ) * 10.0 ) + 30.0,
+      ( this.angle += this.angleStep * delta )
+    ).renderModel( this.model ); 
   }
 
   shutdown( ) {
