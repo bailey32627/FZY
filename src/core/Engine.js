@@ -34,9 +34,15 @@ class EngineSingleton {
       throw new Error( "Cannot create another instance of singleton Engine" );
     }
     instance = this;
-    this.frameNumber = 0;
-    this.previousTime = 0;
 
+    this.fps = 60;
+    this.fpsInterval = 1000.0 / this.fps;
+    this.then;
+    this.now;
+    this.startTime;
+    this.elaspedTime;
+
+    // remove
     this.pointSize = 0;
     this.pointSizeStep = 3;
     this.angle = 0;
@@ -48,7 +54,7 @@ class EngineSingleton {
   initialize( canvasID ) {
     // initialize GLUtils
     GLUtil.initialize( canvasID );
-    GLUtil.setSize( 500, 500 );
+    GLUtil.setSize( 500, 700 );
     GLUtil.clear( );
 
     // setup shader
@@ -60,19 +66,32 @@ class EngineSingleton {
 
     this.model = new Model( mesh );
 
-    // start the loop
-    this.loop();
+    this.startAnimating( );
   }
 
-  loop( ) {
-    let current = performance.now();
-    let delta = current - this.previousTime;
+  startAnimating( ) {
+    this.then = Date.now();
+    this.startTime = this.then;
+    this.animate();
+  }
 
-    this.update( delta );
-    this.render( delta );
+  animate( ) {
+    // request another animation frame
+    requestAnimationFrame( this.animate.bind( this ) );
+    // calculate elaspedTime
+    this.now = Date.now();
+    this.elaspedTime = this.now - this.then;
+    // if enough time has elasped, draw the next frame
+    if( this.elaspedTime > this.fpsInterval ) {
+      // get ready for next frame by setting then=now, but also adjust for your specified fpsInterval not being a
+      // multiple of RAF's interval ( 16.7ms )
+      this.then = this.now - ( this.elaspedTime % this.fpsInterval );
 
-    this.previousTime = performance.now();
-    requestAnimationFrame( this.loop.bind( this ) );
+      // drawing code here
+      this.update( this.elapsedTime );
+      this.render( this.elaspedTime );
+    }
+
   }
 
   update( delta ) {
@@ -83,7 +102,7 @@ class EngineSingleton {
     this.shader.activate().set(
       (Math.sin( ( this.pointSize += this.pointSizeStep * delta ) ) * 10.0 ) + 30.0,
       ( this.angle += this.angleStep * delta )
-    ).renderModel( this.model ); 
+    ).renderModel( this.model );
   }
 
   shutdown( ) {
