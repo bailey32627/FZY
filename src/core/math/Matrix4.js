@@ -1,5 +1,5 @@
 import { Vector3 } from './Vector3.js';
-import { Vector4 } from './Vector4.js';
+import { Quaternion } from './Quaternion.js';
 
 /**
   @brief Represents a 4x4 matrix
@@ -8,433 +8,311 @@ import { Vector4 } from './Vector4.js';
       example Column major model_view_projection matrix = projection * view * model;
       example Row major model_view_projection = model * view * projection;
 */
-class Matrix4 {
-  /**
-    @brief Creates a new instance of a Matrix4
-  */
-  constructor( xx = 1, xy = 0, xz = 0, xw = 0,
-               yx = 0, yy = 1, yz = 0, yw = 0,
-               zx = 0, zy = 0, zz = 1, zw = 0,
-               wx = 0, wy = 0, wz = 0, ww = 1 ) {
-    this.xx = xx;
-    this.xy = xy;
-    this.xz = xz;
-    this.xw = xw;
-    this.yx = yx;
-    this.yy = yy;
-    this.yz = yz;
-    this.yw = yw;
-    this.zx = zx;
-    this.zy = zy;
-    this.zz = zz;
-    this.zw = zw;
-    this.wx = wx;
-    this.wy = wy;
-    this.wz = wz;
-    this.ww = ww;
+class Matrix4 extends Float32Array {
+  constructor( ) {
+    super(16);
+    this[0] = this[5] = this[10] = this[15] = 1;
+    this[1] = this[2] = this[3] = this[4] = this[6] = this[7] = this[8] = this[9] = this[11] = this[12] = this[13] = this[14] = 0;
   }
 
+  // Setters and Getters ----------------------------------------
+
+  copy( m ) {
+    for( let i = 0; i < 16; i++ ) { this[i] = m[i]; }
+    return this;
+  }
+
+  clone( ) {
+    let a = new Matrix4();
+    a.copy( this );
+    return a;
+  }
+  // Methods ----------------------------------------------------
+
   /**
-    @brief Sets this to the identity matrix
+  @brief Set this matrix to the identity matrix
   */
   identity( ) {
-    this.xx = 1.0;
-    this.xy = 0.0;
-    this.xz = 0.0;
-    this.xw = 0.0;
-    this.yx = 0.0;
-    this.yy = 1.0;
-    this.yz = 0.0;
-    this.yw = 0.0;
-    this.zx = 0.0;
-    this.zy = 0.0;
-    this.zz = 1.0;
-    this.zw = 0.0;
-    this.wx = 0.0;
-    this.wy = 0.0;
-    this.wz = 0.0;
-    this.ww = 1.0;
+    this[0] = this[5] = this[10] = this[15] = 1;
+    this[1] = this[2] = this[3] = this[4] = this[6] = this[7] = this[8] = this[9] = this[11] = this[12] = this[13] = this[14] = 0;
+    return this;
   }
 
   /**
-    @brief Sets this matrix to be filled with zeros
+  @brief Transposes this matrix4
+  @param out Optional Matrix to set the value of
   */
-  zero( ) {
-    this.xx = 0.0;
-    this.xy = 0.0;
-    this.xz = 0.0;
-    this.xw = 0.0;
-    this.yx = 0.0;
-    this.yy = 0.0;
-    this.yz = 0.0;
-    this.yw = 0.0;
-    this.zx = 0.0;
-    this.zy = 0.0;
-    this.zz = 0.0;
-    this.zw = 0.0;
-    this.wx = 0.0;
-    this.wy = 0.0;
-    this.wz = 0.0;
-    this.ww = 0.0;
+  transpose( out = null ) {
+    out = out || this;
+    let xx = this[0], xy = this[1], xz = this[2], xw = this[3],
+        yx = this[4], yy = this[5], yz = this[6], yw = this[7],
+        zx = this[8], zy = this[9], zz = this[10], zw = this[11],
+        wx = this[12], wy = this[13], wz = this[14], ww = this[15];
+
+    out[0] = xx;
+    out[1] = yx;
+    out[2] = zx;
+    out[3] = wx;
+    out[4] = xy;
+    out[5] = yy;
+    out[6] = zy;
+    out[7] = wy;
+    out[8] = xz;
+    out[9] = yz;
+    out[10]= zz;
+    out[11]= wz;
+    out[12]= xw;
+    out[13]= yw;
+    out[14]= zw;
+    out[15]= zz;
+    return out;
   }
 
   /**
-    @brief Creates a clone of this matrix
+  @brief Multiply the this matrix and m, set out to the result
+  @param m Matrix4
+  @param out Matrix4 to set the value to, optional
   */
-  clone( ) {
-    return new this.constructor( this.xx, this.xy, this.xz, this.xw,
-                                 this.yx, this.yy, this.yz, this.yw,
-                                 this.zx, this.zy, this.zx, this.zw,
-                                 this.wx, this.wy, this.wz, this.ww );
+  multiply( m, out = null ) {
+    out = out || this;
+    let xx = this[0], xy = this[1], xz = this[2], xw = this[3],
+        yx = this[4], yy = this[5], yz = this[6], yw = this[7],
+        zx = this[8], zy = this[9], zz = this[10], zw = this[11],
+        wx = this[12], wy = this[13], wz = this[14], ww = this[15];
+
+    out[0] = xx * m[0] + xy * m[4] + xz * m[8 ] + xw * m[12];
+    out[1] = xx * m[1] + xy * m[5] + xz * m[9 ] + xw * m[13];
+    out[2] = xx * m[2] + xy * m[6] + xz * m[10] + xw * m[14];
+    out[3] = xx * m[3] + xy * m[7] + xz * m[11] + xw * m[15];
+
+    out[4] = yx * m[0] + yy * m[4] + yz * m[8 ] + yw * m[12];
+    out[5] = yx * m[1] + yy * m[5] + yz * m[9 ] + yw * m[13];
+    out[6] = yx * m[2] + yy * m[6] + yz * m[10] + yw * m[14];
+    out[7] = yx * m[3] + yy * m[7] + yz * m[11] + yw * m[15];
+
+    out[8] = zx * m[0] + zy * m[4] + zz * m[8 ] + zw * m[12];
+    out[9] = zx * m[1] + zy * m[5] + zz * m[9 ] + zw * m[13];
+    out[10]= zx * m[2] + zy * m[6] + zz * m[10] + zw * m[14];
+    out[11]= zx * m[3] + zy * m[7] + zz * m[11] + zw * m[15];
+
+    out[12]= wx * m[0] + wy * m[4] + wz * m[8 ] + ww * m[12];
+    out[13]= wx * m[1] + wy * m[5] + wz * m[9 ] + ww * m[13];
+    out[14]= wx * m[2] + wy * m[6] + wz * m[10] + ww * m[14];
+    out[15]= wx * m[3] + wy * m[7] + wz * m[11] + ww * m[15];
+    return out;
   }
 
   /**
-    @brief Multiplies this matrix by the given matrix and sets this to the product
-    @param m Matrix4
+  @brief Set this matrix to be an orthographic projection
+  @param left The left value to use
+  @param right The right value
+  @param bottom The bottom value
+  @param top The top value
+  @param near he near value
+  @param far The far value
   */
-  multiply( m ) {
-    let xx = this.xx * m.xx + this.xy * m.yx + this.xz * m.zx + this.xw * m.wx;
-    let xy = this.xx * m.xy + this.xy * m.yy + this.xz * m.zy + this.xw * m.wy;
-    let xz = this.xx * m.xz + this.xy * m.yz + this.xz * m.zz + this.xw * m.wz;
-    let xw = this.xx * m.xw + this.xy * m.yw + this.xz * m.zw + this.xw * m.ww;
-
-    let yx = this.yx * m.xx + this.yy * m.yx + this.yz * m.zx + this.yw * m.wx;
-    let yy = this.yx * m.xy + this.yy * m.yy + this.yz * m.zy + this.yw * m.wy;
-    let yz = this.yx * m.xz + this.yy * m.yz + this.yz * m.zz + this.yw * m.wz;
-    let yw = this.yx * m.xw + this.yy * m.yw + this.yz * m.zw + this.yw * m.ww;
-
-    let zx = this.zx * m.xx + this.zy * m.yx + this.zz * m.zx + this.zw * m.wx;
-    let zy = this.zx * m.xy + this.zy * m.yy + this.zz * m.zy + this.zw * m.wy;
-    let zz = this.zx * m.xz + this.zy * m.yz + this.zz * m.zz + this.zw * m.wz;
-    let zw = this.zx * m.xw + this.zy * m.yw + this.zz * m.zw + this.zw * m.ww;
-
-    let wx = this.wx * m.xx + this.wy * m.yx + this.wz * m.zx + this.ww * m.wx;
-    let wy = this.wx * m.xy + this.wy * m.yy + this.wz * m.zy + this.ww * m.wy;
-    let wz = this.wx * m.xz + this.wy * m.yz + this.wz * m.zz + this.ww * m.wz;
-    let ww = this.wx * m.xw + this.wy * m.yw + this.wz * m.zw + this.ww * m.ww;
-
-    this.xx = xx;
-    this.xy = xy;
-    this.xz = xz;
-    this.xw = xw;
-    this.yx = yx;
-    this.yy = yy;
-    this.yz = yz;
-    this.yw = yw;
-    this.zx = zx;
-    this.zy = zy;
-    this.zz = zz;
-    this.zw = zw;
-    this.wx = wx;
-    this.wy = wy;
-    this.wz = wz;
-    this.ww = ww;
-  }
-
-  /**
-  @brief Sets this to the product of the two provided matrices
-  @param a Matrix4
-  @param b Matrix4
-  */
-  multiplyMatrices( a, b ) {
-    this.xx = a.xx * b.xx + a.xy * b.yx + a.xz * b.zx + a.xw * b.wx;
-    this.xy = a.xx * b.xy + a.xy * b.yy + a.xz * b.zy + a.xw * b.wy;
-    this.xz = a.xx * b.xz + a.xy * b.yz + a.xz * b.zz + a.xw * b.wz;
-    this.xw = a.xx * b.xw + a.xy * b.yw + a.xz * b.zw + a.xw * b.ww;
-
-    this.yx = a.yx * b.xx + a.yy * b.yx + a.yz * b.zx + a.yw * b.wx;
-    this.yy = a.yx * b.xy + a.yy * b.yy + a.yz * b.zy + a.yw * b.wy;
-    this.yz = a.yx * b.xz + a.yy * b.yz + a.yz * b.zz + a.yw * b.wz;
-    this.yw = a.yx * b.xw + a.yy * b.yw + a.yz * b.zw + a.yw * b.ww;
-
-    this.zx = a.zx * b.xx + a.zy * b.yx + a.zz * b.zx + a.zw * b.wx;
-    this.zy = a.zx * b.xy + a.zy * b.yy + a.zz * b.zy + a.zw * b.wy;
-    this.zz = a.zx * b.xz + a.zy * b.yz + a.zz * b.zz + a.zw * b.wz;
-    this.zw = a.zx * b.xw + a.zy * b.yw + a.zz * b.zw + a.zw * b.ww;
-
-    this.wx = a.wx * b.xx + a.wy * b.yx + a.wz * b.zx + a.ww * b.wx;
-    this.wy = a.wx * b.xy + a.wy * b.yy + a.wz * b.zy + a.ww * b.wy;
-    this.wz = a.wx * b.xz + a.wy * b.yz + a.wz * b.zz + a.ww * b.wz;
-    this.ww = a.wx * b.xw + a.wy * b.yw + a.wz * b.zw + a.ww * b.ww;
-  }
-
-  /**
-    @brief Creates a ortographics projection matrix
-    @param left Float
-    @param right Float
-    @param bottom Float
-    @param top Float
-    @param near_clip Float
-    @param far_clip Float
-  */
-  orthographicView( left, right, bottom, top, near_clip, far_clip ) {
-    let a = 2.0 / ( right - left );
-    let b = 2.0 / ( top - bottom );
-    let c = -2.0 / ( far_clip - near_clip );
-    let tx = -( right + left ) / ( right - left );
-    let ty = -( top + bottom ) / ( top - bottom );
-    let tz = -( far_clip + near_clip ) / ( far_clip - near_clip );
+  setOrthographic( left, right, bottom, top, near, far ) {
+    let a = 2.0 / ( right - left ),
+        b = 2.0 / ( top - bottom ),
+        c =-2.0 / ( far - near ),
+        tx = -( right + left ) / ( right - left ),
+        ty = -( top + bottom ) / ( top - bottom ),
+        tz = -( far + near ) / ( far - near );
 
     this.identity();
-    this.xx = a;
-    this.yy = b;
-    this.zz = c;
-    this.wx = tx;
-    this.wy = ty;
-    this.wz = tz;
-    this.ww = 1.0;
+    this[0] = a;
+    this[5] = b;
+    this[10] = c;
+    this[12] = tx;
+    this[13] = ty;
+    this[14] = tz;
+    this[15] = 1;
+    return this;
   }
 
   /**
-   @brief Craetes a perspective view matrix
-   @param fov_radians Float, field of view y, in radians
-   @param aspect_ratio Float, aspect ratio of the canvas
-   @param near_clip Float, distance to the near clip plane
-   @param far_clip Float, distance to the far clip plane
-   */
-   perspectiveView( fov_radians, aspect_ratio, near_clip, far_clip ) {
-     let htf = Math.tan( fov_radians * 0.5 );
-     this.identity();
-     this.xx = 1.0 / ( aspect_ratio * htf );
-     this.yy = 1.0 / htf;
-     this.zz = -(( far_clip + near_clip ) / ( far_clip - near_clip ) );
-     this.zw = -1.0;
-     this.wz = -(( 2.0 * far_clip * near_clip ) / ( far_clip - near_clip ) );
-   }
-
-   /**
-    @brief Creates a view matrix that is at position and view the direction of target
-    @param position The position of the camera
-    @param target The target to look at
-    @param up The up axis
+  @brief Sets this to be a perspective view matrix
+  @param fovRadians y field of view in radians
+  @param aspect The aspect ratio
+  @param near distance to the near clip plane
+  @param far distance to the far clip plane
   */
-  lookAt( position, target, up ) {
-    let z = new Vector3( target.x - position.x, target.y - position.y, target.z - position.z );
-    let x = new Vector3();
-    x.crossVectors( z, up ).normalize();
-    let y = new Vector3();
-    y.crossVectors( x, z );
-    this.xx = x.x;
-    this.xy = y.x;
-    this.xz = z.x;
-    this.xw = 0;
-    this.yx = x.y;
-    this.yy = y.y;
-    this.zy = z.y;
-    this.yw = 0;
-    this.zx = x.z;
-    this.zy = y.z;
-    this.zz = z.z;
-    this.zw = 0;
-    this.wx = -x.dot( position );
-    this.wy = -y.dot( position );
-    this.wz = -z.dot( position );
-    this.ww = 1.0;
-  }
-
-  /**
-    @brief Makes a transposed copy of the given matrix4
-    @param m Matrix4
-  */
-  transpose( m ) {
-    this.xx = m.xx;
-    this.xy = m.yx;
-    this.xz = m.zx;
-    this.xw = m.wx;
-
-    this.yx = m.xy;
-    this.yy = m.yy;
-    this.yz = m.zy;
-    this.yw = m.wy;
-
-    this.zx = m.xz;
-    this.zy = m.yz;
-    this.zz = m.zz;
-    this.zw = m.wz;
-
-    this.wx = m.xw;
-    this.wy = m.yw;
-    this.wz = m.zw;
-    this.ww = m.ww;
-  }
-
-  /**
-    @brief Make this matrix the inverse of the given matrix4
-    @param m Matrix4
-  */
-  inverse( m ) {
-    let t0 = m.zz * m.ww;
-    let t1 = m.wz * m.zw;
-    let t2 = m.yz * m.ww;
-    let t3 = m.wz * m.yw;
-    let t4 = m.yz * m.zw;
-    let t5 = m.zz * m.yw;
-    let t6 = m.xz * m.ww;
-    let t7 = m.wz * m.xw;
-    let t8 = m.xz * m.zw;
-    let t9 = m.zz * m.xw;
-    let t10 = m.xz * m.yw;
-    let t11 = m.yz * m.xw;
-    let t12 = m.zx * m.wy;
-    let t13 = m.wx * m.zy;
-    let t14 = m.yx * m.wy;
-    let t15 = m.wx * m.yy;
-    let t16 = m.yx * m.zy;
-    let t17 = m.zx * m.yy;
-    let t18 = m.xx * m.wy;
-    let t19 = m.wx * m.xy;
-    let t20 = m.xx * m.zy;
-    let t21 = m.zx * m.xy;
-    let t22 = m.xx * m.yy;
-    let t23 = m.yx * m.xy;
-
-    this.xx = (t0 * m.yy + t3 * m.zy + t4 * m.wy) - (t1 * m.yy + t2 * m.zy + t5 * m.wy);
-    this.xy = (t1 * m.xy + t6 * m.zy + t9 * m.wy) - (t0 * m.xy + t7 * m.zy + t8 * m.wy);
-    this.xz = (t2 * m.xy + t7 * m.yy + t10 * m.wy) - (t3 * m.xy + t6 * m.yy + t11 * m.wy);
-    this.xw = (t5 * m.xy + t8 * m.yy + t11 * m.zy) - (t4 * m.xy + t9 * m.yy + t10 * m.zy);
-
-    let d = 1.0 / (m.xx * this.xx + m.yx * this.xy + m.zx * this.xz + m.wx * this.xw );
-
-    this.xx *= d;
-    this.xy *= d;
-    this.xz *= d;
-    this.xw *= d;
-    this.yx = d * ((t1 * m.yx + t2 * m.zx + t5 * m.wx) - (t0 * m.yx + t3 * m.zx + t4 * m.wx));
-    this.yy = d * ((t0 * m.xx + t7 * m.zx + t8 * m.wx) - (t1 * m.xx + t6 * m.zx + t9 * m.wx));
-    this.yz = d * ((t3 * m.xx + t6 * m.yx + t11 * m.wx) - (t2 * m.xx + t7 * m.yx + t10 * m.wx));
-    this.yw = d * ((t4 * m.xx + t9 * m.yx + t10 * m.zx) - (t5 * m.xx + t8 * m.yx + t11 * m.zx));
-    this.zx = d * ((t12 * m.yw + t15 * m.zw + t16 * m.ww) - (t13 * m.yw + t14 * m.zw + t17 * m.ww));
-    this.zy = d * ((t13 * m.xw + t18 * m.zw + t21 * m.ww) - (t12 * m.xw + t19 * m.zw + t20 * m.ww));
-    this.zz = d * ((t14 * m.xw + t19 * m.yw + t22 * m.ww) - (t15 * m.xw + t18 * m.yw + t23 * m.ww));
-    this.zw = d * ((t17 * m.xw + t20 * m.yw + t23 * m.zw) - (t16 * m.xw + t21 * m.yw + t22 * m.zw));
-    this.wx = d * ((t14 * m.zz + t17 * m.wz + t13 * m.yz) - (t16 * m.wz + t12 * m.yz + t15 * m.zz));
-    this.wy = d * ((t20 * m.wz + t12 * m.xz + t19 * m.zz) - (t18 * m.zz + t21 * m.wz + t13 * m.xz));
-    this.wz = d * ((t18 * m.yz + t23 * m.wz + t15 * m.xz) - (t22 * m.wz + t14 * m.xz + t19 * m.yz));
-    this.ww = d * ((t22 * m.zz + t16 * m.xz + t21 * m.yz) - (t20 * m.yz + t23 * m.zz + t17 * m.xz));
-  }
-
-  /**
-    @brief Makes this matrix a translation matrix
-    @param position Vector3, the position to translate to
-  */
-  toTranslation( position ) {
+  setPerspective( fovRadians, aspect, near, far ) {
+    let htf = Math.tan( fovRadians * 0.5 );
     this.identity();
-    this.wx = position.x;
-    this.wy = position.y;
-    this.wz = position.z;
+    this[0] = 1.0 / ( aspect * htf );
+    this[5] = 1.0 / ftf;
+    this[10] = -(( far + near ) / ( far - near ) );
+    this[11] = -1.0;
+    this[14] = -(( 2.0 * far * near ) / ( far - near ) );
+    this[15] = 0;
+    return this;
   }
 
   /**
-   @brief Rotate the given vector3 by this matrix
-   @param v The vector3 to rotate
+  @brief set out to the inverse of this matrix
+  @param out Optional Matrix4 to set the value of
   */
-  rotateVector3( v ) {
-    let r = new Vector3();
-    r.x = v.x * this.xx + v.y * this.yx + v.z * this.zx;
-    r.y = v.x * this.xy + v.y * this.yy + v.z * this.zy;
-    r.z = v.x * this.xz + v.y * this.yz + v.z * this.zz;
+  inverse( out = null ) {
+    out = out || this;
+    let xx = this[0], xy = this[1], xz = this[2], xw = this[3],
+        yx = this[4], yy = this[5], yz = this[6], yw = this[7],
+        zx = this[8], zy = this[9], zz = this[10], zw = this[11],
+        wx = this[12], wy = this[13], wz = this[14], ww = this[15];
+
+  let t0 = this[10] * this[15],
+      t1 = this[14] * this[11],
+      t2 = this[6 ] * this[15],
+      t3 = this[14] * this[7],
+      t4 = this[6 ] * this[11],
+      t5 = this[10] * this[7],
+      t6 = this[2 ] * this[15],
+      t7 = this[14] * this[3],
+      t8 = this[2 ] * this[11],
+      t9 = this[10] * this[3],
+      t10= this[2 ] * this[7],
+      t11= this[6 ] * this[3],
+      t12= this[8 ] * this[13],
+      t13= this[12] * this[9],
+      t14= this[4 ] * this[13],
+      t15= this[12] * this[5],
+      t16= this[4 ] * this[9],
+      t17= this[8 ] * this[5],
+      t18= this[0 ] * this[13],
+      t19= this[12] * this[1],
+      t20= this[0 ] * this[9],
+      t21= this[8 ] * this[1],
+      t22= this[0 ] * this[5],
+      t23= this[4 ] * this[1],
+      d;
+
+    d = 1.0 / (xx * (t0 * yy + t3 * zy + t4 * wy) - (t1 * yy + t2 * zy + t5 * wy) +
+               yx * (t1 * xy + t6 * zy + t9 * wy) - (t0 * xy + t7 * zy + t8 * wy) +
+               zx * (t2 * xy + t7 * yy + t10 * wy) - (t3 * xy + t6 * yy + t11 * wy) +
+               wx * (t5 * xy + t8 * yy + t11 * zy) - (t4 * xy + t9 * yy + t10 * zy) );
+
+    out[0] = d * ((t0 * yy + t3 * zy + t4 * wy) - (t1 * yy + t2 * zy + t5 * wy));
+    out[1] = d * ((t1 * xy + t6 * zy + t9 * wy) - (t0 * xy + t7 * zy + t8 * wy));
+    out[2] = d * ((t2 * xy + t7 * yy + t10 * wy) - (t3 * xy + t6 * yy + t11 * wy));
+    out[3] = d * ((t5 * xy + t8 * yy + t11 * zy) - (t4 * xy + t9 * yy + t10 * zy));
+    out[4] = d * ((t1 * yx + t2 * zx + t5 * wx) - (t0 * yx + t3 * zx + t4 * wx ));
+    out[5] = d * ((t0 * xx + t7 * zx + t8 * wx) - (t1 * xx + t6 * zx + t9 * wx ));
+    out[6] = d * ((t3 * xx + t6 * yx + t11 * wx) - (t2 * xx + t7 * yx + t10 * wx));
+    out[7] = d * ((t4 * xx + t9 * yx + t10 * zx) - (t5 * xx + t8 * yx + t11 * zx));
+    out[8] = d * ((t12 * yw + t15 * zw + t16 * ww) - (t13 * yw + t14 * zw + t17 * ww));
+    out[9] = d * ((t13 * xw + t18 * zw + t21 * ww) - (t12 * xw + t19 * zw + t20 * ww));
+    out[10] = d * ((t14 * xw + t19 * yw + t22 * ww) - (t15 * xw + t18 * yw + t23 * ww));
+    out[11] = d * ((t17 * xw + t20 * yw + t23 * zw) - (t16 * xw + t21 * yw + t22 * zw));
+    out[12] = d * ((t14 * zz + t17 * wz + t13 * yz) - (t16 * wz + t12 * yz + t15 * zz));
+    out[13] = d * ((t20 * wz + t12 * xz + t19 * zz) - (t18 * zz + t21 * wz + t13 * xz));
+    out[14] = d * ((t18 * yz + t23 * wz + t15 * xz) - (t22 * wz + t14 * xz + t19 * yz));
+    out[15] = d * ((t22 * zz + t16 * xz + t21 * yz) - (t20 * yz + t23 * zz + t17 * xz));
+
+    return out;
   }
 
   /**
-    @brief Sets the scale of this matrix
-    @param s Vector3
+  @brief translates this matrix
+  @param position Vector3
+  @param out Optional Matrix4 to set the value of
   */
-  scale( s ) {
-    this.xx = s.x;
-    this.yy = s.y;
-    this.zz = s.z;
+  translation( v, out = null ) {
+    out = out || this;
+    out[ 12 ] = position[ 0 ];
+    out[ 13 ] = position[ 1 ];
+    out[ 14 ] = position[ 2 ];
+    return out;
   }
 
   /**
-   @brief Makes this matrix a transform matrix from the given position, orientation, and scale
-   @param position vector3
-   @param scale Vector3
-   @param rotation Vector3
+  @brief rotate the given vector3
+  @param vec
+  @return Vector3
   */
-  toTransform( position, scale, rotation ){
-    let x = new Quaternion( 1, 0, 0, rotation.x );
-    let y = new Quaternion( 0, 1, 0, rotation.y );
-    let z = new Quaternion( 0, 0, 1, rotation.z );
-    let n = new Quaternion();
-    n.multiplyVector4s( z, y );
-    n.multiply( x );
-    n.normalize();
+  rotateVector3( vec ) {
+    let v = new Vector3();
+    v[0] = vec[0] * this[0] + vec[1] * this[4] + vec[2] * this[8];
+    v[1] = vec[0] * this[1] + vec[1] * this[5] + vec[2] * this[9];
+    v[2] = vec[0] * this[2] + vec[1] * this[6] + vec[2] * this[10];
 
-    this.xx = ( 1.0 - 2.0 * n.y * n.y - 2.0 * n.z * n.z ) * scale.x;
-    this.xy = ( 2.0 * n.x * n.y - 2.0 * n.z * n.w ) * scale.x;
-    this.xz = ( 2.0 * n.x * n.z + 2.0 * n.y * n.w ) * scale.x;
-
-    this.yx = ( 2.0 * n.x * n.y + 2.0 * n.z * n.w ) * scale.y;
-    this.yy = ( 1.0 - 2.0 * n.x * n.x - 2.0 * n.z * n.z ) * scale.y;
-    this.yz = ( 2.0 * n.y * n.z - 2.0 * n.x * n.w ) * scale.y;
-
-    this.zx = ( 2.0 * n.x * n.z - 2.0 * n.y * n.w ) * scale.z;
-    this.zy = ( 2.0 * n.y * n.z + 2.0 * n.x * n.w ) * scale.z;
-    this.zz = ( 1.0 - 2.0 * n.x * n.x - 2.0 * n.y * n.y ) * scale.z;
-
-    this.wx = position.x;
-    this.wy = position.y;
-    this.wz = position.z;
-    this.ww = 1.0;
+    return v;
   }
 
   /**
-    @brief Converts a rotation quaternion to a matrix4
-    @param q Rotation Quaternion
+  @brief Scales this matrix
+  @param scale Vector3
+  @param out optional Matrix4 to set
   */
-  fromVector4( q ){
-    let n = q.clone();
-    n.normalize();
-    out.xx = 1.0 - 2.0 * n.y * n.y - 2.0 * n.z * n.z;
-    out.xy = 2.0 * n.x * n.y - 2.0 * n.z * n.w;
-    out.xz = 2.0 * n.x * n.z + 2.0 * n.y * n.w;
-
-    out.yx = 2.0 * n.x * n.y + 2.0 * n.z * n.w;
-    out.yy = 1.0 - 2.0 * n.x * n.x - 2.0 * n.z * n.z;
-    out.yz = 2.0 * n.y * n.z - 2.0 * n.x * n.w;
-
-    out.zx = 2.0 * n.x * n.z - 2.0 * n.y * n.w;
-    out.zy = 2.0 * n.y * n.z + 2.0 * n.x * n.w;
-    out.zz = 1.0 - 2.0 * n.x * n.x - 2.0 * n.y * n.y;
+  scale( scale, out = null ) {
+    out = out || this;
+    out[0] = scale[0];
+    out[5] = scale[1];
+    out[10]= scale[2];
+    return out;
   }
 
   /**
-    @brief Transforms the given Vector3 by this matrix
-    @param v Vector3
-    @return Vector3 Transfromed version of v
+  @brief Transform the vector3 by this matrix
+  @param v Vector3
+  @return Vector3
   */
   transformVector3( v ) {
-    return new Vector3( v.x * m.xx + v.y * m.yx + v.z * m.zx + m.wx,
-                        v.x * m.xy + v.y * m.yy + v.z * m.zy + m.wy,
-                        v.x * m.xz + v.y * m.yz + v.z * m.zz + m.wz );
+    let rtn = new Vector3();
+    rtn[0] = v[0] * this[0] + v[1] * this[4] + v[2] * this[8] + this[12];
+    rtn[1] = v[0] * this[1] + v[1] * this[5] + v[2] * this[9] + this[13];
+    rtn[2] = v[0] * this[2] + v[1] * this[6] + v[2] * this[10] + this[14];
+    return rtn;
   }
 
   /**
-    @brief Transforms the given Vector3 by the transpose of this matrix
-    @param v Vector3
-    @return Vector3 Transfromed transposed version of v
+  @brief Transform transpose the vector3 by this matrix
+  @param v Vector3
+  @return Vector3
   */
-  transposeTransformVector3( v ) {
-    let t = v.clone();
-    t.x -= m.wx;
-    t.y -= m.wy;
-    t.z -= m.wz;
+  transformTransposeVector3( v ) {
+    let rtn = new Vector3();
+    let vx = v[0] - this[12], vy = v[1] - this[13], vz = v[2] - this[14];
 
-    return new Vector3( t.x * m.xx + t.y * m.yx + t.z * m.xz,
-                        t.x * m.yx + t.y * m.yy + t.z * m.yz,
-                        t.x * m.zx + t.y * m.zy + t.z * m.zz );
+    rtn[0] = vx * this[0] + vy * this[1] + vz * this[2];
+    rtn[1] = vx * this[4] + vy * this[5] + vz * this[6];
+    rtn[2] = vx * this[8] + vy * this[9] + vz * this[10];
+    return rtn;
   }
 
   /**
-  @brief Returns an array
-  */
-  toArray( ) {
-    let array = [ this.xx, this.xy, this.xz, this.xw,
-                  this.yx, this.yy, this.yz, this.yw,
-                  this.zx, this.zy, this.zz, this.zw,
-                  this.wx, this.wy, this.wz, this.ww ];
-    return array;
+  @brief creates a transfrom
+  @param position Vector3
+  @param scale Vector3
+  @param rotation Vector3
+   */
+  static createTransform( position, scale, rotation ) {
+    let x = Quaternion.fromAxisAngle( [1, 0, 0 ], rotation[0] ),
+        y = Quaternion.fromAxisAngle( [0, 1, 0 ], rotation[1] ),
+        z = Quaternion.fromAxisAngle( [0, 0, 1 ], rotation[2] ),
+        n = new Quaternion( ),
+        rtn = new Matrix4();
+    z.multiply( y, n );
+    n.normalize();
+
+    rtn[0] = ( 1.0 - 2.0 * n.y * n.y - 2.0 * n.z * n.z ) * scale[0];
+    rtn[1] = ( 2.0 * n.x * n.y - 2.0f * n.z * n.w ) * scale[0];
+    rtn[2] = ( 2.0 * n.x * n.z + 2.0f * n.y * n.w ) * scale[0];
+
+    rtn[4] = ( 2.0 * n.x * n.y + 2.0 * n.z * n.w ) * scale[1];
+    rtn[5] = ( 1.0 - 2.0 * n.x * n.x - 2.0 * n.z * n.z ) * scale[1];
+    rtn[6] = ( 2.0 * n.y * n.z - 2.0 * n.x * n.w ) * scale[1];
+
+    rtn[8] = ( 2.0 * n.x * n.z - 2.0 * n.y * n.w ) * scale[2];
+    rtn[9] = ( 2.0 * n.y * n.z + 2.0 * n.x * n.w ) * scale[2];
+    rtn[10] = ( 1.0 - 2.0 * n.x * n.x - 2.0 * n.y * n.y ) * scale[2];
+
+    rtn[12] = position[0];
+    rtn[13] = position[1];
+    rtn[14] = position[2];
+
+    return rtn;
   }
+
 }
 
 export { Matrix4 };

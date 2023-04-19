@@ -1,175 +1,124 @@
-import { Vector3 } from './Vector3.js';
-import { Vector4 } from './Vector4.js'
 
-class Matrix3 {
-  /**
-  * Creates a new Instance of the Matrix3 Class
-  */
-  constructor( xx = 1.0, xy = 0.0, xz = 0.0, yx = 0.0, yy = 1.0, yz = 0.0, zx = 0.0, zy = 0.0, zz = 1.0 ) {
-    this.xx = xx;
-    this.xy = xy;
-    this.xz = xz;
-    this.yx = yx;
-    this.yy = yy;
-    this.yz = yz;
-    this.zx = zx;
-    this.zy = zy;
-    this.zz = zz;
+class Matrix3 extends Float32Array {
+  constructor( ){
+    super( 9 );
+    this[0] = this[4] = this[8] = 1;
   }
 
+  // Setters and Getters --------------------------------------------
+
+  copy( m ) {
+    for ( let i = 0; i < 9; i++ ) { this[i] = m[i]; }
+    return this;
+  }
+
+  clone( ) {
+    let a = new Matrix3();
+    a.copy( this );
+    return a;
+  }
+
+  // Methods --------------------------------------------------------
   /**
-  * Sets this matrix to the identity matrix
+  @brief Sets thiis matrix to the identity matrix
   */
   identity( ) {
-    this.xx = 1.0;
-    this.xy = 0.0;
-    this.xz = 0.0;
-    this.yx = 0.0;
-    this.yy = 1.0;
-    this.yz = 0.0;
-    this.zx = 0.0;
-    this.zy = 0.0;
-    this.zz = 1.0;
+    this[0] = this[4] = this[8] = 1;
+    this[1] = this[2] = this[3] = this[5] = this[6] = this[7] = 0;
   }
 
   /**
-  Returns a copy of this matrix
+  @brief Sets out to the transpose of this matrix
+  @param out Matrix3 to set the values to
   */
-  clone( ) {
-    return new this.constructor( this.xx, this.xy, this.xz,
-                                 this.yx, this.yy, this.yz,
-                                 this.zx, this.zy, this.zz );
+  transpose( out = null ) {
+    out = out || this;
+    let xy = this[1], xz = this[2], yx = this[3], yz = this[5], zx = this[6], zy = this[7];
+    out[0] = this[0];
+    out[1] = yx;
+    out[2] = zx;
+    out[3] = xy;
+    out[4] = this[4];
+    out[5] = zy;
+    out[6] = xz;
+    out[7] = yz;
+    out[8] = this[8];
+    return out;
   }
 
   /**
-  * Sets all elements of the matrix to 0
+  @brief Multiplies this and m
+  @param m Matrix3
+  @param out optional matrix3 to assign value to
   */
-  zero( ){
-    this.xx = 0.0;
-    this.xy = 0.0;
-    this.xz = 0.0;
-    this.yx = 0.0;
-    this.yy = 0.0;
-    this.yz = 0.0;
-    this.zx = 0.0;
-    this.zy = 0.0;
-    this.zz = 0.0;
+  multiply( m, out = null ) {
+    out = out || this;
+    let xx = this[0], xy = this[1], xz = this[2],
+        yx = this[3], yy = this[4], yz = this[5],
+        zx = this[6], zy = this[7], zz = this[8];
+
+    out[0] = xx * q[0] + xy * q[3] + xz * q[6];
+    out[0] = xx * q[1] + xy * q[4] + xz * q[7];
+    out[0] = xx * q[2] + xy * q[5] + xz * q[8];
+
+    out[0] = yx * q[0] + yy * q[3] + yz * q[6];
+    out[0] = yx * q[1] + yy * q[4] + yz * q[7];
+    out[0] = yx * q[2] + yy * q[5] + yz * q[8];
+
+    out[0] = zx * q[0] + zy * q[3] + zz * q[6];
+    out[0] = zx * q[1] + zy * q[4] + zz * q[7];
+    out[0] = zx * q[2] + zy * q[5] + zz * q[8];
+    return out;
   }
 
   /**
-  * Multiplies this matrix and the given matrix, sets this to the result
-  * @param m Matrix3
-  */
-  multiply( m ) {
-    let xx = this.xx * m.xx + this.xy * m.yx + this.xz * m.zx;
-    let xy = this.xx * m.xy + this.xy * m.yy + this.xz * m.zy;
-    let xz = this.xx * m.xz + this.xy * m.yz + this.xz * m.zz;
-    let yx = this.yx * m.xx + this.yy * m.yx + this.yz * m.zx;
-    let yy = this.yx * m.xy + this.yy * m.yy + this.yz * m.zy;
-    let yz = this.yx * m.xz + this.yy * m.yz + this.yz * m.zz;
-    let zx = this.zx * m.xx + this.zy * m.yx + this.zz * m.zx;
-    let zy = this.zx * m.xy + this.zy * m.yy + this.zz * m.zy;
-    let zz = this.zx * m.xz + this.zy * m.yz + this.zz * m.zz;
-
-    this.xx = xx;
-    this.xy = xy;
-    this.xz = xz;
-    this.yx = yx;
-    this.yy = yy;
-    this.yz = yz;
-    this.zx = zx;
-    this.zy = zy;
-    this.zz = zz;
-  }
-
-  /**
-  * Multiplies this to the product of the two matrices
-  * @param a Matrix3
-  * @param b Matrix3
-  */
-  multiplyMatrices( a, b ) {
-    this.xx = a.xx * b.xx + a.xy * b.yx + a.xz * b.zx;
-    this.xy = a.xx * b.xy + a.xy * b.yy + a.xz * b.zy;
-    this.xz = a.xx * b.xz + a.xy * b.yz + a.xz * b.zz;
-    this.yx = a.yx * b.xx + a.yy * b.yx + a.yz * b.zx;
-    this.yy = a.yx * b.xy + a.yy * b.yy + a.yz * b.zy;
-    this.yz = a.yx * b.xz + a.yy * b.yz + a.yz * b.zz;
-    this.zx = a.zx * b.xx + a.zy * b.yx + a.zz * b.zx;
-    this.zy = a.zx * b.xy + a.zy * b.yy + a.zz * b.zy;
-    this.zz = a.zx * b.xz + a.zy * b.yz + a.zz * b.zz;
-  }
-
-  /**
-    Transpose this matrix
-  */
-  transpose( ) {
-    let t = this.xy;
-    this.xy = this.yx;
-    this.yx = t;
-    t = this.xz;
-    this.xz = this.zx;
-    this.zx = t;
-    t = this.yz;
-    this.yz = this.zy;
-    this.zy = t;
-  }
-
-  /**
-  Sets this to be the skew symmetric of the given vector3
+  @brief Sets this as the skew symmetric matrix for the given vector3
   @param v Vector3
   */
-  skewSymmtric( v ) {
-    this.xx = 0;
-    this.xy = -v.z;
-    this.xz = v.y;
-    this.yx = v.z;
-    this.yy = 0;
-    this.yz = -v.x;
-    this.zx = -v.y;
-    this.zy = v.x;
-    this.zz = 0;
+  setSkewSymmetric( v ) {
+    this[0] = 0;
+    this[1] = -v[2];
+    this[2] = v[1];
+    this[3] = v[2];
+    this[4] = 0;
+    this[5] = -v[0];
+    this[6] = -v[1];
+    this[7] = v[0];
+    this[8] = 0;
+    return this;
   }
 
   /**
-  Sets this to the inverse of itself
+  @brief Sets out to the inverse of this matrix
+  @param out Optional matrix3 to set the value of
   */
-  inverse( ) {
-    let det =((this.xx * this.yy * this.zz) - (this.xx * this.yz * this.zy) -
-              (this.xy * this.yx * this.zz) + (this.xz * this.yx * this.zy) +
-              (this.xy * this.zx * this.yz) - (this.xz * this.zx * this.yy));
-    if( det === 0.0 ) {
-      this.zero();
-      return;
+  inverse( out = null ) {
+    out = out || this;
+
+    let xx = this[0], xy = this[1], xz = this[2],
+        yx = this[3], yy = this[4], yz = this[5],
+        zx = this[6], zy = this[7], zz = this[8];
+
+    let det = ((xx * yy * zz) - (xx * yz * zy) -
+               (xy * yx * zz) + (xz * yx * zy) +
+               (xy * zx * yz) - (xz * zx * yy));
+
+    if( det === 0 ) {
+      return this;
     }
+
     det = 1.0 / det;
 
-    let xx = (this.yy * this.zz - this.yz * this.zy) * det;
-    let xy =-(this.xy * this.zz - this.xz * this.zy) * det;
-    let xz = (this.xy * this.yz - this.xz * this.yy) * det;
-    let yx =-(this.yx * this.zz - this.yz * this.zx) * det;
-    let yy = (this.xx * this.zz - this.xz * this.zx) * det;
-    let yz =-(this.xx * this.yz - this.xz * this.yx) * det;
-    let zx = (this.yx * this.zy - this.yy * this.zx) * det;
-    let zy =-(this.xx * this.zy - this.yy * this.zx) * det;
-    let zz = (this.xx * this.yy - this.xy * this.yx) * det;
-
-    this.xx = xx;
-    this.xy = xy;
-    this.xz = xz;
-    this.yx = yx;
-    this.yy = yy;
-    this.yz = yz;
-    this.zx = zx;
-    this.zy = zy;
-    this.zz = zz;
-  }
-
-  /**
-  @brief Returns this matrix as a array
-  */
-  toArray() {
-    let array = [ this.xx, this.xy, this.xz, this.yx, this.yy, this.yz, this.zx, this.zy, this.zz ];
-    return array;
+    out[0] = (yy * zz - yz * zy) * det;
+    out[1] =-(xy * zz - xz * zy) * det;
+    out[2] = (xy * yz - xz * yy) * det;
+    out[3] =-(yx * zz - yz * zx) * det;
+    out[4] = (xx * zz - xz * zx) * det;
+    out[5] =-(xx * yz - xz * yx) * det;
+    out[6] = (yx * zy - yy * zx) * det;
+    out[7] =-(xx * zy - yy * zx) * det;
+    out[8] = (xx * yy - xy * yx) * det;
+    return out;
   }
 }
 

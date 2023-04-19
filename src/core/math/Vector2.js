@@ -1,272 +1,238 @@
 import * as MathUtils from './MathUtils.js';
 
 
-class Vector2 {
+class Vector2 extends Float32Array {
 
   /**
   * Creates a new instance of a Vector2
   */
-  constructor( x = 0, y = 0 ) {
-    this.x = x;
-    this.y = y;
-  }
-
-  /**
-    Getter to retrieve the x component
-  */
-  get width() {
-    return this.x;
-  }
-
-  /**
-    Getter to retrieve the y component
-  */
-  get height() {
-    return this.y;
-  }
-
-  set width( value ) {
-    this._x = value;
-  }
-
-  /**
-  * Setter for the y component
-  */
-  set height( value ) {
-    this.y = value;
-  }
-
-  /**
-  * Sets the x component of this vector2
-  * @param value The value to set x to
-  */
-  setX( value ){
-    this.x = value;
-  }
-
-  /**
-  * Sets the y component of this vector2
-  * @param value The value to set y to
-  */
-  setY( value ){
-    this.y = value;
-  }
-
-  /**
-  * Setter for both components
-  * @param x The value for x
-  * @param y The value for y
-  */
-  set( x, y ) {
-    this.x = x;
-    this.y = y;
-  }
-
-  /**
-  * Get the component at the given index
-  * @param index The index of the component to set x = 0, y = 1
-  */
-  getComponent( index ) {
-    switch( index ) {
-      case 0:
-        return this.x;
-        break;
-      case 1:
-        return this.y;
-        break;
-      default: throw new Error( "index is outside of Vector2");
+  constructor( param ) {
+    super( 2 );
+    if( param istanceof Vector2 || ( param && param.length == 2 ) ) {
+      this[0] = param[0];
+      this[1] = param[1];
+    } else if ( arguements.length == 2 ) {
+      this[ 0 ] = arguments[ 0 ];
+      this[ 1 ] = arguments[ 1 ];
+    } else {
+      this[ 0 ] = this[ 1 ] = param || 0;
     }
   }
 
-  /**
-  * Set the component at the given index
-  * @param index The index of the component to set x = 0, y = 1
-  * @param value The value to set the component to
-  */
-  setComponent( index, value ) {
-    switch( index ) {
-      case 0:
-        this.x = value;
-        break;
-      case 1:
-        this.y = value;
-        break;
-      default: throw new Error( "index is outside of Vector2");
+  // getters and setters
+  get x() { return this[ 0 ]; }
+  set x( value ) { this[ 0 ] = value; }
+
+  get y() { return this[ 1 ]; }
+  set y( value ) { this[ 1 ] = value; }
+
+  set( x, y ) { this[ 0 ] = x; this[ 1 ] = y; }
+
+  copy( vec ) { this[ 0 ] = vec[ 0 ]; this[ 1 ] = vec[ 1 ]; }
+
+  clone( vec ) { return new Vector2( this ); }
+
+  fromAngleLength( angle, length ) {
+    this[ 0 ] = length * Math.cos( angle );
+    this[ 1 ] = length * Math.sin( angle );
+  }
+
+  getAngle( v = null ) {
+    if( v ) {
+      return Math.acos( Vector2.dot( this, v ) / (this.length() * v.length() ) );
     }
+    return Math.atan2( this[1], this[0] );
   }
 
+  // When values are very small, like less then 0.0000001, just make it zero
+  nearZero( x = 1e-6, y = 1e-6 ){
+    if( Math.abs(this[0]) <= x ) this[0] = 0;
+    if( Math.abs(this[1]) <= y ) this[1] = 0;
+    return this;
+  }
+
+  // Methods -------------------------------------------------------
+
   /**
-  * adds the given vector2 to this
-  * @param v The vector2 to add to this
+  @brief Adds this and the given vector
+  @param v The vector to add to this
+  @param out The Vector2 to set to the calculated value
   */
-  add( v ) {
-    this.x += v.x;
-    this.y += v.y;
+  add( v, out = null ) {
+    out = out || this;
+    out[ 0 ] = this[ 0 ] + v[ 0 ];
+    out[ 1 ] = this[ 1 ] + v[ 1 ];
+    return this;
   }
 
   /**
-  * Sets this value to the value of the added vectors
-  * @param a The first vector2 arguement
-  * @param b The second vector2 arguement
+  @brief subtracts this and the given vector
+  @param v The vector to subtract to this
+  @param out The Vector2 to set to the calculated value
   */
-  addVectors( a, b ) {
-    this.x = a.x + b.x;
-    this.y = a.y + b.y;
+  subtract( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] - v[0];
+    out[1] = this[1] - v[1];
+    return out;
   }
 
   /**
-  * subtracts the given vector2 from this
-  * @param v The Vector2 to subtract from this
+  @brief multiply this and the given vector
+  @param v The vector to multiply to this
+  @param out The Vector2 to set to the calculated value
   */
-  subtract( v ) {
-    this.x -= v.x;
-    this.y -= v.y;
+  multiply( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] * v[0];
+    out[1] = this[1] * v[1];
+    return out;
   }
 
   /**
-  * Sets this value to the value of the added vectors
-  * @param a The first vector2 arguement
-  * @param b The second vector2 arguement
+  @brief divids this and the given vector
+  @param v The vector to divids to this
+  @param out The Vector2 to set to the calculated value
   */
-  subtractVectors( a, b ) {
-    this.x = a.x - b.x;
-    this.y = a.y - b.y;
+  divid( v, out = null ) {
+    out = out || this;
+    out[0] = v[0] != 0 ? this[0] / v[0] : 0;
+    out[1] = v[1] != 0 ? this[1] / v[1] : 0;
+    return out;
   }
 
   /**
-  * Component wise multiplation of this vector2 and the given vector2
-  * @param v The vector to multiply with this
+  @brief scales this vector by the given value
+  @param value the value to scale by
+  @param out The Vector2 to set to the calculated value
   */
-  multiply( v ) {
-    this.x *= v.x;
-    this.y *= v.y;
+  scale( value, out = null ) {
+    out = out || this;
+    out[0] = this[0] * value;
+    out[1] = this[1] * value;
+    return out;
   }
 
   /**
-  * Sets this value to the value of the multiplied vectors
-  * @param a The first vector2 arguement
-  * @param b The second vector2 arguement
+  @brief Returns the int value of this vector
+  @param out The Vector2 to set to the calculated value
   */
-  multiplyVectors( a, b ) {
-    this.x = a.x * b.x;
-    this.y = a.y * b.y;
+  floor( out = null ) {
+    out = out || this;
+    out[0] = Math.floor( this[ 0 ] );
+    out[1] = Math.floor( this[ 1 ] );
+    return out;
   }
 
   /**
-  * Scales this vector2 by the given scalar
-  * @param scalar The scalar to scale this vector2 by
-  */
-  scale( scalar ) {
-    this.x *= scalar;
-    this.y *= scalar;
-  }
-
-  /**
-  * Rotates this vector2 by the given degrees
-  * @param degrees The amount to rotate this vector by
-  */
-  rotate( degrees ) {
-    let radians = degreesToRadians( degrees );
-    let s = Math.sin( radians );
-    let c = Math.cos( radians );
-    let x = this.x * c - this.y * s;
-    let y = this.x * s + this.y * c;
-    this.x = x;
-    this.y = y;
-  }
-
-  /**
-  * Returns the squared length of the Vector2
-  */
-  squaredLength( ) {
-    return this.x * this.x + this.y * this.y;
-  }
-
-  /**
-  * Returns the length of this Vector2
+  @brief Returns the length of the vector ( Magnitude )
   */
   length( ) {
-    return Math.sqrt( this.x * this.x + this.y * this.y );
+    return Math.sqrt( this[0] * this[0] + this[1] * this[1] );
   }
 
   /**
-  * Returns the dot product of the two vectors
-  * @param v The other vector to use
-  * @return The dot product of the 2 vectors
+  @brief Returns the squared magnitude of this vector
+  */
+  lengthSquared( ) {
+    return this[ 0 ] * this[ 0 ] + this[ 1 ] * this[ 1 ];
+  }
+
+  /**
+  @brief normalizes this vector
+  @param out The vector to the calculated value
+  */
+  normalize( out = null ) {
+    out = out || this;
+
+    let mag = Math.sqrt( this[0]*this[0] + this[1]*this[1] );
+    if( mag <= 0 ) return this;
+
+    out[ 0 ] = this[ 0 ] / mag;
+    out[ 1 ] = this[ 1 ] / mag;
+    return this;
+  }
+
+  /**
+  @brief Linear interpolate this and v by ratio t
+  @param v Vector2
+  @param t ratio clamped between 0 - 1
+  @param out The Vector2 to set to the calculated value
+  */
+  lerp( v, t, out = null ) {
+    out = out || this;
+    var tmin = 1 - t;
+
+    // linear Interpolate ( 1 - t ) * v0 + t * v1
+    out[0] = this[0] * tmin + v[0] * t;
+    out[1] = this[1] * tmin + v[1] * t;
+    return out;
+  }
+
+  /**
+  @brief Smoother version of a linear interpolate
+  @param v Vector2
+  @param t ratio clamped between 0 - 1
+  @param out The Vector2 to set to the calculated value
+  */
+  smoothStep( v, t, out = null ) {
+    out = out || this;
+    // (b-a) * ( ratio * ratio * ( 3 - 2 * ratio ) ) + a;
+    out[ 0 ] = ( v[0] - this[0]) * ( t * t * ( 3 - 2 * t ) ) + this[0];
+    out[ 1 ] = ( v[1] - this[1]) * ( t * t * ( 3 - 2 * t ) ) + this[1];
+    return out;
+  }
+
+  /**
+  @brief an even smoother step of linear interplatation
+  @param v Vector2
+  @param t ratio clamped between 0 - 1
+  @param out The Vector2 to set to the calculated value
+  */
+  smootherStep( v, t, out = null ) {
+    out = out || this;
+    // return (b-a) * (ratio * ratio * ratio * (ratio*(ratio * 6 - 15 ) + 10 ) ) + a;
+    out[ 0 ] = (v[0] - this[0]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[0];
+    out[ 1 ] = (v[1] - this[1]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[1];
+    return out;
+  }
+
+  /**
+  @brief Rotates this by the given angle
+  @param angle The angle to rotate by
+  @param out The Vector2 to set to the calculated value
+  */
+  rotate( angle, out = null ) {
+    out = out || this;
+    let radians = MathUtils.degreesToRadians( angle ),
+    let cos = Math.cos( radians ),
+    sin = Math.sin( radians ),
+    x = this[0],
+    y = this[1];
+
+    out[0] = x * cos - y * sin;
+    out[1] = y * sin + y * cos;
+    return out;
+  }
+
+  /**
+  @brief inverts the vector from its current value
+  @param out set to the calculated value
+  */
+  invert( out = null ) {
+    out = out || this;
+    out[ 0 ] = -this[0];
+    out[ 1 ] = -this[1];
+    return out;
+  }
+
+  /**
+  @brief returns the dot product of this vector and v
+  @param v The vector to subtract to this
   */
   dot( v ) {
-    return this.x * v.x + this.y * v.y;
+    return this[0] * v[0] + this[1] * v[1];
   }
-
-  /**
-  * Normailzes the vector ( makes length 1 )
-  */
-  normalize( ) {
-    let l = this.length();
-    if( l <= 0 )
-    {
-      this.x = 0;
-      this.y = 0;
-      return;
-    }
-    l = 1.0 / l;
-    this.x *= l;
-    this.y *= l;
-  }
-
-  /**
-  * Component wise comparision of this vector2 and the given vector2
-  * @param v Vector2 to compare this to
-  * @param tolerance The tolerance of the comparision, EPSILON by default
-  * @return true if both components are within the tolerance
-  */
-  isEqual( v, tolerance = EPSILON ) {
-    if( Math.abs( this.x - v.x() ) > tolerance ) { return false; }
-    if( Math.abs( this.y - v.y() ) > tolerance ) { return false; }
-    return true;
-  }
-
-  /**
-  * Returns the squared distance between the this and the given vector2
-  * @param v The other Vector2
-  * @return The distance between the vectors
-  */
-  squaredDistance( v ) {
-    return (( v.x - this.x ) * ( v.x - this.x ) + ( v.y - this.y ) * ( v.y - this.y ));
-  }
-
-  /**
-  * Returns the distance between the this and the given vector2
-  * @param v The other Vector2
-  * @return The distance between the vectors
-  */
-  distance( v ) {
-    let d = this.squaredDistance( v );
-    return Math.sqrt( d );
-  }
-
-  /**
-  * Sets the values of this vector to the minimum values between this and the given vector2
-  @param v The other Vector2
-  */
-  min( v ) {
-    this.x = Math.min( this.x, v.x );
-    this.y = Math.min( this.y, v.y );
-  }
-
-  /**
-  * Sets the values of this vector to the maximum values between this and the given vector2
-  @param v The other Vector2
-  */
-  max( v ) {
-    this.x = Math.max( this.x, v.x );
-    this.y = Math.max( this.y, v.y );
-  }
-
-  toArray( ) {
-    return [ this.x, this.y ];
-  }
-
 }
 
 export { Vector2 };

@@ -1,304 +1,337 @@
 import * as MathUtils from './MathUtils.js';
 
-class Vector3 {
 
-  /*
-  * Creates a new Instance of a Vector3
-  */
-  constructor( x = 0, y = 0, z = 0 ) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
+class Vector3 extends Float32Array {
 
   /**
-  * Returns a clone of this vector3
-  * @return Vector3
+  * Creates a new instance of a Vector2
   */
-  clone( ) {
-    return new this.constructor( this.x, this.y, this.z );
-  }
-
-  /**
-  * Sets the x component of this vector
-  * @param value The value to set x to
-  */
-  setX( value ) {
-    this.x = value;
-  }
-
-  /**
-  * Sets the y component of this vector
-  * @param value The value to set y to
-  */
-  setY( value ) {
-    this.y = value;
-  }
-
-  /**
-  * Sets the a component of this vector
-  * @param value The value to set a to
-  */
-  setZ( value ) {
-    this.z = value;
-  }
-
-  /**
-  * Sets the component by the index
-  @param index The index into the vector to set
-  @param value The value to set the component to
-  */
-  setComponent( index, value ) {
-    switch( index ){
-      case 0: this.x = value; break;
-      case 1: this.y = value; break;
-      case 2: this.z = value; break;
-      default: throw new Error( "index is outside of Vector3");
-
+  constructor( param ) {
+    super( 3 );
+    if( param istanceof Vector3 || ( param && param.length == 3 ) ) {
+      this[0] = param[0];
+      this[1] = param[1];
+      this[2] = param[2];
+    } else if ( arguements.length == 3 ) {
+      this[ 0 ] = arguments[ 0 ];
+      this[ 1 ] = arguments[ 1 ];
+      this[ 2 ] = arguments[ 2 ];
+    } else {
+      this[ 0 ] = this[ 1 ] = this[2] = param || 0;
     }
   }
 
+  // getters and setters
+  get x() { return this[ 0 ]; }
+  set x( value ) { this[ 0 ] = value; }
+
+  get y() { return this[ 1 ]; }
+  set y( value ) { this[ 1 ] = value; }
+
+  get z() { reutrn this[2]; }
+  set z( value ) { this[ 2 ] = value; }
+
+  set( x, y, z ) { this[ 0 ] = x; this[ 1 ] = y; this[ 2 ] = z; }
+
+  copy( vec ) { this[ 0 ] = vec[ 0 ]; this[ 1 ] = vec[ 1 ]; this[ 2 ] = vec[ 2 ]; }
+
+  clone( vec ) { return new Vector3( this ); }
+
+  setLength( len ) { return this.normalize().scale(len);
+
+  // When values are very small, like less then 0.0000001, just make it zero
+  nearZero( x = 1e-6, y = 1e-6 ){
+    if( Math.abs(this[0]) <= x ) this[0] = 0;
+    if( Math.abs(this[1]) <= y ) this[1] = 0;
+    return this;
+  }
+
+  // Methods -------------------------------------------------------
+
   /**
-  * Get the x component of this vector
-  * @return value of x
+  @brief Adds this and the given vector
+  @param v The vector to add to this
+  @param out The Vector3 to set to the calculated value
   */
-  getX( ){
-    return this.x;
+  add( v, out = null ) {
+    out = out || this;
+    out[ 0 ] = this[ 0 ] + v[ 0 ];
+    out[ 1 ] = this[ 1 ] + v[ 1 ];
+    out[ 2 ] = this[ 2 ] + v[ 2 ];
+    return this;
   }
 
   /**
-  * Get the y component of this vector
-  * @return value of y
+  @brief subtracts this and the given vector
+  @param v The vector to subtract to this
+  @param out The Vector3 to set to the calculated value
   */
-  getY( ){
-    return this.x;
+  subtract( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] - v[0];
+    out[1] = this[1] - v[1];
+    out[2] = this[2] - v[2];
+    return out;
   }
 
   /**
-  * Get the z component of this vector
-  * @return value of z
+  @brief multiply this and the given vector
+  @param v The vector to multiply to this
+  @param out The Vector3 to set to the calculated value
   */
-  getX( ){
-    return this.x;
+  multiply( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] * v[0];
+    out[1] = this[1] * v[1];
+    out[2] = this[2] * v[2];
+    return out;
   }
 
   /**
-  * Get the component by index into the vector3
-  * @param index The index to access
-  * @return The value at that index
+  @brief divids this and the given vector
+  @param v The vector to divids to this
+  @param out The Vector3 to set to the calculated value
   */
-  getComponent( index ){
-    switch( index ){
-      case 0: return this.x;
-      case 1: return this.y;
-      case 2: return this.z;
-      default: throw new Error( "Index is outside of Vector3: " + index );
-    }
+  divid( v, out = null ) {
+    out = out || this;
+    out[0] = v[0] != 0 ? this[0] / v[0] : 0;
+    out[1] = v[1] != 0 ? this[1] / v[1] : 0;
+    out[2] = v[2] != 0 ? this[2] / v[2] : 0;
+    return out;
   }
 
   /**
-  * Adds the given vector to this vector
-  @param v The vector to add to this vector
+  @brief scales this vector by the given value
+  @param value the value to scale by
+  @param out The Vector2 to set to the calculated value
   */
-  add( v ) {
-    this.x += v.x;
-    this.y += v.y;
-    this.z += v.z;
+  scale( value, out = null ) {
+    out = out || this;
+    out[0] = this[0] * value;
+    out[1] = this[1] * value;
+    out[2] = this[2] * value;
+    return out;
   }
 
   /**
-  * Sets this vector to the sum of the two provided vectors
-  @param a The first vector to add
-  @param b The second vector to add
+  @brief Returns the int value of this vector
+  @param out The Vector2 to set to the calculated value
   */
-  addVectors( a, b ) {
-    this.x = a.x + b.x;
-    this.y = a.y + b.y;
-    this.z = a.z + b.z;
+  floor( out = null ) {
+    out = out || this;
+    out[0] = Math.floor( this[ 0 ] );
+    out[1] = Math.floor( this[ 1 ] );
+    out[2] = Math.floor( this[ 2 ] );
+    return out;
   }
 
   /**
-  * Subtracts the provided vector from this vector
-  * @param v The vector to subtract
-  */
-  subtract( v ) {
-    this.x -= v.x;
-    this.y -= v.y;
-    this.z -= v.z;
-  }
-
-  /**
-  * Sets the value of this vector to the difference between the two provided vectors
-  * @param a The first vector to subtract
-  * @param b The second vector3
-  */
-  subtractVectors( a, b ) {
-    this.x = a.x - b.x;
-    this.y = a.y - b.y;
-    this.z = a.z - b.z;
-  }
-
-  /**
-  * Multiplies this vector by the given vector
-  * @param v The vector to multiply by
-  */
-  multiply( v ) {
-    this.x *= v.x;
-    this.y *= v.y;
-    this.z *= v.z;
-  }
-
-  /**
-  * Sets The value of this vector to the product of the two provided vectors
-  * @param a Vector3
-  * @param b Vector3
-  */
-  multiplyVectors( a, b ) {
-    this.x = a.x * b.x;
-    this.y = a.y * b.y;
-    this.z = a.z * b.z;
-  }
-
-  /**
-  * Inverts the values of the this vector3
-  */
-  invert( ) {
-    this.x *= -1;
-    this.y *= -1;
-    this.z *= -1;
-  }
-
-  /**
-  * Scales this vector3 by the given scalar
-  * @param scalar float
-  */
-  scale( ) {
-    this.x *= scalar;
-    this.y *= scalar;
-    this.z *= scalar;
-  }
-
-  /**
-  * Sets the value of this vector to the cross product of this vector and v
-  * @param v Vector3
-  */
-  cross( v ) {
-    let x = this.y * v.z - this.z * v.y;
-    let y = this.z * v.x - this.x * v.z;
-    let z = this.x * v.y - this.y * v.x;
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
-
-  /**
-  * Set the value of this vector to the cross product of the two provided vectors
-  * @param a Vector3
-  * @param b Vector3
-  */
-  crossVectors( a, b ) {
-    this.x = a.y * b.z - a.z * b.y;
-    this.y = a.z * b.x - a.x * b.z;
-    this.z = a.x * b.y - a.y * b.x;
-  }
-
-  /**
-  * Returns the squared length of this vector3
-  * @return Float
-  */
-  lengthSquared( ) {
-    return this.x * this.x + this.y * this.y + this.z * this.z;
-  }
-
-  /**
-  * Returns the dot product of this vector and the provided vector
-  * @return float
-  */
-  dot( v ) {
-    return this.x * v.x + this.y * v.y + this.z * v.z;
-  }
-
-  /**
-  * Returns the magnitude of the Vector3 ( length )
-  * @return float
+  @brief Returns the length of the vector ( Magnitude )
   */
   length( ) {
-    return Math.sqrt( this.lengthSquared() );
+    return Math.sqrt( this[0] * this[0] + this[1] * this[1] + this[2] * this[2] );
   }
 
   /**
-  * Returns the squared distance between this vector and the given vector
-  * @param v Vector3
-  * @return float
+  @brief Returns the squared magnitude of this vector
   */
-  squaredDistance( v ) {
-    return ( (v.x - this.x) * (v.x - this.x ) + (v.y - this.y)*(v.y - this.y) + (v.z - this.z)*(v.z-this.z) );
+  lengthSquared( ) {
+    return  this[0] * this[0] + this[1] * this[1] + this[2] * this[2];
   }
 
   /**
-  * Returns the distance between this vector and the given vector
-  * @param v vector3
-  * @return float
+  @brief normalizes this vector
+  @param out The vector to the calculated value
+  */
+  normalize( out = null ) {
+    out = out || this;
+
+    let mag = Math.sqrt( this[0]*this[0] + this[1]*this[1] );
+    if( mag <= 0 ) return this;
+
+    out[ 0 ] = this[ 0 ] / mag;
+    out[ 1 ] = this[ 1 ] / mag;
+    out[ 2 ] = this[ 2 ] / mag;
+    return this;
+  }
+
+  /**
+  @brief Linear interpolate this and v by ratio t
+  @param v Vector3
+  @param t ratio clamped between 0 - 1
+  @param out The Vector3 to set to the calculated value
+  */
+  lerp( v, t, out = null ) {
+    out = out || this;
+    var tmin = 1 - t;
+
+    // linear Interpolate ( 1 - t ) * v0 + t * v1
+    out[0] = this[0] * tmin + v[0] * t;
+    out[1] = this[1] * tmin + v[1] * t;
+    out[2] = this[2] * tmin + v[2] * t;
+    return out;
+  }
+
+  /**
+  @brief Smoother version of a linear interpolate
+  @param v Vector3
+  @param t ratio clamped between 0 - 1
+  @param out The Vector3 to set to the calculated value
+  */
+  smoothStep( v, t, out = null ) {
+    out = out || this;
+    // (b-a) * ( ratio * ratio * ( 3 - 2 * ratio ) ) + a;
+    out[ 0 ] = ( v[0] - this[0]) * ( t * t * ( 3 - 2 * t ) ) + this[0];
+    out[ 1 ] = ( v[1] - this[1]) * ( t * t * ( 3 - 2 * t ) ) + this[1];
+    out[ 2 ] = ( v[2] - this[2]) * ( t * t * ( 3 - 2 * t ) ) + this[2];
+    return out;
+  }
+
+  /**
+  @brief an even smoother step of linear interplatation
+  @param v Vector3
+  @param t ratio clamped between 0 - 1
+  @param out The Vector3 to set to the calculated value
+  */
+  smootherStep( v, t, out = null ) {
+    out = out || this;
+    // return (b-a) * (ratio * ratio * ratio * (ratio*(ratio * 6 - 15 ) + 10 ) ) + a;
+    out[ 0 ] = (v[0] - this[0]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[0];
+    out[ 1 ] = (v[1] - this[1]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[1];
+    out[ 2 ] = (v[2] - this[2]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[2];
+    return out;
+  }
+
+  /**
+  @brief inverts the vector from its current value
+  @param out set to the calculated value
+  */
+  invert( out = null ) {
+    out = out || this;
+    out[ 0 ] = -this[0];
+    out[ 1 ] = -this[1];
+    out[ 2 ] = -this[2];
+    return out;
+  }
+
+  /**
+  @brief returns the dot product of this vector and v
+  @param v The vector to subtract to this
+  */
+  dot( v ) {
+    return this[0] * v[0] + this[1] * v[1] + this[2] * v[2];
+  }
+
+  /**
+  @brief returns a vector3 that is perpendicular to this and v
+  @param v the other vector3
+  @param out The Vector3 to set the calculated value to
+  */
+  cross( v, out = null ) {
+    out = out || this;
+    let x = this[ 1 ] * v[ 2 ] - this[ 2 ] * v[ 1 ],
+        y = this[ 2 ] * v[ 0 ] - this[ 0 ] * v[ 2 ];
+        z = this[ 0 ] * v[ 1 ] - this[ 1 ] * v[ 0 ];
+    out[ 0 ] = x;
+    out[ 1 ] = y;
+    out[ 2 ] = z;
+    return out;
+  }
+
+  /**
+  @brief Sets this to the cross product of the two given vectors
+  @param t the first vector3
+  @param v the other vector3
+  */
+  crossVectors( t, v ) {
+    let x = t[ 1 ] * v[ 2 ] - t[ 2 ] * v[ 1 ],
+        y = t[ 2 ] * v[ 0 ] - t[ 0 ] * v[ 2 ];
+        z = t[ 0 ] * v[ 1 ] - t[ 1 ] * v[ 0 ];
+    this[ 0 ] = x;
+    this[ 1 ] = y;
+    this[ 2 ] = z;
+  }
+
+  /**
+  @brief Returns the distance between this vector and the given vector
+  @param v Vector3
+  @return number
   */
   distance( v ) {
-    return Math.sqrt( this.squaredDistance( v ) );
+    return Math.sqrt( ( v[0]-this[0]) * (v[0]-this[0]) + (v[1]-this[1]) * (v[1]-this[1]) + (v[2]-this[2]) * (v[2]-this[2]) );
   }
 
   /**
-  * sets this vectors length to 1
+  @brief Returns the squared distance between this vector and the given vector
+  @param v Vector3
+  @return number
   */
-  normalize( ) {
-    let l = this.length();
-    if( l > 0.0 )
-    {
-      l = 1.0 / l;
-      this.x *= l;
-      this.y *= l;
-      this.z *= l;
-      return;
+  distanceSquared( v ) {
+    return (v[0]-this[0]) * (v[0]-this[0]) + (v[1]-this[1]) * (v[1]-this[1]) + (v[2]-this[2]) * (v[2]-this[2]);
+  }
+
+  /**
+  @brief Compares this vector and v, returns if they are within tolerance
+  @param v Vector3
+  @param tolerance default is EPISLON
+  */
+  isEqual( v, tolerance = MathUtils.EPSILON ) {
+    if ( Math.abs( this[0] - v[0] ) > tolerance ) return false;
+    if ( Math.abs( this[1] - v[1] ) > tolerance ) return false;
+    if ( Math.abs( this[2] - v[2] ) > tolerance ) return false;
+    return true;
+  }
+
+  /**
+  @brief projects this on v and set the value to out
+  @param v Vector3
+  @param out The Vector to set to the calculated value
+  */
+  project( v, out = null ) {
+    out = out || this;
+    let x = this[0], y = this[1], z = this[2],
+    d = this.dot( v );
+    out[0] = this[0] - ( v[0] * d );
+    out[1] = this[1] - ( v[1] * d );
+    out[2] = this[2] - ( v[2] * d );
+    return out;
+  }
+
+  /**
+  @brief Rotates this vector3 on the given axis
+  @param degrees the amount to rotate in degrees
+  @param axis The axis to rotate on
+  @param out Vector3 to set to the calculated value
+  */
+  rotate( degrees, axis="x", out=null) {
+    out = out || this;
+    let radians = MathUtils.degreesToRadians( degrees ),
+    sin = Math.sin( radians ),
+    cos = Math.cos( radians ),
+    x = this[ 0 ], y = this[ 1 ], z = this[2];
+
+    switch( axis ) {
+      case "y":
+        out[0] = z * sin + x * cos;
+        out[2] = z * cos - x * sin;
+        break;
+      case "x":
+        out[1] = y * cos - z * sin;
+        out[2] = y * sin + z * cos;
+        break;
+      case "z":
+        out[0] = x * cos - y * sin;
+        out[1] = x * sin + y * cos;
+        break;
     }
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-  }
-
-  /**
-  * Sets this vector to v reflected by the normal n provided
-  * @param v Vector3
-  * @param n Vector3
-  */
-  reflect( v, n ) {
-    let d = 2 * v.dot( n );
-    this.x = a.x - ( n.x * d );
-    this.y = a.y - ( n.y * d );
-    this.z = a.z - ( n.z * d );
-  }
-
-  /**
-  * Sets this vector as a projection of a onto b
-  * @param a Vector3
-  * @param b Vector3
-  */
-  project( a, b ) {
-    let d = a.dot( b );
-    this.x = a.x - ( b.x * d );
-    this.y = a.y - ( b.y * d );
-    this.z = a.z - ( b.z * d );
-  }
-
-  /**
-  * Component wise comparision of this vector and the given vector
-  * @param v Vector3
-  * @param tolerance Float
-  * @return True if within tolerance
-  */
-  isEqual( v, tolerance = EPSILON ) {
-    return Math.abs( this.x - v.x ) > tolerance ? 0 : ( Math.abs(this.y - v.y) > tolerance ? 0 : ( Math.abs(this.z - v.z ) > tolerance ? 0 : 1 ) );
-  }
-
-  toArray( ) {
-    return [ this.x, this.y, this.z ];
+    return out;
   }
 }
+
+Vector3.UP = [ 0, 1, 0 ];
+Vector3.DOWN = [ 0, -1, 0 ];
+Vector3.LEFT = [ 1, 0, 0 ];
+Vector3.RIGHT = [ -1, 0, 0 ];
+Vector3.ZERO = [ 0, 0, 0 ];
 
 export { Vector3 };

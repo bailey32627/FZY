@@ -142,42 +142,42 @@ class Entity {
 }
 
 /*/////////////////////////////////////////////////////////////////////////////////
-	Assemblages
+	Assemblies
 	Some predefined entities, to make it easy to create common entity objects
 	with the right set of components.
 	Ex:
-	Assemblages.add("particle", ["Movement", "Transform"]);
+	Assemblies.add("particle", ["Movement", "Transform"]);
 	var ent = Assemblages.new("particle","MyParticle");
 /////////////////////////////////////////////////////////////////////////////////*/
 
-class Assemblages {
+class Assemblies {
   static async add( name, componentList ) {
     // dynamically load components that are not registred
     for ( let c of componentList ) {
       if( !Components.exists( c ) ) await import( `./components/${c}.js`);
     }
     // create assemblage instance
-    Assemblages.list.set( name, { componentsList: componentList } );
+    Assemblies.list.set( name, { componentsList: componentList } );
 
     console.log( "New Assemblage: %s with components: %s", name, componentList.join( ", " ) );
-    return Assemblages;
+    return Assemblies;
   }
 
   /**
   @brief Returns a new entity from the Assemblage
-  @param assemblageName The name of the assemblage to use
+  @param assemblyName The name of the assembly to use
   @param entityName The name of the entity to create
   */
-  static new( assemblageName, entityName = "New_Entity" ) {
-    let item = Assemblages.list.get( assemblageName );
+  static new( assemblyName, entityName = "New_Entity" ) {
+    let item = Assemblies.list.get( assemblageName );
     if( item ) return new Entity( entityName, item.componentsList );
-    else console.log( "No Assemblage with the name: ", name );
+    else console.log( "No Assemblies with the name: ", name );
 
     return null;
   }
 }
 
-Assemblages.list = new Map();
+Assemblies.list = new Map();
 
 /*/////////////////////////////////////////////////////////////////////////////////
 	Systems
@@ -203,12 +203,12 @@ class Ecs {
   // Entities -------------------------
   /**
   @brief Creates a new Entity based on an assemblage name
-  @param assemblageName Name of the assemblage to use
+  @param assemblyName Name of the assembly to use
   @param entityName Name of the entity to be created, optional
   @return Entity instance
   */
-  newEntityFromAssemblage( assemblageName, entityName = "New_Entity" ) {
-    let e = Assemblages.new( assemblageName, entityName );
+  newEntityFromAssembly( assemblyName, entityName = "New_Entity" ) {
+    let e = Assemblies.new( assemblyName, entityName );
     if( e ) {
       this.addEntity( e );
       return e;
