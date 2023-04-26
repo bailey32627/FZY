@@ -14,6 +14,11 @@ class gl{
       return false;
     }
 
+    // add event listener to handle resize
+    window.addEventListener( 'resize', (event) => {
+      gl.fitToScreen();
+    });
+
     // load extensions
     gl.context.getExtension( "EXT_color_buffer_float" ); // for deferred lighting
 
