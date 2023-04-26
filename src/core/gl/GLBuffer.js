@@ -88,22 +88,22 @@ class GLBuffer {
         ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
         break;
       case gl.context.INT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Int32Array )? this.data : new Int32Array( this.data );
         break;
       case gl.context.UNSIGNED_INT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Uint32Array )? this.data : new Uint32Array( this.data );
         break;
       case gl.context.SHORT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Int16Array )? this.data : new Int16Array( this.data );
         break;
-      case gl.context.UNSGINED_SHORT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+      case gl.context.UNSIGNED_SHORT:
+        ary = ( this.data instanceof Uint16Array )? this.data : new Uint16Array( this.data );
         break;
       case gl.context.BYTE:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Int8Array )? this.data : new Int8Array( this.data );
         break;
       case gl.context.UNSGINED_BYTE:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Uint8Array )? this.data : new Uint8Array( this.data );
         break;
     }
 
@@ -122,7 +122,11 @@ class GLBuffer {
   @brief Returns the vertex count
   */
   getVertexCount( ) {
-    return this.data.length / this.size;
+    let c = this.data.length / this.size;
+    if( c < 1 ) {
+      throw new Error( "Cannot have less than 1 vertex to render" );
+    }
+    return c;
   }
 }
 

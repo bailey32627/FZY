@@ -1,4 +1,4 @@
-import * as MathUtils from './MathUtils.js';
+import * as MathUtils from './MathUtil.js';
 
 
 class Vector2 extends Float32Array {
@@ -8,10 +8,10 @@ class Vector2 extends Float32Array {
   */
   constructor( param ) {
     super( 2 );
-    if( param istanceof Vector2 || ( param && param.length == 2 ) ) {
+    if( param instanceof Vector2 || ( param && param.length == 2 ) ) {
       this[0] = param[0];
       this[1] = param[1];
-    } else if ( arguements.length == 2 ) {
+    } else if ( arguments.length == 2 ) {
       this[ 0 ] = arguments[ 0 ];
       this[ 1 ] = arguments[ 1 ];
     } else {
@@ -205,7 +205,7 @@ class Vector2 extends Float32Array {
   rotate( angle, out = null ) {
     out = out || this;
     let radians = MathUtils.degreesToRadians( angle ),
-    let cos = Math.cos( radians ),
+    cos = Math.cos( radians ),
     sin = Math.sin( radians ),
     x = this[0],
     y = this[1];

@@ -8,17 +8,11 @@ let instance;  // instance for the singleton
 
 class TestShader extends Shader {
   constructor() {
-    let vs = ShaderLib.point.vertexShader;
-    let fs = ShaderLib.point.fragmentShader;
+    let vs = ShaderLib.basic.vertexShader;
+    let fs = ShaderLib.basic.fragmentShader;
     super( vs, fs, true );
 
     this.unbind();
-  }
-
-  set( size, angle ) {
-    gl.context.uniform1f( this.getUniformLocation( "uPointSize"), size );
-    gl.context.uniform1f( this.getUniformLocation( "uAngle" ), angle );
-    return this;
   }
 }
 
@@ -38,12 +32,7 @@ class EngineSingleton {
     this.elaspedTime;
 
     // remove
-    this.pointSize = 0;
-    this.pointSizeStep = 3;
-    this.angle = 0;
-    this.angleStep = ( Math.PI / 180.0 ) * 90;
-    this.uAngle = -1;
-    this.model;
+    this.geometry;
   }
 
   initialize( canvasID ) {
@@ -55,10 +44,7 @@ class EngineSingleton {
     this.shader = new TestShader();
 
     // setup mesh
-    let mesh = Geometry.createMesh( "dots", [0, 0, 0] );
-    mesh.mode = gl.POINTS;
-
-    this.model = new Model( mesh );
+    this.geometry = Geometry.createBox2D( );
 
     this.startAnimating( );
   }
@@ -93,12 +79,9 @@ class EngineSingleton {
 
   render( delta ) {
     gl.clear();
-    this.shader.bind().set(
-      (Math.sin( ( this.pointSize += this.pointSizeStep * delta ) ) * 10.0 ) + 30.0,
-      ( this.angle += this.angleStep * delta )
-    );
+    this.shader.bind();
 
-    this.model.mesh.draw( gl.context.POINTS, true );
+    this.geometry.draw( gl.context.TRIANGLES, true );
 
     /*
     if ( this.model.mesh.indexCount ) {

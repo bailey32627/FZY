@@ -1,4 +1,4 @@
-import * as MathUtils from './MathUtils.js';
+import * as MathUtils from './MathUtil.js';
 
 
 class Vector3 extends Float32Array {
@@ -8,11 +8,11 @@ class Vector3 extends Float32Array {
   */
   constructor( param ) {
     super( 3 );
-    if( param istanceof Vector3 || ( param && param.length == 3 ) ) {
+    if( param instanceof Vector3 || ( param && param.length == 3 ) ) {
       this[0] = param[0];
       this[1] = param[1];
       this[2] = param[2];
-    } else if ( arguements.length == 3 ) {
+    } else if ( arguments.length == 3 ) {
       this[ 0 ] = arguments[ 0 ];
       this[ 1 ] = arguments[ 1 ];
       this[ 2 ] = arguments[ 2 ];
@@ -28,7 +28,7 @@ class Vector3 extends Float32Array {
   get y() { return this[ 1 ]; }
   set y( value ) { this[ 1 ] = value; }
 
-  get z() { reutrn this[2]; }
+  get z() { return this[2]; }
   set z( value ) { this[ 2 ] = value; }
 
   set( x, y, z ) { this[ 0 ] = x; this[ 1 ] = y; this[ 2 ] = z; }
@@ -37,7 +37,7 @@ class Vector3 extends Float32Array {
 
   clone( vec ) { return new Vector3( this ); }
 
-  setLength( len ) { return this.normalize().scale(len);
+  setLength( len ) { return this.normalize().scale(len); }
 
   // When values are very small, like less then 0.0000001, just make it zero
   nearZero( x = 1e-6, y = 1e-6 ){

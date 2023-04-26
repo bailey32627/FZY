@@ -29,4 +29,13 @@ class Mesh {
   constructor( ) {
     this.submeshes = [ ];
   }
+
+  /**
+  @brief add a submesh to the mesh
+  @param geometry The geometry to use, should be registered with the engine
+  @param material The material to use, should be registred with the engine
+  */
+  addSubMesh( geometry, material ) {
+    this.submeshes.push( new SubMesh( geometry, material ) );
+  }
 }

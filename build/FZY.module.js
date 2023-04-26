@@ -284,31 +284,21 @@ class Shader {
 }
 
 const ShaderLib = {
-  point: {
+  basic: {
     vertexShader:  `#version 300 es
     in vec3 a_position;
 
-    uniform mediump float uPointSize;
-    uniform float uAngle;
-
     void main( void ) {
-      gl_PointSize = uPointSize;
-      gl_Position = vec4(
-        cos(uAngle) * 0.8 * a_position.x,
-        sin(uAngle) * 0.8 * a_position.y,
-        a_position.z, 1.0 );
+      gl_Position = vec4( a_position.x * 0.5, a_position.y * 0.5, a_position.z * 0.5, 1.0 );
     }`,
 
     fragmentShader:  `#version 300 es
     precision mediump float;
 
-    uniform float uPointSize;
-
     out vec4 finalColor;
 
     void main( void ){
-      float c = ( 40.0 - uPointSize ) / 20.0;
-      finalColor = vec4( c, c, c, 1.0 );
+      finalColor = vec4( 0.3, 0.4, 0.5, 1.0 );
     }`
   }
 };
@@ -401,22 +391,22 @@ class GLBuffer {
         ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
         break;
       case gl.context.INT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Int32Array )? this.data : new Int32Array( this.data );
         break;
       case gl.context.UNSIGNED_INT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Uint32Array )? this.data : new Uint32Array( this.data );
         break;
       case gl.context.SHORT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Int16Array )? this.data : new Int16Array( this.data );
         break;
-      case gl.context.UNSGINED_SHORT:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+      case gl.context.UNSIGNED_SHORT:
+        ary = ( this.data instanceof Uint16Array )? this.data : new Uint16Array( this.data );
         break;
       case gl.context.BYTE:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Int8Array )? this.data : new Int8Array( this.data );
         break;
       case gl.context.UNSGINED_BYTE:
-        ary = ( this.data instanceof Float32Array )? this.data : new Float32Array( this.data );
+        ary = ( this.data instanceof Uint8Array )? this.data : new Uint8Array( this.data );
         break;
     }
 
@@ -435,16 +425,635 @@ class GLBuffer {
   @brief Returns the vertex count
   */
   getVertexCount( ) {
-    return this.data.length / this.size;
+    let c = this.data.length / this.size;
+    if( c < 1 ) {
+      throw new Error( "Cannot have less than 1 vertex to render" );
+    }
+    return c;
   }
 }
 
-class Vao {
+// convert degrees to radians
+  const degreesToRadians = (degrees) => { return degrees * ( Math.PI / 180.0 ); };
+
+  // smallest positive number
+  const EPSILON = 1.192092896e-07;
+
+class Vector2 extends Float32Array {
+
+  /**
+  * Creates a new instance of a Vector2
+  */
+  constructor( param ) {
+    super( 2 );
+    if( param instanceof Vector2 || ( param && param.length == 2 ) ) {
+      this[0] = param[0];
+      this[1] = param[1];
+    } else if ( arguments.length == 2 ) {
+      this[ 0 ] = arguments[ 0 ];
+      this[ 1 ] = arguments[ 1 ];
+    } else {
+      this[ 0 ] = this[ 1 ] = param || 0;
+    }
+  }
+
+  // getters and setters
+  get x() { return this[ 0 ]; }
+  set x( value ) { this[ 0 ] = value; }
+
+  get y() { return this[ 1 ]; }
+  set y( value ) { this[ 1 ] = value; }
+
+  set( x, y ) { this[ 0 ] = x; this[ 1 ] = y; }
+
+  copy( vec ) { this[ 0 ] = vec[ 0 ]; this[ 1 ] = vec[ 1 ]; }
+
+  clone( vec ) { return new Vector2( this ); }
+
+  fromAngleLength( angle, length ) {
+    this[ 0 ] = length * Math.cos( angle );
+    this[ 1 ] = length * Math.sin( angle );
+  }
+
+  getAngle( v = null ) {
+    if( v ) {
+      return Math.acos( Vector2.dot( this, v ) / (this.length() * v.length() ) );
+    }
+    return Math.atan2( this[1], this[0] );
+  }
+
+  // When values are very small, like less then 0.0000001, just make it zero
+  nearZero( x = 1e-6, y = 1e-6 ){
+    if( Math.abs(this[0]) <= x ) this[0] = 0;
+    if( Math.abs(this[1]) <= y ) this[1] = 0;
+    return this;
+  }
+
+  // Methods -------------------------------------------------------
+
+  /**
+  @brief Adds this and the given vector
+  @param v The vector to add to this
+  @param out The Vector2 to set to the calculated value
+  */
+  add( v, out = null ) {
+    out = out || this;
+    out[ 0 ] = this[ 0 ] + v[ 0 ];
+    out[ 1 ] = this[ 1 ] + v[ 1 ];
+    return this;
+  }
+
+  /**
+  @brief subtracts this and the given vector
+  @param v The vector to subtract to this
+  @param out The Vector2 to set to the calculated value
+  */
+  subtract( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] - v[0];
+    out[1] = this[1] - v[1];
+    return out;
+  }
+
+  /**
+  @brief multiply this and the given vector
+  @param v The vector to multiply to this
+  @param out The Vector2 to set to the calculated value
+  */
+  multiply( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] * v[0];
+    out[1] = this[1] * v[1];
+    return out;
+  }
+
+  /**
+  @brief divids this and the given vector
+  @param v The vector to divids to this
+  @param out The Vector2 to set to the calculated value
+  */
+  divid( v, out = null ) {
+    out = out || this;
+    out[0] = v[0] != 0 ? this[0] / v[0] : 0;
+    out[1] = v[1] != 0 ? this[1] / v[1] : 0;
+    return out;
+  }
+
+  /**
+  @brief scales this vector by the given value
+  @param value the value to scale by
+  @param out The Vector2 to set to the calculated value
+  */
+  scale( value, out = null ) {
+    out = out || this;
+    out[0] = this[0] * value;
+    out[1] = this[1] * value;
+    return out;
+  }
+
+  /**
+  @brief Returns the int value of this vector
+  @param out The Vector2 to set to the calculated value
+  */
+  floor( out = null ) {
+    out = out || this;
+    out[0] = Math.floor( this[ 0 ] );
+    out[1] = Math.floor( this[ 1 ] );
+    return out;
+  }
+
+  /**
+  @brief Returns the length of the vector ( Magnitude )
+  */
+  length( ) {
+    return Math.sqrt( this[0] * this[0] + this[1] * this[1] );
+  }
+
+  /**
+  @brief Returns the squared magnitude of this vector
+  */
+  lengthSquared( ) {
+    return this[ 0 ] * this[ 0 ] + this[ 1 ] * this[ 1 ];
+  }
+
+  /**
+  @brief normalizes this vector
+  @param out The vector to the calculated value
+  */
+  normalize( out = null ) {
+    out = out || this;
+
+    let mag = Math.sqrt( this[0]*this[0] + this[1]*this[1] );
+    if( mag <= 0 ) return this;
+
+    out[ 0 ] = this[ 0 ] / mag;
+    out[ 1 ] = this[ 1 ] / mag;
+    return this;
+  }
+
+  /**
+  @brief Linear interpolate this and v by ratio t
+  @param v Vector2
+  @param t ratio clamped between 0 - 1
+  @param out The Vector2 to set to the calculated value
+  */
+  lerp( v, t, out = null ) {
+    out = out || this;
+    var tmin = 1 - t;
+
+    // linear Interpolate ( 1 - t ) * v0 + t * v1
+    out[0] = this[0] * tmin + v[0] * t;
+    out[1] = this[1] * tmin + v[1] * t;
+    return out;
+  }
+
+  /**
+  @brief Smoother version of a linear interpolate
+  @param v Vector2
+  @param t ratio clamped between 0 - 1
+  @param out The Vector2 to set to the calculated value
+  */
+  smoothStep( v, t, out = null ) {
+    out = out || this;
+    // (b-a) * ( ratio * ratio * ( 3 - 2 * ratio ) ) + a;
+    out[ 0 ] = ( v[0] - this[0]) * ( t * t * ( 3 - 2 * t ) ) + this[0];
+    out[ 1 ] = ( v[1] - this[1]) * ( t * t * ( 3 - 2 * t ) ) + this[1];
+    return out;
+  }
+
+  /**
+  @brief an even smoother step of linear interplatation
+  @param v Vector2
+  @param t ratio clamped between 0 - 1
+  @param out The Vector2 to set to the calculated value
+  */
+  smootherStep( v, t, out = null ) {
+    out = out || this;
+    // return (b-a) * (ratio * ratio * ratio * (ratio*(ratio * 6 - 15 ) + 10 ) ) + a;
+    out[ 0 ] = (v[0] - this[0]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[0];
+    out[ 1 ] = (v[1] - this[1]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[1];
+    return out;
+  }
+
+  /**
+  @brief Rotates this by the given angle
+  @param angle The angle to rotate by
+  @param out The Vector2 to set to the calculated value
+  */
+  rotate( angle, out = null ) {
+    out = out || this;
+    let radians = degreesToRadians( angle ),
+    cos = Math.cos( radians ),
+    sin = Math.sin( radians ),
+    x = this[0],
+    y = this[1];
+
+    out[0] = x * cos - y * sin;
+    out[1] = y * sin + y * cos;
+    return out;
+  }
+
+  /**
+  @brief inverts the vector from its current value
+  @param out set to the calculated value
+  */
+  invert( out = null ) {
+    out = out || this;
+    out[ 0 ] = -this[0];
+    out[ 1 ] = -this[1];
+    return out;
+  }
+
+  /**
+  @brief returns the dot product of this vector and v
+  @param v The vector to subtract to this
+  */
+  dot( v ) {
+    return this[0] * v[0] + this[1] * v[1];
+  }
+}
+
+class Vector3 extends Float32Array {
+
+  /**
+  * Creates a new instance of a Vector2
+  */
+  constructor( param ) {
+    super( 3 );
+    if( param instanceof Vector3 || ( param && param.length == 3 ) ) {
+      this[0] = param[0];
+      this[1] = param[1];
+      this[2] = param[2];
+    } else if ( arguments.length == 3 ) {
+      this[ 0 ] = arguments[ 0 ];
+      this[ 1 ] = arguments[ 1 ];
+      this[ 2 ] = arguments[ 2 ];
+    } else {
+      this[ 0 ] = this[ 1 ] = this[2] = param || 0;
+    }
+  }
+
+  // getters and setters
+  get x() { return this[ 0 ]; }
+  set x( value ) { this[ 0 ] = value; }
+
+  get y() { return this[ 1 ]; }
+  set y( value ) { this[ 1 ] = value; }
+
+  get z() { return this[2]; }
+  set z( value ) { this[ 2 ] = value; }
+
+  set( x, y, z ) { this[ 0 ] = x; this[ 1 ] = y; this[ 2 ] = z; }
+
+  copy( vec ) { this[ 0 ] = vec[ 0 ]; this[ 1 ] = vec[ 1 ]; this[ 2 ] = vec[ 2 ]; }
+
+  clone( vec ) { return new Vector3( this ); }
+
+  setLength( len ) { return this.normalize().scale(len); }
+
+  // When values are very small, like less then 0.0000001, just make it zero
+  nearZero( x = 1e-6, y = 1e-6 ){
+    if( Math.abs(this[0]) <= x ) this[0] = 0;
+    if( Math.abs(this[1]) <= y ) this[1] = 0;
+    return this;
+  }
+
+  // Methods -------------------------------------------------------
+
+  /**
+  @brief Adds this and the given vector
+  @param v The vector to add to this
+  @param out The Vector3 to set to the calculated value
+  */
+  add( v, out = null ) {
+    out = out || this;
+    out[ 0 ] = this[ 0 ] + v[ 0 ];
+    out[ 1 ] = this[ 1 ] + v[ 1 ];
+    out[ 2 ] = this[ 2 ] + v[ 2 ];
+    return this;
+  }
+
+  /**
+  @brief subtracts this and the given vector
+  @param v The vector to subtract to this
+  @param out The Vector3 to set to the calculated value
+  */
+  subtract( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] - v[0];
+    out[1] = this[1] - v[1];
+    out[2] = this[2] - v[2];
+    return out;
+  }
+
+  /**
+  @brief multiply this and the given vector
+  @param v The vector to multiply to this
+  @param out The Vector3 to set to the calculated value
+  */
+  multiply( v, out = null ) {
+    out = out || this;
+    out[0] = this[0] * v[0];
+    out[1] = this[1] * v[1];
+    out[2] = this[2] * v[2];
+    return out;
+  }
+
+  /**
+  @brief divids this and the given vector
+  @param v The vector to divids to this
+  @param out The Vector3 to set to the calculated value
+  */
+  divid( v, out = null ) {
+    out = out || this;
+    out[0] = v[0] != 0 ? this[0] / v[0] : 0;
+    out[1] = v[1] != 0 ? this[1] / v[1] : 0;
+    out[2] = v[2] != 0 ? this[2] / v[2] : 0;
+    return out;
+  }
+
+  /**
+  @brief scales this vector by the given value
+  @param value the value to scale by
+  @param out The Vector2 to set to the calculated value
+  */
+  scale( value, out = null ) {
+    out = out || this;
+    out[0] = this[0] * value;
+    out[1] = this[1] * value;
+    out[2] = this[2] * value;
+    return out;
+  }
+
+  /**
+  @brief Returns the int value of this vector
+  @param out The Vector2 to set to the calculated value
+  */
+  floor( out = null ) {
+    out = out || this;
+    out[0] = Math.floor( this[ 0 ] );
+    out[1] = Math.floor( this[ 1 ] );
+    out[2] = Math.floor( this[ 2 ] );
+    return out;
+  }
+
+  /**
+  @brief Returns the length of the vector ( Magnitude )
+  */
+  length( ) {
+    return Math.sqrt( this[0] * this[0] + this[1] * this[1] + this[2] * this[2] );
+  }
+
+  /**
+  @brief Returns the squared magnitude of this vector
+  */
+  lengthSquared( ) {
+    return  this[0] * this[0] + this[1] * this[1] + this[2] * this[2];
+  }
+
+  /**
+  @brief normalizes this vector
+  @param out The vector to the calculated value
+  */
+  normalize( out = null ) {
+    out = out || this;
+
+    let mag = Math.sqrt( this[0]*this[0] + this[1]*this[1] );
+    if( mag <= 0 ) return this;
+
+    out[ 0 ] = this[ 0 ] / mag;
+    out[ 1 ] = this[ 1 ] / mag;
+    out[ 2 ] = this[ 2 ] / mag;
+    return this;
+  }
+
+  /**
+  @brief Linear interpolate this and v by ratio t
+  @param v Vector3
+  @param t ratio clamped between 0 - 1
+  @param out The Vector3 to set to the calculated value
+  */
+  lerp( v, t, out = null ) {
+    out = out || this;
+    var tmin = 1 - t;
+
+    // linear Interpolate ( 1 - t ) * v0 + t * v1
+    out[0] = this[0] * tmin + v[0] * t;
+    out[1] = this[1] * tmin + v[1] * t;
+    out[2] = this[2] * tmin + v[2] * t;
+    return out;
+  }
+
+  /**
+  @brief Smoother version of a linear interpolate
+  @param v Vector3
+  @param t ratio clamped between 0 - 1
+  @param out The Vector3 to set to the calculated value
+  */
+  smoothStep( v, t, out = null ) {
+    out = out || this;
+    // (b-a) * ( ratio * ratio * ( 3 - 2 * ratio ) ) + a;
+    out[ 0 ] = ( v[0] - this[0]) * ( t * t * ( 3 - 2 * t ) ) + this[0];
+    out[ 1 ] = ( v[1] - this[1]) * ( t * t * ( 3 - 2 * t ) ) + this[1];
+    out[ 2 ] = ( v[2] - this[2]) * ( t * t * ( 3 - 2 * t ) ) + this[2];
+    return out;
+  }
+
+  /**
+  @brief an even smoother step of linear interplatation
+  @param v Vector3
+  @param t ratio clamped between 0 - 1
+  @param out The Vector3 to set to the calculated value
+  */
+  smootherStep( v, t, out = null ) {
+    out = out || this;
+    // return (b-a) * (ratio * ratio * ratio * (ratio*(ratio * 6 - 15 ) + 10 ) ) + a;
+    out[ 0 ] = (v[0] - this[0]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[0];
+    out[ 1 ] = (v[1] - this[1]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[1];
+    out[ 2 ] = (v[2] - this[2]) * ( t*t*t * ( t*( t * 6 - 15 ) + 10 ) ) + this[2];
+    return out;
+  }
+
+  /**
+  @brief inverts the vector from its current value
+  @param out set to the calculated value
+  */
+  invert( out = null ) {
+    out = out || this;
+    out[ 0 ] = -this[0];
+    out[ 1 ] = -this[1];
+    out[ 2 ] = -this[2];
+    return out;
+  }
+
+  /**
+  @brief returns the dot product of this vector and v
+  @param v The vector to subtract to this
+  */
+  dot( v ) {
+    return this[0] * v[0] + this[1] * v[1] + this[2] * v[2];
+  }
+
+  /**
+  @brief returns a vector3 that is perpendicular to this and v
+  @param v the other vector3
+  @param out The Vector3 to set the calculated value to
+  */
+  cross( v, out = null ) {
+    out = out || this;
+    let x = this[ 1 ] * v[ 2 ] - this[ 2 ] * v[ 1 ],
+        y = this[ 2 ] * v[ 0 ] - this[ 0 ] * v[ 2 ];
+        z = this[ 0 ] * v[ 1 ] - this[ 1 ] * v[ 0 ];
+    out[ 0 ] = x;
+    out[ 1 ] = y;
+    out[ 2 ] = z;
+    return out;
+  }
+
+  /**
+  @brief Sets this to the cross product of the two given vectors
+  @param t the first vector3
+  @param v the other vector3
+  */
+  crossVectors( t, v ) {
+    let x = t[ 1 ] * v[ 2 ] - t[ 2 ] * v[ 1 ],
+        y = t[ 2 ] * v[ 0 ] - t[ 0 ] * v[ 2 ];
+        z = t[ 0 ] * v[ 1 ] - t[ 1 ] * v[ 0 ];
+    this[ 0 ] = x;
+    this[ 1 ] = y;
+    this[ 2 ] = z;
+  }
+
+  /**
+  @brief Returns the distance between this vector and the given vector
+  @param v Vector3
+  @return number
+  */
+  distance( v ) {
+    return Math.sqrt( ( v[0]-this[0]) * (v[0]-this[0]) + (v[1]-this[1]) * (v[1]-this[1]) + (v[2]-this[2]) * (v[2]-this[2]) );
+  }
+
+  /**
+  @brief Returns the squared distance between this vector and the given vector
+  @param v Vector3
+  @return number
+  */
+  distanceSquared( v ) {
+    return (v[0]-this[0]) * (v[0]-this[0]) + (v[1]-this[1]) * (v[1]-this[1]) + (v[2]-this[2]) * (v[2]-this[2]);
+  }
+
+  /**
+  @brief Compares this vector and v, returns if they are within tolerance
+  @param v Vector3
+  @param tolerance default is EPISLON
+  */
+  isEqual( v, tolerance = EPSILON ) {
+    if ( Math.abs( this[0] - v[0] ) > tolerance ) return false;
+    if ( Math.abs( this[1] - v[1] ) > tolerance ) return false;
+    if ( Math.abs( this[2] - v[2] ) > tolerance ) return false;
+    return true;
+  }
+
+  /**
+  @brief projects this on v and set the value to out
+  @param v Vector3
+  @param out The Vector to set to the calculated value
+  */
+  project( v, out = null ) {
+    out = out || this;
+    this[0]; this[1]; this[2];
+    let d = this.dot( v );
+    out[0] = this[0] - ( v[0] * d );
+    out[1] = this[1] - ( v[1] * d );
+    out[2] = this[2] - ( v[2] * d );
+    return out;
+  }
+
+  /**
+  @brief Rotates this vector3 on the given axis
+  @param degrees the amount to rotate in degrees
+  @param axis The axis to rotate on
+  @param out Vector3 to set to the calculated value
+  */
+  rotate( degrees, axis="x", out=null) {
+    out = out || this;
+    let radians = degreesToRadians( degrees ),
+    sin = Math.sin( radians ),
+    cos = Math.cos( radians ),
+    x = this[ 0 ], y = this[ 1 ], z = this[2];
+
+    switch( axis ) {
+      case "y":
+        out[0] = z * sin + x * cos;
+        out[2] = z * cos - x * sin;
+        break;
+      case "x":
+        out[1] = y * cos - z * sin;
+        out[2] = y * sin + z * cos;
+        break;
+      case "z":
+        out[0] = x * cos - y * sin;
+        out[1] = x * sin + y * cos;
+        break;
+    }
+    return out;
+  }
+}
+
+Vector3.UP = [ 0, 1, 0 ];
+Vector3.DOWN = [ 0, -1, 0 ];
+Vector3.LEFT = [ 1, 0, 0 ];
+Vector3.RIGHT = [ -1, 0, 0 ];
+Vector3.ZERO = [ 0, 0, 0 ];
+
+class Vertex {
+  constructor( position = new Vector3(), normal = new Vector3(), texcoords = new Vector2, tangent = new Vector3(), bitangents = new Vector3() ) {
+    this.position = position;
+    this.normal = normal;
+    this.texcoords = texcoords;
+    this.tangent = tangent;
+    this.bitangent = bitangents;
+  }
+
+  setPosition( position ) {
+    this.position = position;
+  }
+
+  setNormal( normal ) {
+    this.normal = normal;
+  }
+
+  setTexcoords( texcoords ) {
+    this.texcoords = texcoords;
+  }
+
+  setTangent( tangent ) {
+    this.tangent = tangent;
+  }
+
+  setBitangent( bitangent ) {
+    this.bitangent = bitangent;
+  }
+  /**
+  @brief Gets the vertex in array form
+  */
+  toArray( array ) {
+    if( array != undefined ) {
+      array.push( this.position.x, this.position.y, this.position.z,
+                  this.normal.x, this.normal.y, this.normal.z,
+                  this.texcoords.x, this.texcoords.y,
+                  this.tangent.x, this.tangent.y, this.tangent.z,
+                  this.bitangent.x, this.bitangent.y, this.bitangent.z );
+    }
+  }
+}
+
+class Geometry {
   /**
   @brief Creates a new vetex array object to hold an array of vetex buffer objects
   */
   constructor( ) {
-    this.id = gl.context.createVertexArray( );
+    this.vao = gl.context.createVertexArray( );
     this.count = 0;
     this.isIndexed = false;
     this.isInstance = false;
@@ -458,7 +1067,7 @@ class Vao {
     for( let b of buffers ) {
       b.destroy( );
     }
-    gl.context.deleteVertexArray( this.id );
+    gl.context.deleteVertexArray( this.vao );
   }
 
   /**
@@ -497,7 +1106,7 @@ class Vao {
   @param isIntance is the data an Intance model, default false
   */
   upload( isStatic = true, isInstance = false ) {
-    gl.context.bindVertexArray( this.id );
+    gl.context.bindVertexArray( this.vao );
     for( let [ key, value ] of Object.entries( this.buffers ) ) {
       value.upload( isStatic, isInstance );
     }
@@ -508,7 +1117,7 @@ class Vao {
   @brief bind the vao
   */
   bind( ) {
-    gl.context.bindVertexArray( this.id );
+    gl.context.bindVertexArray( this.vao );
   }
 
   /**
@@ -534,133 +1143,52 @@ class Vao {
     if( doBinding ) { this.unbind(); }
   }
 
-}
-
-class GeometryManager {
-  constructor( ) {
-    this.polygons = new Map();
-  }
-
   /**
-  @brief creates a vetex array object for the geometry
-  @param name The name of this geometry
-  @param verticesArray array of compact vertices
-  @param indicesArray Array of shorts
+  @brief Creates a quad geometry
   */
-  createMesh( name, positions = null, normals = null, uvs = null, indices = null ) {
-    let rtn = new Vao();
-    // create and bind the vao
-  //  rtn.vao = gl.context.createVertexArray();
-  //  gl.context.bindVertexArray( rtn.vao );  // bind it so all the calls to vertexAttribPointer/enableVertexAttribArray is aved to the vao
+  static createBox2D(  ) {
+    let rtn = new Geometry();
+    let verts = [];
+    verts.push( new Vertex( new Vector3( 1, 1, 0), new Vector3(0, 0, 1), new Vector2(1,1) )  );
+    verts.push( new Vertex( new Vector3(-1, 1, 0), new Vector3(0, 0, 1), new Vector2(0,1) ) );
+    verts.push( new Vertex( new Vector3(-1,-1, 0), new Vector3(0, 0, 1), new Vector2(0,0) ) );
+    verts.push( new Vertex( new Vector3( 1,-1, 0), new Vector3(0, 0, 1), new Vector2(1,0) ) );
 
-    // set up vertices
-    if( positions !== undefined && positions != null ){
-      let pb = new GLBuffer();
-      pb.setData( positions );
-      pb.addAttribute( gl.ATTRIB_POSISTION_LOC, 3 );
+    let idxs = [ 0, 1, 2, 0, 2, 3 ];
+    let vertData = [];
+    for( let i = 0; i < verts.length; i++ ) { verts[i].toArray( vertData ); }
 
-      rtn.addBuffer( "positions", pb );
-    //  rtn.positionBuffer = new GLBuffer( );
-    //  rtn.positionBuffer.setData( positions );
-    //  rtn.positionBuffer.addAttribute( gl.ATTRIB_POSISTION_LOC, 3 );
-    // rtn.positionBuffer.upload( );
-    // rtn.vertexCount = rtn.positionBuffer.getVertexCount();
-      /*
-      rtn.positionBuffer = gl.context.createBuffer( );
-      rtn.positionComponentLen = 3;
-      rtn.vertexCount = positions.length / rtn.positionComponentLen;
+    let vertbuffer = new GLBuffer( );
+    vertbuffer.addAttribute( gl.ATTRIB_POSITION_LOC, 3 );
+    vertbuffer.addAttribute( gl.ATTRIB_NORMAL_LOC, 3 );
+    vertbuffer.addAttribute( gl.ATTRIB_TEXCOORDS_LOC, 2 );
+    vertbuffer.addAttribute( gl.ATTRIB_TANGENT_LOC, 3 );
+    vertbuffer.addAttribute( gl.ATTRIB_BITANGENT_LOC, 3 );
+    vertbuffer.setData( vertData );
+    rtn.addBuffer( 'vertices', vertbuffer );
 
-      gl.context.bindBuffer( gl.context.ARRAY_BUFFER, rtn.positionBuffer );
-      gl.context.bufferData( gl.context.ARRAY_BUFFER, new Float32Array( positions ), gl.context.STATIC_DRAW );
-      gl.context.enableVertexAttribArray( gl.ATTRIB_POSISTION_LOC );
-      gl.context.vertexAttribPointer( gl.ATTRIB_POSISTION_LOC, 3, gl.context.FLOAT, false, 0, 0 );
-      */
-    }
+    let idxBuffer = new GLBuffer( gl.context.UNSIGNED_SHORT, gl.context.ELEMENT_ARRAY_BUFFER );
+    idxBuffer.setData( idxs );
+    rtn.addBuffer( 'indices', idxBuffer );
 
-    // set up normals
-    if( normals !== undefined && normals != null ) {
-      rtn.normalBuffer = gl.createBuffer();
-      gl.context.bindBuffer( gl.context.ARRAY_BUFFER, rtn.normalBuffer );
-      gl.context.bufferData( gl.context.ARRAY_BUFFER, new Float32Array( normals ), gl.context.STATIC_DRAW );
-      gl.context.enableVertexAttribArray( gl.ATTRIB_NORMAL_LOC );
-      gl.context.vertexAttribPointer( gl.ATTRIB_NORMAL_LOC, 3, gl.context.FLOAT, false, 0, 0 );
-    }
-
-    // setup uvs
-    if( uvs !== undefined && uvs != null ) {
-      rtn.uvBuffer = gl.createBuffer( );
-      gl.context.bindBuffer( gl.context.ARRAY_BUFFER, rtn.uvBuffer );
-      gl.context.bufferData( gl.context.ARRAY_BUFFER, new Float32Array( uvs ), gl.context.STATIC_DRAW );
-      gl.context.enableVertexAttribArray( gl.ATTRIB_TEXCOORDS_LOC );
-      gl.context.vertexAttribPointer( gl.ATTRIB_TEXCOORDS_LOC, 2, gl.context.FLOAT, false, 0, 0 );
-    }
-
-    if ( indices !== undefined && indices != null ) {
-      rtn.indexBuffer = this.createBuffer();
-      rtn.indexCount = indices.length;
-      gl.context.bindBuffer( gl.context.ELEMENT_ARRAY_BUFFER, rtn.indexBuffer );
-      gl.context.bufferData( gl.context.ELEMENT_ARRAY_BUFFER, new Uint16Array( indices ), gl.context.STATIC_DRAW );
-      gl.context.bindBuffer( gl.context.ELEMENT_ARRAY_BUFFER, null );
-    }
-
-    // clean up
     rtn.upload();
     rtn.unbind();
-    //gl.context.bindVertexArray( null ); // unbind the VAO, very IMPORTANT
-  //  gl.context.bindBuffer( gl.context.ARRAY_BUFFER, null ); // unbind any buffers that might be set
-
-    this.polygons[ name ] = rtn;
     return rtn;
-  }
 
-  /**
-  @brief gets the geometry from the manager
-  @param name The name of the geometry to retrieve
-  */
-  getGeometry( name ) {
-    return this.polygons[ name ];
-  }
-
-  /**
-  @brief Removes the geometry from the manger
-  @param name The name of the geometry to remove
-  */
-  removeGeometry( name ) {
-    this.polygons.delete( name );
-  }
-
-}
-
-let Geometry = new GeometryManager();
-
-class Model {
-  constructor( meshData ) {
-    this.mesh = meshData;
-  }
-
-  /**
-  @brief Prepare the mesh for rendering
-  */
-  prepareToRender() {
 
   }
+
 }
 
 let instance;  // instance for the singleton
 
 class TestShader extends Shader {
   constructor() {
-    let vs = ShaderLib.point.vertexShader;
-    let fs = ShaderLib.point.fragmentShader;
+    let vs = ShaderLib.basic.vertexShader;
+    let fs = ShaderLib.basic.fragmentShader;
     super( vs, fs, true );
 
     this.unbind();
-  }
-
-  set( size, angle ) {
-    gl.context.uniform1f( this.getUniformLocation( "uPointSize"), size );
-    gl.context.uniform1f( this.getUniformLocation( "uAngle" ), angle );
-    return this;
   }
 }
 
@@ -680,12 +1208,7 @@ class EngineSingleton {
     this.elaspedTime;
 
     // remove
-    this.pointSize = 0;
-    this.pointSizeStep = 3;
-    this.angle = 0;
-    this.angleStep = ( Math.PI / 180.0 ) * 90;
-    this.uAngle = -1;
-    this.model;
+    this.geometry;
   }
 
   initialize( canvasID ) {
@@ -697,10 +1220,7 @@ class EngineSingleton {
     this.shader = new TestShader();
 
     // setup mesh
-    let mesh = Geometry.createMesh( "dots", [0, 0, 0] );
-    mesh.mode = gl.POINTS;
-
-    this.model = new Model( mesh );
+    this.geometry = Geometry.createBox2D( );
 
     this.startAnimating( );
   }
@@ -735,12 +1255,9 @@ class EngineSingleton {
 
   render( delta ) {
     gl.clear();
-    this.shader.bind().set(
-      (Math.sin( ( this.pointSize += this.pointSizeStep * delta ) ) * 10.0 ) + 30.0,
-      ( this.angle += this.angleStep * delta )
-    );
+    this.shader.bind();
 
-    this.model.mesh.draw( gl.context.POINTS, true );
+    this.geometry.draw( gl.context.TRIANGLES, true );
 
     /*
     if ( this.model.mesh.indexCount ) {

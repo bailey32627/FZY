@@ -6,7 +6,7 @@ import * as MathUtils from './MathUtils.js';
 class Quaternion extends Float32Array {
   constructor( q = null ) {
     super( 4 );
-    if( q != null && q instance Quaternion ) {
+    if( q != null && q instanceof Quaternion ) {
       this[0] = q[0];
       this[1] = q[1];
       this[2] = q[2];
