@@ -1,4 +1,6 @@
-import { gl, GLUtil, Attributes } from '../gl/GLUtil.js';
+import { gl } from '../gl/GL.js';
+import { GLBuffer } from '../gl/GLBuffer.js';
+import { Vao } from '../gl/GLVao.js';
 
 
 class GeometryManager {
@@ -13,52 +15,66 @@ class GeometryManager {
   @param indicesArray Array of shorts
   */
   createMesh( name, positions = null, normals = null, uvs = null, indices = null ) {
-    let rtn = { mode: gl.TRIANGLES };
+    let rtn = new Vao();
     // create and bind the vao
-    rtn.vao = gl.createVertexArray();
-    gl.bindVertexArray( rtn.vao );  // bind it so all the calls to vertexAttribPointer/enableVertexAttribArray is aved to the vao
+  //  rtn.vao = gl.context.createVertexArray();
+  //  gl.context.bindVertexArray( rtn.vao );  // bind it so all the calls to vertexAttribPointer/enableVertexAttribArray is aved to the vao
 
     // set up vertices
     if( positions !== undefined && positions != null ){
-      rtn.positionBuffer = gl.createBuffer( );
+      let pb = new GLBuffer();
+      pb.setData( positions );
+      pb.addAttribute( gl.ATTRIB_POSISTION_LOC, 3 );
+
+      rtn.addBuffer( "positions", pb );
+    //  rtn.positionBuffer = new GLBuffer( );
+    //  rtn.positionBuffer.setData( positions );
+    //  rtn.positionBuffer.addAttribute( gl.ATTRIB_POSISTION_LOC, 3 );
+    // rtn.positionBuffer.upload( );
+    // rtn.vertexCount = rtn.positionBuffer.getVertexCount();
+      /*
+      rtn.positionBuffer = gl.context.createBuffer( );
       rtn.positionComponentLen = 3;
       rtn.vertexCount = positions.length / rtn.positionComponentLen;
 
-      gl.bindBuffer( gl.ARRAY_BUFFER, rtn.positionBuffer );
-      gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( positions ), gl.STATIC_DRAW );
-      gl.enableVertexAttribArray( Attributes.POSITION_LOC );
-      gl.vertexAttribPointer( Attributes.POSITION_LOC, 3, gl.FLOAT, false, 0, 0 );
+      gl.context.bindBuffer( gl.context.ARRAY_BUFFER, rtn.positionBuffer );
+      gl.context.bufferData( gl.context.ARRAY_BUFFER, new Float32Array( positions ), gl.context.STATIC_DRAW );
+      gl.context.enableVertexAttribArray( gl.ATTRIB_POSISTION_LOC );
+      gl.context.vertexAttribPointer( gl.ATTRIB_POSISTION_LOC, 3, gl.context.FLOAT, false, 0, 0 );
+      */
     }
 
     // set up normals
     if( normals !== undefined && normals != null ) {
       rtn.normalBuffer = gl.createBuffer();
-      gl.bindBuffer( gl.ARRAY_BUFFER, rtn.normalBuffer );
-      gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( normals ), gl.STATIC_DRAW );
-      gl.enableVertexAttribArray( Attributes.NORMAL_LOC );
-      gl.vertexAttribPointer( Attributes.NORMAL_LOC, 3, gl.FLOAT, false, 0, 0 );
+      gl.context.bindBuffer( gl.context.ARRAY_BUFFER, rtn.normalBuffer );
+      gl.context.bufferData( gl.context.ARRAY_BUFFER, new Float32Array( normals ), gl.context.STATIC_DRAW );
+      gl.context.enableVertexAttribArray( gl.ATTRIB_NORMAL_LOC );
+      gl.context.vertexAttribPointer( gl.ATTRIB_NORMAL_LOC, 3, gl.context.FLOAT, false, 0, 0 );
     }
 
     // setup uvs
     if( uvs !== undefined && uvs != null ) {
       rtn.uvBuffer = gl.createBuffer( );
-      gl.bindBuffer( gl.ARRAY_BUFFER, rtn.uvBuffer );
-      gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( uvs ), gl.STATIC_DRAW );
-      gl.enableVertexAttribArray( Attributes.UV_LOC );
-      gl.vertexAttribPointer( Attributes.UV_LOC, 2, gl.FLOAT, false, 0, 0 );
+      gl.context.bindBuffer( gl.context.ARRAY_BUFFER, rtn.uvBuffer );
+      gl.context.bufferData( gl.context.ARRAY_BUFFER, new Float32Array( uvs ), gl.context.STATIC_DRAW );
+      gl.context.enableVertexAttribArray( gl.ATTRIB_TEXCOORDS_LOC );
+      gl.context.vertexAttribPointer( gl.ATTRIB_TEXCOORDS_LOC, 2, gl.context.FLOAT, false, 0, 0 );
     }
 
     if ( indices !== undefined && indices != null ) {
       rtn.indexBuffer = this.createBuffer();
       rtn.indexCount = indices.length;
-      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, rtn.indexBuffer );
-      gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( indices ), gl.STATIC_DRAW );
-      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null );
+      gl.context.bindBuffer( gl.context.ELEMENT_ARRAY_BUFFER, rtn.indexBuffer );
+      gl.context.bufferData( gl.context.ELEMENT_ARRAY_BUFFER, new Uint16Array( indices ), gl.context.STATIC_DRAW );
+      gl.context.bindBuffer( gl.context.ELEMENT_ARRAY_BUFFER, null );
     }
 
     // clean up
-    gl.bindVertexArray( null ); // unbind the VAO, very IMPORTANT
-    gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind any buffers that might be set
+    rtn.upload();
+    rtn.unbind();
+    //gl.context.bindVertexArray( null ); // unbind the VAO, very IMPORTANT
+  //  gl.context.bindBuffer( gl.context.ARRAY_BUFFER, null ); // unbind any buffers that might be set
 
     this.polygons[ name ] = rtn;
     return rtn;

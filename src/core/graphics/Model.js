@@ -1,4 +1,4 @@
-import { gl } from '../gl/GLUtil.js';
+import { gl } from '../gl/GL.js';
 
 class Model {
   constructor( meshData ) {

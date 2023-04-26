@@ -1,4 +1,3 @@
-export { gl } from './core/gl/GLUtil.js';
-export { GLUtil } from './core/gl/GLUtil.js';
+export { gl } from './core/gl/GL.js';
 
 export { Engine } from './core/Engine.js';
