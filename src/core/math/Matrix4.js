@@ -29,19 +29,14 @@ class Matrix4 extends Float32Array {
   }
   // Methods ----------------------------------------------------
 
-  /**
-  @brief Set this matrix to the identity matrix
-  */
+  //Set this matrix to the identity matrix -------------------------------
   identity( ) {
     this[0] = this[5] = this[10] = this[15] = 1;
     this[1] = this[2] = this[3] = this[4] = this[6] = this[7] = this[8] = this[9] = this[11] = this[12] = this[13] = this[14] = 0;
     return this;
   }
 
-  /**
-  @brief Transposes this matrix4
-  @param out Optional Matrix to set the value of
-  */
+  // Transposes this matrix4 ---------------------------------------------
   transpose( out = null ) {
     out = out || this;
     let xx = this[0], xy = this[1], xz = this[2], xw = this[3],
@@ -68,11 +63,7 @@ class Matrix4 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Multiply the this matrix and m, set out to the result
-  @param m Matrix4
-  @param out Matrix4 to set the value to, optional
-  */
+  // Multiply the this matrix and m, set out to the result -------------
   multiply( m, out = null ) {
     out = out || this;
     let xx = this[0], xy = this[1], xz = this[2], xw = this[3],
@@ -102,15 +93,13 @@ class Matrix4 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Set this matrix to be an orthographic projection
-  @param left The left value to use
-  @param right The right value
-  @param bottom The bottom value
-  @param top The top value
-  @param near he near value
-  @param far The far value
-  */
+  // Set this matrix to be an orthographic projection ------------------
+  // left The left value to use
+  // right The right value
+  // bottom The bottom value
+  // top The top value
+  // near he near value
+  // far The far value
   setOrthographic( left, right, bottom, top, near, far ) {
     let a = 2.0 / ( right - left ),
         b = 2.0 / ( top - bottom ),
@@ -130,13 +119,11 @@ class Matrix4 extends Float32Array {
     return this;
   }
 
-  /**
-  @brief Sets this to be a perspective view matrix
-  @param fovRadians y field of view in radians
-  @param aspect The aspect ratio
-  @param near distance to the near clip plane
-  @param far distance to the far clip plane
-  */
+  // Sets this to be a perspective view matrix --------------------------
+  // fovRadians y field of view in radians
+  // aspect The aspect ratio
+  // near distance to the near clip plane
+  // far distance to the far clip plane
   setPerspective( fovRadians, aspect, near, far ) {
     let htf = Math.tan( fovRadians * 0.5 );
     this.identity();
@@ -149,10 +136,7 @@ class Matrix4 extends Float32Array {
     return this;
   }
 
-  /**
-  @brief set out to the inverse of this matrix
-  @param out Optional Matrix4 to set the value of
-  */
+  // set out to the inverse of this matrix ---------------------------
   inverse( out = null ) {
     out = out || this;
     let xx = this[0], xy = this[1], xz = this[2], xw = this[3],
@@ -211,11 +195,7 @@ class Matrix4 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief translates this matrix
-  @param position Vector3
-  @param out Optional Matrix4 to set the value of
-  */
+  //translates this matrix -----------------------------------------
   translation( v, out = null ) {
     out = out || this;
     out[ 12 ] = position[ 0 ];
@@ -224,11 +204,7 @@ class Matrix4 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief rotate the given vector3
-  @param vec
-  @return Vector3
-  */
+  // rotate the given vector3 ---------------------------------------
   rotateVector3( vec ) {
     let v = new Vector3();
     v[0] = vec[0] * this[0] + vec[1] * this[4] + vec[2] * this[8];
@@ -238,11 +214,7 @@ class Matrix4 extends Float32Array {
     return v;
   }
 
-  /**
-  @brief Scales this matrix
-  @param scale Vector3
-  @param out optional Matrix4 to set
-  */
+  // Scales this matrix ---------------------------------------------
   scale( scale, out = null ) {
     out = out || this;
     out[0] = scale[0];
@@ -251,11 +223,7 @@ class Matrix4 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Transform the vector3 by this matrix
-  @param v Vector3
-  @return Vector3
-  */
+  // Transform the vector3 by this matrix ---------------------------
   transformVector3( v ) {
     let rtn = new Vector3();
     rtn[0] = v[0] * this[0] + v[1] * this[4] + v[2] * this[8] + this[12];
@@ -264,11 +232,7 @@ class Matrix4 extends Float32Array {
     return rtn;
   }
 
-  /**
-  @brief Transform transpose the vector3 by this matrix
-  @param v Vector3
-  @return Vector3
-  */
+  // Transform transpose the vector3 by this matrix -----------------
   transformTransposeVector3( v ) {
     let rtn = new Vector3();
     let vx = v[0] - this[12], vy = v[1] - this[13], vz = v[2] - this[14];
@@ -279,12 +243,7 @@ class Matrix4 extends Float32Array {
     return rtn;
   }
 
-  /**
-  @brief creates a transfrom
-  @param position Vector3
-  @param scale Vector3
-  @param rotation Vector3
-   */
+  // creates a transfrom ---------------------------------------
   static createTransform( position, scale, rotation ) {
     let x = Quaternion.fromAxisAngle( [1, 0, 0 ], rotation[0] ),
         y = Quaternion.fromAxisAngle( [0, 1, 0 ], rotation[1] ),

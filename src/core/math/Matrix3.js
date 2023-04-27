@@ -19,18 +19,13 @@ class Matrix3 extends Float32Array {
   }
 
   // Methods --------------------------------------------------------
-  /**
-  @brief Sets thiis matrix to the identity matrix
-  */
+  //Sets thiis matrix to the identity matrix ----------
   identity( ) {
     this[0] = this[4] = this[8] = 1;
     this[1] = this[2] = this[3] = this[5] = this[6] = this[7] = 0;
   }
 
-  /**
-  @brief Sets out to the transpose of this matrix
-  @param out Matrix3 to set the values to
-  */
+  // Sets out to the transpose of this matrix ------------------
   transpose( out = null ) {
     out = out || this;
     let xy = this[1], xz = this[2], yx = this[3], yz = this[5], zx = this[6], zy = this[7];
@@ -46,11 +41,7 @@ class Matrix3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Multiplies this and m
-  @param m Matrix3
-  @param out optional matrix3 to assign value to
-  */
+  //  Multiplies this and m -------------------------------
   multiply( m, out = null ) {
     out = out || this;
     let xx = this[0], xy = this[1], xz = this[2],
@@ -71,10 +62,7 @@ class Matrix3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Sets this as the skew symmetric matrix for the given vector3
-  @param v Vector3
-  */
+  // Sets this as the skew symmetric matrix for the given vector3 -------
   setSkewSymmetric( v ) {
     this[0] = 0;
     this[1] = -v[2];
@@ -88,10 +76,7 @@ class Matrix3 extends Float32Array {
     return this;
   }
 
-  /**
-  @brief Sets out to the inverse of this matrix
-  @param out Optional matrix3 to set the value of
-  */
+  //Sets out to the inverse of this matrix ----------------------------
   inverse( out = null ) {
     out = out || this;
 

@@ -1,3 +1,3 @@
-export { gl } from './core/gl/GL.js';
+export { gl } from './core/GL.js';
 
 export { Engine } from './core/Engine.js';

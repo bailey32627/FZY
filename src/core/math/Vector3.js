@@ -21,7 +21,7 @@ class Vector3 extends Float32Array {
     }
   }
 
-  // getters and setters
+  // getters and setters ---------------------------------------------------
   get x() { return this[ 0 ]; }
   set x( value ) { this[ 0 ] = value; }
 
@@ -48,11 +48,7 @@ class Vector3 extends Float32Array {
 
   // Methods -------------------------------------------------------
 
-  /**
-  @brief Adds this and the given vector
-  @param v The vector to add to this
-  @param out The Vector3 to set to the calculated value
-  */
+  // Adds this and the given vector ------------------------------
   add( v, out = null ) {
     out = out || this;
     out[ 0 ] = this[ 0 ] + v[ 0 ];
@@ -61,11 +57,7 @@ class Vector3 extends Float32Array {
     return this;
   }
 
-  /**
-  @brief subtracts this and the given vector
-  @param v The vector to subtract to this
-  @param out The Vector3 to set to the calculated value
-  */
+  // subtracts this and the given vector -------------------------
   subtract( v, out = null ) {
     out = out || this;
     out[0] = this[0] - v[0];
@@ -74,11 +66,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief multiply this and the given vector
-  @param v The vector to multiply to this
-  @param out The Vector3 to set to the calculated value
-  */
+  // multiply this and the given vector ---------------------------
   multiply( v, out = null ) {
     out = out || this;
     out[0] = this[0] * v[0];
@@ -87,11 +75,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief divids this and the given vector
-  @param v The vector to divids to this
-  @param out The Vector3 to set to the calculated value
-  */
+  // divids this and the given vector --------------------------------
   divid( v, out = null ) {
     out = out || this;
     out[0] = v[0] != 0 ? this[0] / v[0] : 0;
@@ -100,11 +84,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief scales this vector by the given value
-  @param value the value to scale by
-  @param out The Vector2 to set to the calculated value
-  */
+  // scales this vector by the given value -----------------------------
   scale( value, out = null ) {
     out = out || this;
     out[0] = this[0] * value;
@@ -113,10 +93,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Returns the int value of this vector
-  @param out The Vector2 to set to the calculated value
-  */
+  // Returns the int value of this vector --------------------------------
   floor( out = null ) {
     out = out || this;
     out[0] = Math.floor( this[ 0 ] );
@@ -125,24 +102,17 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Returns the length of the vector ( Magnitude )
-  */
+  // Returns the length of the vector ( Magnitude ) -----------------------
   length( ) {
     return Math.sqrt( this[0] * this[0] + this[1] * this[1] + this[2] * this[2] );
   }
 
-  /**
-  @brief Returns the squared magnitude of this vector
-  */
+  // Returns the squared magnitude of this vector ------------------------
   lengthSquared( ) {
     return  this[0] * this[0] + this[1] * this[1] + this[2] * this[2];
   }
 
-  /**
-  @brief normalizes this vector
-  @param out The vector to the calculated value
-  */
+  // normalizes this vector -----------------------------------------
   normalize( out = null ) {
     out = out || this;
 
@@ -155,12 +125,7 @@ class Vector3 extends Float32Array {
     return this;
   }
 
-  /**
-  @brief Linear interpolate this and v by ratio t
-  @param v Vector3
-  @param t ratio clamped between 0 - 1
-  @param out The Vector3 to set to the calculated value
-  */
+  // Linear interpolate this and v by ratio t --------------------------------
   lerp( v, t, out = null ) {
     out = out || this;
     var tmin = 1 - t;
@@ -172,12 +137,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Smoother version of a linear interpolate
-  @param v Vector3
-  @param t ratio clamped between 0 - 1
-  @param out The Vector3 to set to the calculated value
-  */
+  // Smoother version of a linear interpolate ---------------------------------
   smoothStep( v, t, out = null ) {
     out = out || this;
     // (b-a) * ( ratio * ratio * ( 3 - 2 * ratio ) ) + a;
@@ -187,12 +147,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief an even smoother step of linear interplatation
-  @param v Vector3
-  @param t ratio clamped between 0 - 1
-  @param out The Vector3 to set to the calculated value
-  */
+  // an even smoother step of linear interplatation ---------------------------
   smootherStep( v, t, out = null ) {
     out = out || this;
     // return (b-a) * (ratio * ratio * ratio * (ratio*(ratio * 6 - 15 ) + 10 ) ) + a;
@@ -202,10 +157,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief inverts the vector from its current value
-  @param out set to the calculated value
-  */
+  // inverts the vector from its current value -------------------------------
   invert( out = null ) {
     out = out || this;
     out[ 0 ] = -this[0];
@@ -214,19 +166,12 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief returns the dot product of this vector and v
-  @param v The vector to subtract to this
-  */
+  // returns the dot product of this vector and v ----------------------------
   dot( v ) {
     return this[0] * v[0] + this[1] * v[1] + this[2] * v[2];
   }
 
-  /**
-  @brief returns a vector3 that is perpendicular to this and v
-  @param v the other vector3
-  @param out The Vector3 to set the calculated value to
-  */
+  // returns a vector3 that is perpendicular to this and v -------------------
   cross( v, out = null ) {
     out = out || this;
     let x = this[ 1 ] * v[ 2 ] - this[ 2 ] * v[ 1 ],
@@ -238,11 +183,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Sets this to the cross product of the two given vectors
-  @param t the first vector3
-  @param v the other vector3
-  */
+  // Sets this to the cross product of the two given vectors ------------------
   crossVectors( t, v ) {
     let x = t[ 1 ] * v[ 2 ] - t[ 2 ] * v[ 1 ],
         y = t[ 2 ] * v[ 0 ] - t[ 0 ] * v[ 2 ];
@@ -252,29 +193,17 @@ class Vector3 extends Float32Array {
     this[ 2 ] = z;
   }
 
-  /**
-  @brief Returns the distance between this vector and the given vector
-  @param v Vector3
-  @return number
-  */
+  // Returns the distance between this vector and the given vector -----------
   distance( v ) {
     return Math.sqrt( ( v[0]-this[0]) * (v[0]-this[0]) + (v[1]-this[1]) * (v[1]-this[1]) + (v[2]-this[2]) * (v[2]-this[2]) );
   }
 
-  /**
-  @brief Returns the squared distance between this vector and the given vector
-  @param v Vector3
-  @return number
-  */
+  // Returns the squared distance between this vector and the given vector ----
   distanceSquared( v ) {
     return (v[0]-this[0]) * (v[0]-this[0]) + (v[1]-this[1]) * (v[1]-this[1]) + (v[2]-this[2]) * (v[2]-this[2]);
   }
 
-  /**
-  @brief Compares this vector and v, returns if they are within tolerance
-  @param v Vector3
-  @param tolerance default is EPISLON
-  */
+  // Compares this vector and v, returns if they are within tolerance ---------
   isEqual( v, tolerance = MathUtils.EPSILON ) {
     if ( Math.abs( this[0] - v[0] ) > tolerance ) return false;
     if ( Math.abs( this[1] - v[1] ) > tolerance ) return false;
@@ -282,11 +211,7 @@ class Vector3 extends Float32Array {
     return true;
   }
 
-  /**
-  @brief projects this on v and set the value to out
-  @param v Vector3
-  @param out The Vector to set to the calculated value
-  */
+  // projects this on v and set the value to out --------------------------
   project( v, out = null ) {
     out = out || this;
     let x = this[0], y = this[1], z = this[2],
@@ -297,12 +222,7 @@ class Vector3 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Rotates this vector3 on the given axis
-  @param degrees the amount to rotate in degrees
-  @param axis The axis to rotate on
-  @param out Vector3 to set to the calculated value
-  */
+  // Rotates this vector3 on the given axis --------------------------------
   rotate( degrees, axis="x", out=null) {
     out = out || this;
     let radians = MathUtils.degreesToRadians( degrees ),

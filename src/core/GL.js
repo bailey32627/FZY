@@ -43,10 +43,7 @@ class gl{
     return gl;
   }
 
-  /**
-  @brief sets the blend mode for the context
-  @param mode The mode to use
-  */
+  // sets the blend mode for the context ---------------------------------
   static setBlendMode( mode ) {
     switch( mode ) {
       case gl.BLEND_ALPHA: gl.context.blendFunc( gl.context.SRC_ALPHA, gl.context.ONE_MINUS_SRC_ALPHA ); break;
@@ -58,19 +55,15 @@ class gl{
   }
 
   // canvas methods ---------------------------------------------------
-  /**
-  @brief Set the size of the canvas to fill a percentage o fthe total screen
-  */
+
+  // Set the size of the canvas to fill a percentage o fthe total screen -----
+
   static fitToScreen( wp = 1, hp = 1 ) {
     gl.setSize( window.innerWidth * wp, window.innerHeight * hp );
     return gl;
   }
 
-  /**
-  @brief Set the size of the canvas html element and the rendering view port
-  @param w width, default 500
-  @param h height, default 500
-  */
+  // Set the size of the canvas html element and the rendering view port --
   static setSize( w = 500, h = 500 ) {
     gl.context.canvas.style.width = w + "px";
     gl.context.canvas.style.height = h + "px";
@@ -84,13 +77,8 @@ class gl{
     return gl;
   }
 
-  /**
-  @brief Sets the clear color for webGL
-  @param r,
-  @param g,
-  @param b,
-  @param a
-   */
+
+  // Sets the clear color for webGL ----------------------------------
    static setClearColor( r, g, b, a ) {
      let c = gl.rgbaColor( r, g, b, a );
      gl.context.clearColor( c[0], c[1], c[2], c[3] );
@@ -106,11 +94,10 @@ class gl{
    }
    // Shader functions ------------------------------------------------
 
-   /**
-   @brief Create a shader from the source code and type
-   @param src The code
-   @param type The type of shader this is
-   */
+
+   // Create a shader from the source code and type --------------------
+   // src The code
+   // type The type of shader this is
    static compileShader( src, type ) {
      let sdr = gl.context.createShader( type );
      gl.context.shaderSource( sdr, src );
@@ -125,12 +112,7 @@ class gl{
      return sdr;
    }
 
-   /**
-   @brief Creates a Shader program
-   @param vertexShader compiled vertex shader
-   @param fragmentShader compiled fragment shader
-   @return shader program
-   */
+   // Creates a Shader program --------------------------------------
    static createShaderProgram( vertexShader, fragmentShader, validate = true ) {
      let prog = gl.context.createProgram();
      gl.context.attachShader( prog, vertexShader );
@@ -167,12 +149,7 @@ class gl{
      return prog;
    }
 
-   /**
-   @brief Create a shader
-   @param vertexText text for the vertex shader code
-   @param fragmentText text for the fragment shader code
-   @param validate validate the code with error checking, default= true
-   */
+   // Create a shader ---------------------------------------------------
    static createShader( vertexSource, fragmentSource, validate = true ) {
      let vs = gl.compileShader( vertexSource, gl.context.VERTEX_SHADER );
      if( !vs ) return null;
@@ -185,10 +162,7 @@ class gl{
      return gl.createShaderProgram( vs, fs, validate );
    }
 
-   /**
-   @brief Destroy shader program
-   @param sdr
-   */
+   // Destroy shader program -----------------------------------------------
    static destroyShader( sdr ) {
      if( sdr && sdr.program > 0 ) {
        gl.context.deleteProgram( sdr.program );

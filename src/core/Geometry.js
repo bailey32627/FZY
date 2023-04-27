@@ -1,13 +1,11 @@
-import { gl } from '../gl/GL.js';
-import { GLBuffer } from '../gl/GLBuffer.js';
-import { Vertex } from '../math/Vertex.js';
-import { Vector2 } from '../math/Vector2.js';
-import { Vector3 } from '../math/Vector3.js';
+import { gl } from './GL.js';
+import { GLBuffer } from './GLBuffer.js';
+import { Vertex } from './math/Vertex.js';
+import { Vector2 } from './math/Vector2.js';
+import { Vector3 } from './math/Vector3.js';
 
 class Geometry {
-  /**
-  @brief Creates a new vetex array object to hold an array of vetex buffer objects
-  */
+  //Creates a new vetex array object to hold an array of vetex buffer objects ---
   constructor( ) {
     this.vao = gl.context.createVertexArray( );
     this.count = 0;
@@ -16,9 +14,7 @@ class Geometry {
     this.buffers = {};
   }
 
-  /**
-  @brief Destroys the vao and releases the buffers it holds
-  */
+  // Destroys the vao and releases the buffers it holds --------------------
   destroy( ) {
     for( let b of buffers ) {
       b.destroy( );
@@ -26,11 +22,8 @@ class Geometry {
     gl.context.deleteVertexArray( this.vao );
   }
 
-  /**
-  @brief Adds a buffer to this vao
-  @param name The name of the buffer
-  @param buffer The buffer to add
-  */
+
+  // Adds a buffer to this vao -------------------------------------------
   addBuffer( name, buffer ) {
     if( this.buffers[ name ] != undefined ) {
       throw new Error( `Attempted to override the vertex buffer ${name} in the VAO` );
@@ -45,10 +38,7 @@ class Geometry {
     this.buffers[ name ] = buffer;
   }
 
-  /**
-  @brief Returns the vetex buffer at the given name
-  @param name name of the vertex buffer to retrieve
-  */
+  // Returns the vetex buffer at the given name ----------------------------
   getBuffer( name ) {
     if( this.buffers[ name ] === undefined ) {
       throw new Error( `Attempted to retrieve ${name} buffer that was not found`);
@@ -56,11 +46,7 @@ class Geometry {
     return this.buffers[ name ];
   }
 
-  /**
-  @brief Upload the VAO to the GPU
-  @param isStatic is data Static or dynamic, default true
-  @param isIntance is the data an Intance model, default false
-  */
+  // Upload the VAO to the GPU ---------------------------------------------
   upload( isStatic = true, isInstance = false ) {
     gl.context.bindVertexArray( this.vao );
     for( let [ key, value ] of Object.entries( this.buffers ) ) {
@@ -69,25 +55,17 @@ class Geometry {
     gl.context.bindVertexArray( null );
   }
 
-  /**
-  @brief bind the vao
-  */
+  // bind the vao -----------------------------------------------------
   bind( ) {
     gl.context.bindVertexArray( this.vao );
   }
 
-  /**
-  @brief Unbind the vao
-  */
+  // Unbind the vao ----------------------------------------------------
   unbind( ) {
     gl.context.bindVertexArray( null );
   }
 
-  /**
-  @brief Draws the vao
-  @param mode The draw mode to use default is gl.context.TRIANGLES
-  @param doBinding Tells the function to bind the vao before rendering, default = false
-  */
+  // Draws the vao -----------------------------------------------------
   draw( mode = gl.context.TRIANGLES, doBinding = false ) {
     if( doBinding ) { this.bind(); }
     if( this.count != 0 ) {
@@ -99,9 +77,8 @@ class Geometry {
     if( doBinding ) { this.unbind(); }
   }
 
-  /**
-  @brief Creates a quad geometry
-  */
+  // Creates a 2D box geometry ----------------------------------------
+
   static createBox2D(  ) {
     let rtn = new Geometry();
     let verts = [];
@@ -130,8 +107,6 @@ class Geometry {
     rtn.upload();
     rtn.unbind();
     return rtn;
-
-
   }
 
 }

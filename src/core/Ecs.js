@@ -1,4 +1,18 @@
-import { Util } from '../util/Util.js';
+
+// Generates a random Id ----------------------------------------------
+const randomID = () => {
+  return (+new Date()) + (Math.random() * 100000000 | 0) + (++randomID.nextID);
+}
+randomID.nextID = 0;
+
+// creates a hash int based on the string input ------------------------
+const hashCode = ( str ) => {
+  let hash = 5381, i = str.length;
+  while( i ) {
+    hash = ( hash * 33 ) ^ str.charCodeAt( --i );
+  }
+  return hash >>> 0; // force Negative bit to positive
+}
 
 /*/////////////////////////////////////////////////////////////////////////////////
 	Components
@@ -74,10 +88,7 @@ class Entity {
     }
   }
 
-  /**
-  @brief Add a component instance to this entity
-  @param component The component to add
-  */
+  // Add a component instance to this entity ---------------------------------
   addComponent( component ) {
     if( !component.componentTypeID ) {
       console.log( "Entity.addComponent : not a component instance" );
@@ -89,10 +100,7 @@ class Entity {
     return this;
   }
 
-  /**
-  @brief Add component by component name
-  @param name
-  */
+  //  Add component by component name -------------------------------------
   addComponentByName( name ) {
     let c;
     if( !(c = Components( name ) ) ) {
@@ -103,10 +111,7 @@ class Entity {
     return c;
   }
 
-  /**
-  @brief Add a list of components
-  @param array Array of components to add
-  */
+  // Add a list of components-------------------------------------------
   addComponentByArray( array ) {
     let i, c;
     for( i of array ) {
@@ -116,10 +121,7 @@ class Entity {
     return this;
   }
 
-  /**
-  @brief Removes the component
-  @param name The name of the component to remove
-  */
+  // Removes the component --------------------------------------------
   removeComponent( name ) {
     if ( this.components[ name ] ) {
       Components.destroy( this.components[ name ] );
@@ -130,9 +132,7 @@ class Entity {
     return this;
   }
 
-  /**
-  @brief object handling
-  */
+  // object handling -------------------------------------------------
   static destroy( entity ) {
     let c;
     for( c in entity.components ) {
@@ -163,13 +163,9 @@ class Assemblies {
     return Assemblies;
   }
 
-  /**
-  @brief Returns a new entity from the Assemblage
-  @param assemblyName The name of the assembly to use
-  @param entityName The name of the entity to create
-  */
+  // Returns a new entity from the Assemblage ------------------------------
   static new( assemblyName, entityName = "New_Entity" ) {
-    let item = Assemblies.list.get( assemblageName );
+    let item = Assemblies.list.get( assemblyName );
     if( item ) return new Entity( entityName, item.componentsList );
     else console.log( "No Assemblies with the name: ", name );
 
@@ -185,6 +181,8 @@ Assemblies.list = new Map();
 /////////////////////////////////////////////////////////////////////////////////*/
 class System{
 	constructor(){ this.active = true; }
+
+  // Every system needs an update function
 }
 
 /*/////////////////////////////////////////////////////////////////////////////////
@@ -201,12 +199,8 @@ class Ecs {
   }
 
   // Entities -------------------------
-  /**
-  @brief Creates a new Entity based on an assemblage name
-  @param assemblyName Name of the assembly to use
-  @param entityName Name of the entity to be created, optional
-  @return Entity instance
-  */
+
+  // Creates a new Entity based on an assemblage name ------------------------
   newEntityFromAssembly( assemblyName, entityName = "New_Entity" ) {
     let e = Assemblies.new( assemblyName, entityName );
     if( e ) {
@@ -216,12 +210,7 @@ class Ecs {
     return null;
   }
 
-  /**
-  @brief Creaes a new Entity and add it to the list automatically
-  @param entityName The name to assign to the new entity
-  @param componentList List of components to add to the new entity
-  @return Entity instance
-  */
+  // Creaes a new Entity and add it to the list automatically -----------------
   newEntity( entityName = "New_Entity", componentList = null ) {
     let e = new Entity( entityName, componentList );
     if( e ){
@@ -231,21 +220,13 @@ class Ecs {
     return null;
   }
 
-  /**
-  @brief Adds the entity instance to the entities list
-  @param entity The entity to add
-  @return this to be chainable
-  */
+  // Adds the entity instance to the entities list ----------------------------
   addEntity( entity ) {
     this.entities.set( entity.id, entity );
     return this;
   }
 
-  /**
-  @brief Removes an entity from the entities list and destroys it
-  @param entityID The id of the entity to remove
-  @return this to be chainable
-  */
+  // Removes an entity from the entities list and destroys it ------------------
   removeEntity( entityID ) {
     let e = this.entities.get( entityID );
     if( e ) {
@@ -258,12 +239,8 @@ class Ecs {
   }
 
   // SYSTEMS ---------------------------------
-  /**
-  @brief Add a system to the ecs
-  @param system The system to add
-  @param priority The priority of the system
-  @return this to be chainable
-  */
+
+  // Add a system to the ecs, ordered by priority ------------------------------
   addSystem( system, priority = 50 ) {
     let order = ++gSystemCount,
     item = { system, priority, order, name:system.constructor.name },
@@ -271,7 +248,7 @@ class Ecs {
     i = -1;
     s;
 
-    // Find wheere on the area to put the system
+    // Find where on the area to put the system
     for( s of this.systems ){
       i++;
       if( s.priority < priority ) continue; // Order by priority first
@@ -284,7 +261,7 @@ class Ecs {
     if( saveIndex === -1 ) { this.systems.push( itm ); }
     else {
       this.systems.push( null); // add blank space to the array
-      for( var x = this.systems.length - 1; x > saveIndex, x-- ) { // shift the array contents one index up
+      for( var x = this.systems.length - 1; x > saveIndex; x-- ) { // shift the array contents one index up
         this.systems[ x ] = this.systems[ x - 1 ];
       }
       this.systems[ saveIndex ] = item; // Save new item in its sorted location
@@ -293,20 +270,14 @@ class Ecs {
     return this;
   }
 
-  /**
-  @brief Updates the systems in order
-  */
+  //  Updates the systems in order------------------------------------------
   updateSystems( ) {
     let s;
     for( s of this.systems ) { s.systems.update( this ); }
     return this;
   }
 
-  /**
-  @brief Removes the named system from the ecs
-  @param name The name of the system to remove
-  @return this to be chainable
-  */
+  // Removes the named system from the ecs ----------------------------------
   removeSystem( name ) {
     let i;
     for( i = 0; i < this.systems.length; i++ ) {
@@ -320,13 +291,9 @@ class Ecs {
   }
 
   // Queries ----------------------------------------------------
-  /**
-  @brief Searches the entities and returns an array of entities that have the components
-    in the componentList
-  @param componentList List of components to sort
-  @param sortFunc function to use to sort, default = null
-  @return array of entities
-  */
+
+  // Searches the entities and returns an array of entities that have the components
+    //in the componentList ----------------------------------------------------
   queryEntities( componentList, sorFunc=null ){
     // check if query has already been cached
     let queryName = "query~" + componentsList.join( "_" ),
@@ -359,5 +326,4 @@ class Ecs {
   }
 }
 
-export { Components, Assemblages, Entity, System };
-export default Ecs;
+export { Components, Assemblies, Entity, System, Ecs };

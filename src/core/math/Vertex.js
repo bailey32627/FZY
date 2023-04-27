@@ -29,9 +29,9 @@ class Vertex {
   setBitangent( bitangent ) {
     this.bitangent = bitangent;
   }
-  /**
-  @brief Gets the vertex in array form
-  */
+
+  
+  // Gets the vertex in array form -----------------------------------------
   toArray( array ) {
     if( array != undefined ) {
       array.push( this.position.x, this.position.y, this.position.z,

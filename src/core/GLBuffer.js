@@ -1,11 +1,8 @@
 import { gl } from './GL.js';
 
 class GLBuffer {
-  /**
-  @brief creates a new GLBuffer
-  @param dataType The data type of this buffer, default gl.context.FLOAT
-  @param bufferType The buffer target type, default gl.context.ARRAY_BUFFER
-  */
+
+  // creates a new GLBuffer ------------------------------------------------
   constructor( dataType = gl.context.FLOAT, bufferType = gl.context.ARRAY_BUFFER ) {
     this.size = 0;
     this.dataType = dataType;
@@ -33,18 +30,12 @@ class GLBuffer {
     this.buffer = gl.context.createBuffer( );
   }
 
-  /**
-  @brief releases resources held by the buffer
-  */
+  // releases resources held by the buffer  --------------------------------
   destroy( ) {
     gl.context.deleteBuffer( this.buffer );
   }
 
-
-  /**
-  @brief Sets the data for this buffer, or replaces what is there
-  @param data The data array to use
-  */
+  // Sets the data for this buffer, or replaces what is there -------------
   setData( data ) {
     this.data.length = 0;
     for ( let d of data ) {
@@ -52,18 +43,12 @@ class GLBuffer {
     }
   }
 
-  /**
-  @brief Clears the data held by this array
-  */
+  // Clears the data held by this array  ---------------------------------
   clearData( ) {
     this.data.length = 0;
   }
 
-  /**
-  @brief add attribute location information to this buffer
-  @param location The attribute location to add
-  @size The number of elements in this attribute
-  */
+  // add attribute location information to this buffer -------------------
   addAttribute( location = 0, size = 3 ) {
     let rtn = {
       location: location,
@@ -76,9 +61,7 @@ class GLBuffer {
     this.stride = this.size * this.typeSize;
   }
 
-  /**
-  @brief Uploads the data in the array to the GPU
-  */
+  //  Uploads the data in the array to the GPU  ------------------------
   upload( isStatic = true, isInstance = false ) {
     gl.context.bindBuffer( this.bufferType, this.buffer );
     let ary;
@@ -118,9 +101,7 @@ class GLBuffer {
     }
   }
 
-  /**
-  @brief Returns the vertex count
-  */
+  // Returns the vertex count --------------------------------------------
   getVertexCount( ) {
     let c = this.data.length / this.size;
     if( c < 1 ) {

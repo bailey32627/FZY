@@ -53,11 +53,7 @@ class Vector2 extends Float32Array {
 
   // Methods -------------------------------------------------------
 
-  /**
-  @brief Adds this and the given vector
-  @param v The vector to add to this
-  @param out The Vector2 to set to the calculated value
-  */
+  // Adds this and the given vector ---------------------------
   add( v, out = null ) {
     out = out || this;
     out[ 0 ] = this[ 0 ] + v[ 0 ];
@@ -65,11 +61,7 @@ class Vector2 extends Float32Array {
     return this;
   }
 
-  /**
-  @brief subtracts this and the given vector
-  @param v The vector to subtract to this
-  @param out The Vector2 to set to the calculated value
-  */
+  // subtracts this and the given vector --------------------
   subtract( v, out = null ) {
     out = out || this;
     out[0] = this[0] - v[0];
@@ -77,11 +69,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief multiply this and the given vector
-  @param v The vector to multiply to this
-  @param out The Vector2 to set to the calculated value
-  */
+  // multiply this and the given vector ----------------------
   multiply( v, out = null ) {
     out = out || this;
     out[0] = this[0] * v[0];
@@ -89,11 +77,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief divids this and the given vector
-  @param v The vector to divids to this
-  @param out The Vector2 to set to the calculated value
-  */
+  // divids this and the given vector ---------------------------
   divid( v, out = null ) {
     out = out || this;
     out[0] = v[0] != 0 ? this[0] / v[0] : 0;
@@ -101,11 +85,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief scales this vector by the given value
-  @param value the value to scale by
-  @param out The Vector2 to set to the calculated value
-  */
+  // scales this vector by the given value ----------------------
   scale( value, out = null ) {
     out = out || this;
     out[0] = this[0] * value;
@@ -113,10 +93,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Returns the int value of this vector
-  @param out The Vector2 to set to the calculated value
-  */
+  // Returns the int value of this vector ------------------------
   floor( out = null ) {
     out = out || this;
     out[0] = Math.floor( this[ 0 ] );
@@ -124,24 +101,17 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Returns the length of the vector ( Magnitude )
-  */
+  // Returns the length of the vector ( Magnitude ) --------------------
   length( ) {
     return Math.sqrt( this[0] * this[0] + this[1] * this[1] );
   }
 
-  /**
-  @brief Returns the squared magnitude of this vector
-  */
+  // Returns the squared magnitude of this vector ----------------------
   lengthSquared( ) {
     return this[ 0 ] * this[ 0 ] + this[ 1 ] * this[ 1 ];
   }
 
-  /**
-  @brief normalizes this vector
-  @param out The vector to the calculated value
-  */
+  // normalizes this vector -------------------------------------------
   normalize( out = null ) {
     out = out || this;
 
@@ -153,12 +123,7 @@ class Vector2 extends Float32Array {
     return this;
   }
 
-  /**
-  @brief Linear interpolate this and v by ratio t
-  @param v Vector2
-  @param t ratio clamped between 0 - 1
-  @param out The Vector2 to set to the calculated value
-  */
+  // Linear interpolate this and v by ratio t ---------------------
   lerp( v, t, out = null ) {
     out = out || this;
     var tmin = 1 - t;
@@ -169,12 +134,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Smoother version of a linear interpolate
-  @param v Vector2
-  @param t ratio clamped between 0 - 1
-  @param out The Vector2 to set to the calculated value
-  */
+  // Smoother version of a linear interpolate ---------------------
   smoothStep( v, t, out = null ) {
     out = out || this;
     // (b-a) * ( ratio * ratio * ( 3 - 2 * ratio ) ) + a;
@@ -183,12 +143,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief an even smoother step of linear interplatation
-  @param v Vector2
-  @param t ratio clamped between 0 - 1
-  @param out The Vector2 to set to the calculated value
-  */
+  // an even smoother step of linear interplatation -----------------
   smootherStep( v, t, out = null ) {
     out = out || this;
     // return (b-a) * (ratio * ratio * ratio * (ratio*(ratio * 6 - 15 ) + 10 ) ) + a;
@@ -197,11 +152,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Rotates this by the given angle
-  @param angle The angle to rotate by
-  @param out The Vector2 to set to the calculated value
-  */
+  // Rotates this by the given angle ---------------------------------
   rotate( angle, out = null ) {
     out = out || this;
     let radians = MathUtils.degreesToRadians( angle ),
@@ -215,10 +166,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief inverts the vector from its current value
-  @param out set to the calculated value
-  */
+  // inverts the vector from its current value --------------------------
   invert( out = null ) {
     out = out || this;
     out[ 0 ] = -this[0];
@@ -226,10 +174,7 @@ class Vector2 extends Float32Array {
     return out;
   }
 
-  /**
-  @brief returns the dot product of this vector and v
-  @param v The vector to subtract to this
-  */
+  // returns the dot product of this vector and v ---------------------
   dot( v ) {
     return this[0] * v[0] + this[1] * v[1];
   }

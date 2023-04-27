@@ -42,11 +42,9 @@ class Quaternion extends Float32Array {
   copy( q ){ this[0] = q[0]; this[1] = q[1]; this[2] = q[2]; this[3] = q[3]; }
 
   clone( ) { return new Quaternion( this ); }
-  /**
-  @brief Sets the values of the quaternion for a NORMALIZED axis and angle
-  @param axis Normalized Vector3
-  @param angle degrees
-  */
+
+
+  // Sets the values of the quaternion for a NORMALIZED axis and angle ----------
   setAxisAngle( axis, angle ) {
     let ha = angle * 0.5;
     let s = Math.sin( ha );
@@ -71,9 +69,7 @@ class Quaternion extends Float32Array {
     return rtn;
   }
 
-  /**
-  @brief Returns an array that has the axis and angle of this quaternion
-  */
+  // Returns an array that has the axis and angle of this quaternion -----
   getAxisAngle( ) {
     if( this[3] > 1 ) this.normalize();
 
@@ -83,10 +79,7 @@ class Quaternion extends Float32Array {
     return [ this[0]/s, this[1]/s, this[2]/s, angle ];
   }
 
-  /**
-  @brief Sets out to the conjugate of this
-  @param out Quaternion to set the value to
-  */
+  // Sets out to the conjugate of this  ----------------------------
   conjugate( out = null ) {
     out = out || this;
     out[0] = -this[0];
@@ -100,10 +93,7 @@ class Quaternion extends Float32Array {
     return this[0] * this[0] + this[1] * this[1] + this[2] * this[2] + this[3] * this[3];
   }
 
-  /**
-  @brief Normalizes this vector and sets the value to out
-  @param out Quaternion to set the value to
-  */
+  // Normalizes this vector and sets the value to out-------------------
   normalize( out = null ) {
     out = out || this;
     let len = this.length();
@@ -115,11 +105,7 @@ class Quaternion extends Float32Array {
     return out;
   }
 
-  /**
-  @brief multiplies this and q, sets out to the product
-  @param q Quaternion
-  @param out Quaternion
-  */
+  // multiplies this and q, sets out to the product -----------------------
   multiply( q, out = null ) {
     out = out || this;
     let x = this[0], y = this[1], z = this[2], w = this[3];
@@ -130,12 +116,10 @@ class Quaternion extends Float32Array {
     return out;
   }
 
-  /**
-  @brief Sprical linear interpolation
-  @param q The other quaternion
-  @param t The percentage to interpolate by
-  @param out The quaternion to set to the value
-  */
+  // Sprical linear interpolation  --------------------------------------
+  // q The other quaternion
+  // t The percentage to interpolate by
+  // out The quaternion to set to the value
   slerp( q, t, out = null ) {
     out = out || this;
     // Source: https://en.wikipedia.org/wiki/Slerp
@@ -185,12 +169,7 @@ class Quaternion extends Float32Array {
     return out;
   }
 
-  /**
-  @brief compare this and q and return true if within tolerance
-  @param q Quaternion
-  @param tolerance default is EPSILON
-  @return true if within tolerance
-  */
+  // compare this and q and return true if within tolerance ------------------
   isEqual( q, tolerance = MathUtils.EPSILON ) {
     if( Math.abs( this[0] - q[0] ) > tolerance ) return false;
     if( Math.abs( this[1] - q[1] ) > tolerance ) return false;

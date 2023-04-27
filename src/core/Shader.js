@@ -1,4 +1,4 @@
-import { gl } from '../gl/GL.js';
+import { gl } from './GL.js';
 
 
 class Shader {
@@ -14,24 +14,18 @@ class Shader {
     }
   }
 
-  /**
-  @brief Cleans up the shader program
-   */
+  // Cleans up the shader program ------------------------------------
    destroy( ) {
      gl.destroyShader( this );
    }
 
-   /**
-   @brief Activates the shader for use
-   */
+   // Activates the shader for use -----------------------------------
    bind( ) {
      gl.context.useProgram( this.program );
      return this;
    }
 
-   /**
-   @brief deactivates the shader
-   */
+   // deactivates the shader ------------------------------------------
    unbind( ) {
      gl.context.useProgram( null );
      return this;
