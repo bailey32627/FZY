@@ -1,0 +1,13 @@
+.vs/
+.vscode/
+logs/
+build/
+
+*.user
+*.DS_Store
+*.xcworkspace/
+*.xcodeproj/
+*.vcproj*
+*.sln
+*Makefile
+*.pyc
