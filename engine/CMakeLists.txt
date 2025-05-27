@@ -12,5 +12,8 @@ target_include_directories(Engine
         ${CMAKE_CURRENT_SOURCE_DIR}/include  # for #include "Engine/Renderer.h"
 )
 
+# define FZY_EXPORTS when building the Engine add_library
+target_compile_definitions( Engine PRIVATE FZY_EXPORTS )
+
 # Example: linking SDL3
 #target_link_libraries( Engine PUBLIC SDL3 )

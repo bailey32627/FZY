@@ -1,0 +1,87 @@
+#ifndef FZY_DEFINES_H
+#define FZY_DEFINES_H
+
+#include <stdint.h>
+
+// unsigned int types
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+typedef uint64_t u64;
+
+// signed int types
+typedef signed char i8;
+typedef signed short i16;
+typedef signed int i32;
+typedef int64_t i64;
+
+// floating point types
+typedef float f32;
+typedef double f64;
+
+// boolean types
+typedef int b32;
+typedef _Bool b8;
+
+#define bitmask_set( mask, type ) mask |= (1 << type )
+#define bitmask_remove( mask, type ) mask &= ~( 1 << type )
+#define bitmask_test( mask, type ) mask & ( 1 << type )
+#define bitmask_check( mask, other ) (mask & other ) == other
+
+// properly define static assertions
+#if defined(__clang__) || defined(__gcc__)
+/* @brief Static assertion */
+#define STATIC_ASSERT _Static_assert
+#else
+/* @brief Static assertion */
+#define STATIC_ASSERT static_assert
+#endif
+
+// Ensure all types are of the correct size
+/* @brief assert u8 is 1 byte */
+STATIC_ASSERT( sizeof( u8 ) == 1, "Expected u8 to be 1 byte." );
+
+/* @brief assert u16 is 2 byte */
+STATIC_ASSERT( sizeof( u16 ) == 2, "Expected u16 to be 2 bytes." );
+
+/* @brief assert u32 is 4 byte */
+STATIC_ASSERT( sizeof( u32 ) == 4, "Expected u32 to be 4 bytes." );
+
+/* @brief assert u64 is 8 byte */
+STATIC_ASSERT( sizeof( u64 ) == 8, "Expected u64 to be 8 bytes." );
+
+/* @brief Assert i8 to be 1 byte.*/
+STATIC_ASSERT(sizeof(i8) == 1, "Expected i8 to be 1 byte.");
+
+/* @brief Assert i16 to be 2 bytes.*/
+STATIC_ASSERT(sizeof(i16) == 2, "Expected i16 to be 2 bytes.");
+
+/* @brief Assert i32 to be 4 bytes.*/
+STATIC_ASSERT(sizeof(i32) == 4, "Expected i32 to be 4 bytes.");
+
+/* @brief Assert i64 to be 8 bytes.*/
+STATIC_ASSERT(sizeof(i64) == 8, "Expected i64 to be 8 bytes.");
+
+/* @brief Assert f32 to be 4 bytes.*/
+STATIC_ASSERT(sizeof(f32) == 4, "Expected f32 to be 4 bytes.");
+
+/* @brief Assert f64 to be 8 bytes.*/
+STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
+
+/* @brief True */
+#define true 1
+
+/* @brief False */
+#define false 0
+
+#ifdef FZY_PLATFORM_WINDOWS
+#ifdef FZY_EXPORTS
+#define FZY_API __declspec( dllexport )
+#else
+#define FZY_API __declspec( dllimport )
+#endif
+#else
+#define FZY_API
+#endif
+
+#endif // FZY_DEFINES_H

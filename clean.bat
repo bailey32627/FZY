@@ -23,5 +23,14 @@ if exist "%DIST_DIR%" (
     echo Dist directory not found: %DIST_DIR%
 )
 
+set "FILE=C:\Users\Brad\Dropbox\FZY\log.txt"
+
+if exist "%FILE%" (
+    echo Deleting %FILE%...
+    del /f /q "%FILE%"
+) else (
+    echo File not found: %FILE%
+)
+
 echo Clean complete.
 endlocal

@@ -4,8 +4,20 @@ project(FZY)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
+# Define build type macros
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DFZY_CONFIG_DEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DFZY_CONFIG_RELEASE)
+endif()
+
+# Define platform macros
+if(WIN32)
+    add_definitions(-DFZY_PLATFORM_WINDOWS)
+elseif(APPLE)
+    add_definitions(-DFZY_PLATFORM_MACOS)
+elseif(UNIX)
+    add_definitions(-DFZY_PLATFORM_LINUX)
 endif()
 
 # Default all options to OFF
