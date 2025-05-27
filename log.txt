@@ -1,0 +1,2 @@
+[ INFO ]: Hello from the logger in Editor!
+[ INFO ]: Hello from the logger in Editor!

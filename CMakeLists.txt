@@ -11,6 +11,8 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DFZY_CONFIG_RELEASE)
 endif()
 
+
+
 # Define platform macros
 if(WIN32)
     add_definitions(-DFZY_PLATFORM_WINDOWS)
@@ -85,6 +87,7 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "FZY")
 # Windows specific
 if(WIN32)
     set(CPACK_GENERATOR "NSIS")
+    install(FILES "C:/libs/SDL3/bin/SDL3.dll" DESTINATION bin)
 endif()
 
 # Linux specific

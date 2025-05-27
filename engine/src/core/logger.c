@@ -56,8 +56,6 @@ void logger_output( log_level level, const char *message )
     wcstombs_s( &conv_len, dir, MAX_PATH, wdir, MAX_PATH );
     snprintf( full_path, sizeof( full_path), "%s\\log.txt", dir );
 
-    printf( "dir = %s\n", dir ); // remove
-
   #else
     char dir[ MAX_PATH ];
     if( getcwd( dir, sizeof( dir ) ) == NULL ) {

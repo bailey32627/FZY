@@ -15,5 +15,9 @@ target_include_directories(Engine
 # define FZY_EXPORTS when building the Engine add_library
 target_compile_definitions( Engine PRIVATE FZY_EXPORTS )
 
-# Example: linking SDL3
-#target_link_libraries( Engine PUBLIC SDL3 )
+
+
+# SDL3 is in vendor/SDL
+set(CMAKE_PREFIX_PATH "C:/libs/SDL3" )
+find_package( SDL3 REQUIRED CONFIG )
+target_link_libraries( Engine PUBLIC SDL3::SDL3 )
