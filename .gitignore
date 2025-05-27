@@ -2,6 +2,7 @@
 .vscode/
 logs/
 build/
+deploy/
 
 *.user
 *.DS_Store

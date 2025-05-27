@@ -1,26 +1,95 @@
-cmake_minimum_required( VERSION 3.5 )
-project( FZY )
+cmake_minimum_required(VERSION 3.5)
+project(FZY)
 
-set( CMAKE_C_STANDARD 99 )
-set( CMAKE_C_STANDARD_REQUIRED ON )
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-if( NOT CMAKE_BUILDF_TYPE )
-    set( CMAKE_BUILD_TYPE Debug )
-  endif()
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
 
-  option(BUILD_EDITOR "Build the game editor" ON)
-  option(BUILD_GAME "Build the game executable" ON)
-  option(BUILD_TESTS "Build tests" OFF)
+# Default all options to OFF
+option(BUILD_EDITOR "Build the game editor" OFF)
+option(BUILD_GAME "Build the game executable" OFF)
+option(BUILD_TESTS "Build tests" OFF)
 
-  # Add engine (always needed)
-  add_subdirectory(engine)
+# Enable options based on TARGET_NAME
+if(DEFINED TARGET_NAME)
+    string(TOLOWER "${TARGET_NAME}" TARGET_NAME_LOWER)
+    message(STATUS "Configuring build for target: ${TARGET_NAME_LOWER}")
 
-  # Conditionally build editor
-  if(BUILD_EDITOR)
-      add_subdirectory(editor)
-  endif()
+    if(TARGET_NAME_LOWER STREQUAL "editor")
+        set(BUILD_EDITOR ON)
+    elseif(TARGET_NAME_LOWER STREQUAL "game")
+        set(BUILD_GAME ON)
+    elseif(TARGET_NAME_LOWER STREQUAL "tests")
+        set(BUILD_TESTS ON)
+    else()
+        message(FATAL_ERROR "Unknown TARGET_NAME: ${TARGET_NAME}")
+    endif()
+endif()
 
-  # Conditionally build game
-  if(BUILD_GAME)
-      add_subdirectory(game)
-  endif()
+# Add engine (always needed)
+add_subdirectory(engine)
+
+# Conditionally build subdirectories
+if(BUILD_EDITOR)
+    add_subdirectory(editor)
+endif()
+
+if(BUILD_GAME)
+    add_subdirectory(game)
+endif()
+
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
+
+# ----------------------------
+# Install/Packaging with CPack
+# ----------------------------
+
+include(InstallRequiredSystemLibraries)
+
+# Install only targets that were actually built
+if(BUILD_EDITOR)
+    install(TARGETS Editor DESTINATION .)
+endif()
+
+if(BUILD_GAME)
+    install(TARGETS Game DESTINATION .)
+endif()
+
+# Example shared resources
+install(DIRECTORY assets/ DESTINATION assets OPTIONAL)
+
+# Package info
+set(CPACK_PACKAGE_NAME "FZY")
+set(CPACK_PACKAGE_VENDOR "YourCompany")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "FZY Game Installer")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "FZY")
+
+# Windows specific
+if(WIN32)
+    set(CPACK_GENERATOR "NSIS")
+endif()
+
+# Linux specific
+if(UNIX AND NOT APPLE)
+    set(CPACK_GENERATOR "TGZ")
+endif()
+
+# macOS specific
+if(APPLE)
+    set(CPACK_GENERATOR "DragNDrop")
+endif()
+
+# Include CPack
+include(CPack)
+
+# NSIS-specific config to launch the app after install
+if(CPACK_GENERATOR STREQUAL "NSIS")
+    set(CPACK_NSIS_EXECUTABLES "Editor" "Editor.exe")
+    set(CPACK_NSIS_ENABLE_EXECUTE_AFTER_INSTALL ON)
+endif()
