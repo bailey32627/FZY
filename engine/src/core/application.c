@@ -2,9 +2,11 @@
 #include "core/logger.h"
 #include "core/fzy_memory.h"
 
+#include "renderer/window.h"
+
 #include <SDL3/SDL.h>
 
-#include <stdio.h> // remove
+#include <glad/glad.h>// remove
 
 /*
   @brief Defines a structure to hold the state of the application
@@ -20,6 +22,22 @@ static b8 initialized = false;
 static app_state state;
 
 
+// helper function to process events
+static void process_events( void )
+{
+  SDL_Event event;
+
+  while( SDL_PollEvent(&event) )
+  {
+    switch( event.type )
+    {
+      case SDL_EVENT_QUIT:
+        state.is_running = false;
+        break;
+    }
+  }
+} // --------------------------------------------------------------------------
+
 b8 application_initialize( application *instance )
 {
   if( !initialized )
@@ -33,6 +51,12 @@ b8 application_initialize( application *instance )
     {
       FZY_ERROR( "Could not initialize SDL: %s.\n", SDL_GetError() );
       return false;
+    }
+
+    if( !window_initialize( "FZY Editor", 800, 600 ) )
+    {
+       FZY_ERROR( "application_initialize :: Failed to initialize the SDL window" );
+       return false;
     }
 
     // initialize other subsystems below
@@ -53,9 +77,17 @@ b8 application_initialize( application *instance )
 
 b8 application_run( application *instance )
 {
-  instance->update( instance, 0.016 );
-  printf("Press Enter to exit...\n");
-  getchar();
+  while( state.is_running )
+  {
+    process_events();
+    
+    instance->update( instance, 0.016f );
+
+    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    window_swap_buffers();
+  }
+
   return true;
 } // ------------------------------------------------------------------------
 
@@ -66,6 +98,9 @@ b8 application_shutdown( application *instance )
     FZY_ERROR( "application_shutdown :: failed to shutdown application instance." );
     return false;
   }
+
+  // shutdown the window
+  window_shutdown();
 
   memory_delete( instance, sizeof( application), MEMORY_TAG_APPLICATION );
   FZY_INFO( memory_get_usage_str() );
