@@ -21,3 +21,5 @@ target_compile_definitions( Engine PRIVATE FZY_EXPORTS )
 set(CMAKE_PREFIX_PATH "C:/libs/SDL3" )
 find_package( SDL3 REQUIRED CONFIG )
 target_link_libraries( Engine PUBLIC SDL3::SDL3 )
+
+target_link_libraries(Engine PUBLIC glad)

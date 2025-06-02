@@ -45,6 +45,7 @@ endif()
 
 # Add engine (always needed)
 add_subdirectory(engine)
+add_subdirectory(vendor/glad)
 
 # Conditionally build subdirectories
 if(BUILD_EDITOR)
