@@ -1,6 +1,5 @@
 .vs/
 .vscode/
-logs/
 build/
 deploy/
 
@@ -12,3 +11,4 @@ deploy/
 *.sln
 *Makefile
 *.pyc
+log.txt

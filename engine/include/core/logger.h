@@ -34,38 +34,38 @@
   */
   void logger_shutdown( );
 
-  void logger_output( log_level level, const char *message );
+  FZY_API void logger_output( log_level level, const char *fmt, ... );
 
   // log fatal level message
   #ifndef FZY_FATAL
-  #define FZY_FATAL( message ) logger_output( LOG_LEVEL_FATAL, message );
+  #define FZY_FATAL( ... ) logger_output( LOG_LEVEL_FATAL, __VA_ARGS__ );
   #endif
 
   // log an error
   #ifndef FZY_ERROR
-  #define FZY_ERROR( message ) logger_output( LOG_LEVEL_ERROR, message );
+  #define FZY_ERROR( ... ) logger_output( LOG_LEVEL_ERROR, __VA_ARGS__ );
   #endif
 
   // log a warning
   #if LOG_WARNING_ENABLED == 1
-  #define FZY_WARNING( message ) logger_output( LOG_LEVEL_WARNING, message );
+  #define FZY_WARNING( ... ) logger_output( LOG_LEVEL_WARNING, __VA_ARGS__ );
   #else
-  #define FZY_WARNING( message )
+  #define FZY_WARNING( ... )
   #endif
 
   #if LOG_INFO_ENABLED == 1
-#define FZY_INFO( message ) logger_output( LOG_LEVEL_INFO, message );
+#define FZY_INFO( ... ) logger_output( LOG_LEVEL_INFO, __VA_ARGS__ );
 #else
 // does nothing if LOG_WARNING_ENABLED != 1
-#define FZY_INFO(message )
+#define FZY_INFO(... )
 #endif
 
 // log a debug statement
 #if LOG_DEBUG_ENABLED == 1
-#define FZY_DEBUG( message ) logger_output( LOG_LEVEL_DEBUG, message );
+#define FZY_DEBUG( ... ) logger_output( LOG_LEVEL_DEBUG, __VA_ARGS__ );
 #else
 // does nothing if LOG_DEBUG_ENABLED != 1
-#define FZY_DEBUG( message )
+#define FZY_DEBUG( ... )
 #endif
 
 // log a trace

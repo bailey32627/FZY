@@ -4,7 +4,7 @@ file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
 )
 
 # Define the Engine library
-add_library(Engine STATIC ${ENGINE_SOURCES})
+add_library(Engine SHARED ${ENGINE_SOURCES})
 
 # Public headers go in include/
 target_include_directories(Engine

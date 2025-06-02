@@ -28,10 +28,10 @@ typedef enum memory_tag {
 } memory_tag;
 
 /* @brief Initializes the memory system */
-void memory_initialize( );
+FZY_API void memory_initialize( );
 
 /* @brief Shuts down the memory system and ensures all memory is freed */
-void memory_shutdown( );
+FZY_API void memory_shutdown( );
 
 /* @brief Preforms a memory allocation from the host o fthe given size.  Tracked by memory_tag
    @param size - the size in bytes to be allocated

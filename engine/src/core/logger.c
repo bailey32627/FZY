@@ -1,4 +1,5 @@
 #include "core/logger.h"
+#include <time.h>
 
 // todo :: temporary
 #include <stdio.h>
@@ -30,15 +31,39 @@ void write_windows_file( const char* file, const char* message )
   fclose( log );
 } // -----------------------------------------------------------------
 
-void logger_output( log_level level, const char *message )
+void logger_output( log_level level, const char *fmt, ... )
 {
   const char* level_strings[ 6 ] = { "[ FATAL ]: ", "[ ERROR ]: ", "[ WARNING ]: ", "[ INFO ]: ", "[ DEBUG ]: ", "[ TRACE ]: " };
   b8 is_error = level < 2;
 
+  // Get current time
+  time_t rawtime;
+  struct tm timeinfo;
+  char timestamp[64];
+
+  time(&rawtime);
+  #ifdef FZY_PLATFORM_WINDOWS
+      localtime_s(&timeinfo, &rawtime);
+  #else
+      struct tm* timeptr;
+      timeptr = localtime(&rawtime);
+      timeinfo = *timeptr;
+  #endif
+
+  strftime(timestamp, sizeof(timestamp), "[%Y-%m-%d %H:%M:%S]", &timeinfo);
+
+  // Format the message using variadic arguments
+  char message[30000];
+  memset(message, 0, sizeof(message));
+
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(message, sizeof(message), fmt, args);
+  va_end(args);
+
   // technically imposes a 32K character limit on a single log entry, but...
-  char out_message[ 32000 ];
-  memset( out_message, 0, sizeof( out_message ) );
-  snprintf( out_message, sizeof( out_message), "%s%s\n", level_strings[ level ], message );
+  char out_message[32000];
+  snprintf(out_message, sizeof(out_message), "%s %s%s\n", timestamp, level_strings[level], message);
 
   // get platform-specific working DIRECTORY
   char full_path[ 1024 ] = {0};
