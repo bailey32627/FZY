@@ -84,4 +84,27 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #define FZY_API
 #endif
 
+#if defined(__clang__) || defined(__GNUC__)
+  /** @brief Inline qualifier */
+  #define FZY_INLINE __attribute__((always_inline)) inline
+
+  /** @brief No-inline qualifier */
+  #define FZY_NOINLINE __attribute__((noinline))
+
+#elif defined(_MSC_VER)
+  /** @brief Inline qualifier */
+  #define FZY_INLINE __forceinline
+
+  /** @brief No-inline qualifier */
+  #define FZY_NOINLINE __declspec(noinline)
+
+#else
+  /** @brief Inline qualifier */
+  #define FZY_INLINE static inline
+
+  /** @brief No-inline qualifier */
+  #define FZY_NOINLINE /* fallback: no-op */
+  
+#endif
+
 #endif // FZY_DEFINES_H
