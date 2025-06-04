@@ -7,6 +7,8 @@
 #include <stdarg.h>
 #include <ctype.h>
 
+const u32 max_buffer = 32000;
+
 u64 string_length( const char *str )
 {
     return strlen( str );
@@ -39,7 +41,7 @@ b8 string_is_equal( const char* str0, const char* str1 )
 
 b8 string_n_is_equal( const char* str0, const char* str1, i32 length )
 {
-    return strncmp( str0, str1, length );
+    return strncmp( str0, str1, length ) == 0;
 } // ---------------------------------------------------------------------------------------------------------------
 
 i32 string_format( char* dest, const char* format, ... )
@@ -64,13 +66,13 @@ i32 string_format( char* dest, const char* format, ... )
     return -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-i32 string_format_v( char* dest, const char* format, void* va_list )
+i32 string_format_v( char* dest, const char* format, va_list  args )
 {
     if (dest)
     {
         // Big, but can fit on the stack.
         char buffer[32000];
-        i32 written = vsnprintf(buffer, 32000, format, va_list );
+        i32 written = vsnprintf(buffer, 32000, format, args );
         buffer[written] = 0;
         memory_copy( dest, buffer, written + 1 );
 
@@ -89,39 +91,42 @@ char* string_empty( char* str )
     return str;
 } // ---------------------------------------------------------------------------------------------------------------
 
-char* string_copy( char* dest, const char* src )
+char* string_copy( char* dest, u64 dest_size, const char* src )
 {
-    strcpy_s( dest, string_length( dest ), src );
+    strcpy_s( dest, dest_size, src );
     return dest;
 } // ---------------------------------------------------------------------------------------------------------------
 
-char* string_n_copy( char* dest, const char* src, i32 length )
+char* string_n_copy( char* dest, u64 dest_size, const char* src, i32 length )
 {
-    strncpy_s( dest, string_length( dest ), src, length );
+    strncpy_s( dest, dest_size, src, length );
     return dest;
 } // ---------------------------------------------------------------------------------------------------------------
 
-char* string_trim( char* str )
+char* string_trim(char* str) 
 {
-    while ( isspace( (unsigned char)*str ) )
-    {
-        str++;
-    }
-    if( *str )
-    {
-        char* p = str;
-        while( *p )
-        {
-        p++;
-        }
-        while( isspace( (unsigned char)*(--p) ) )
-        ;
+    if (!str) return NULL;
 
-        p[1] = '\0';
+    char* end;
+    
+    // Trim leading space
+    while (isspace((unsigned char)*str)) str++;
+
+    if (*str == 0) {
+        // All spaces
+        *str = '\0';
+        return str;
     }
+
+    // Find the end
+    end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)) end--;
+
+    // Null terminate just after the last non-space
+    end[1] = '\0';
 
     return str;
-} // ---------------------------------------------------------------------------------------------------------------
+}// ---------------------------------------------------------------------------------------------------------------
 
 void string_substring( char* dest, const char* src, i32 start, i32 length )
 {
@@ -342,33 +347,33 @@ b8 string_to_bool( char* str, b8* b )
 
 void string_append_string( char* dest, const char* source, const char* append )
 {
-    sprintf_s(dest, string_length( dest ), "%s%s", source, append);
+    sprintf_s(dest, max_buffer, "%s%s", source, append);
 } // ---------------------------------------------------------------------------------------------------------------
 
 void string_append_int( char* dest, const char* source, i64 i )
 {
-    sprintf_s(dest, string_length( dest ), "%s%lli", source, i);
+    sprintf_s(dest, max_buffer, "%s%lli", source, i);
 } // ---------------------------------------------------------------------------------------------------------------
 
 void string_append_float( char* dest, const char* source, f32 f )
 {
-    sprintf_s(dest, string_length( dest ), "%s%f", source, f);
+    sprintf_s(dest, max_buffer, "%s%f", source, f);
 } // ---------------------------------------------------------------------------------------------------------------
 
 void string_append_bool( char* dest, const char* source, b8 b )
 {
-    sprintf_s(dest, string_length( dest ), "%s%s", source, b ? "true" : "false");
+    sprintf_s(dest, max_buffer, "%s%s", source, b ? "true" : "false");
 } // ---------------------------------------------------------------------------------------------------------------
 
 void string_append_char( char* dest, const char* source, char c )
 {
-    sprintf_s(dest, string_length( dest ), "%s%c", source, c);
+    sprintf_s(dest, max_buffer, "%s%c", source, c);
 } // ---------------------------------------------------------------------------------------------------------------
 
 void string_directory_from_path( char* dest, const char* path )
 {
     u64 length = strlen( path );
-    for( u64 i = length; i >= 0; --i )
+    for (i64 i = (i64)length - 1; i >= 0; --i)
     {
         char c = path[i];
         if( c == '/' || c == '\\' )
