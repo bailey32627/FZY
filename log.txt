@@ -18,3 +18,23 @@
   COMPONENT  : 0.00B
   PROCESS    : 0.00B
 
+[2025-06-04 16:03:09] [ INFO ]: Editor initialized
+[2025-06-04 16:03:19] [ INFO ]: Editor shutdown
+[2025-06-04 16:03:19] [ INFO ]: System memory usage (tagged):
+  UNKNOWN    : 0.00B
+  APPLICATION: 0.00B
+  RENDERER   : 0.00B
+  TEXTURE    : 0.00B
+  SHADER     : 0.00B
+  MATERIAL   : 0.00B
+  MESH       : 0.00B
+  STRING     : 0.00B
+  EVENTS     : 0.00B
+  FILE       : 0.00B
+  HASHTABLE  : 0.00B
+  INPUTS     : 0.00B
+  VIEWS      : 0.00B
+  ENTITY     : 0.00B
+  COMPONENT  : 0.00B
+  PROCESS    : 0.00B
+

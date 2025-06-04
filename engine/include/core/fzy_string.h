@@ -72,20 +72,22 @@ FZY_API char* string_empty( char* str );
     @brief Copies the string in source to the destination.  Does not preform any memory 
         allocations
     @param dest - the destination string
+    @param dest_size - the size of the destination string
     @param src - the source string
     @return ptr - returns a pointer to the destination string
 */
-FZY_API char* string_copy( char* dest, const char* src );
+FZY_API char* string_copy( char* dest, u64 dest_size, const char* src );
 
 /*
     @brief Copies a number of caracters into the destination.  Does not preform any memory
         allocations
     @param dest - The destination string
+    @param dest_size - the destination string
     @param src - the source to be copied
     @param length - the number of characters to be copied
     @return ptr - Pointer to dest
 */
-FZY_API char* string_n_copy( char* dest, const char* src, i32 length );
+FZY_API char* string_n_copy( char* dest, u64 dest_size, const char* src, i32 length );
 
 /*
     @brief Preforms an in-place trim of the provided string.  This removes all whitespace
