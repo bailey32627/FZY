@@ -2,6 +2,8 @@
 #include "core/logger.h"
 #include "core/fzy_memory.h"
 
+#include "math/fzy_math.h"
+
 
 b8 initialize( application *app )
 {
