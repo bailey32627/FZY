@@ -37,6 +37,7 @@ b8 window_initialize( const char *title, i32 width, i32 height )
   }
 
   SDL_SetWindowMinimumSize( window, 320, 320 );
+  SDL_SetWindowResizable( window, true );
 
   gl_context = SDL_GL_CreateContext( window );
   if( !gl_context )
