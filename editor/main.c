@@ -13,7 +13,6 @@ b8 initialize( application *app )
 
 b8 update( application *app, f32 delta_time )
 {
-  FZY_INFO( "Editor updating" );
   return true;
 } // -------------------------------------------------------------------
 
