@@ -4,126 +4,6 @@
 #include "defines.h"
 
 /*
-    @Brief Defines the mathematics types used in the engine
-*/
-/* @brief a 2 element vector holding int values */
-typedef union ivec2
-{
-    i32 elments[ 2 ];
-    struct
-    {
-        union
-        {   
-            // first element by different identifiers
-            i32 x, w;
-        };
-        union
-        {   
-            // second element by different identifiers
-            i32 y, h;
-        };
-    };
-} ivec2;
-
-/* @brief a 2 element vector holding float values */
-typedef union vec2
-{
-    f32 elements[ 2 ];
-    struct
-    {
-        union
-        {
-            // first element by different identifiers
-            f32 x, r, s, u;
-        };
-        union
-        {
-            // second element by different identifiers
-            f32 y, g, t, v;
-        };
-    };
-} vec2;
-
-/* @brief a 3 element vector holding float values */
-typedef union vec3
-{
-    f32 elements[ 3 ];
-    struct
-    {
-        union
-        {
-            // first element by different identifiers
-            f32 x, r, s, u;
-        };
-        union
-        {
-            // second element by different identifiers
-            f32 y, g, t, v;
-        };
-        union
-        {
-            // third element by different identifiers
-            f32 z, b;
-        };
-    };
-} vec3;
-
-/* @brief a 4 element vector holding float values ( Quaternion )*/
-typedef union vec4
-{
-    f32 elements[ 4 ];
-    struct
-    {
-        union
-        {
-            // first element by different identifiers
-            f32 x, r, s, u;
-        };
-        union
-        {
-            // second element by different identifiers
-            f32 y, g, t, v;
-        };
-        union
-        {
-            // third element by different identifiers
-            f32 z, b;
-        };
-        union
-        {
-            // forth element by different identifiers
-            f32 w, a;
-        };
-    };
-} vec4;
-
-/* @brief a 3x3 matrix, typically used to represent inertia tensors. */
-typedef union mat3
-{
-    f32 elements[ 9 ];
-    struct
-    {
-        f32 xx, xy, xz;
-        f32 yx, yy, yz;
-        f32 zx, zy, zz;
-    };
-
-} mat3;
-
-/* @brief a 4x4 matrix, typically used to represnt object transformations */
-typedef union mat4
-{
-    f32 elements[ 16 ];
-    struct
-    {
-        f32 xx, xy, xz, xw;
-        f32 yx, yy, yz, yw;
-        f32 zx, zy, zz, zw;
-        f32 wx, wy, wz, ww;
-    };
-} mat4;
-
-/*
     @brief define some commonly used mathematical terms and functions
 */
 
@@ -145,10 +25,10 @@ typedef union mat4
 // @brief Checks if the value is between top and bottom
 #define fzy_between( v, bottom, top ) v > bottom ? ( v < top ? 1 : 0 ) : 0
 
-// @brief Linear interpolates a and b by ratio 
+// @brief Linear interpolates a and b by ratio
 #define fzy_lerp( a, b, ratio ) ( b - a ) * ratio + a
 
-// @brief A smoother interpolation of a and b by ratio 
+// @brief A smoother interpolation of a and b by ratio
 #define fzy_smooth_step( a, b, ratio ) (b-a) * ( ratio * ratio * ( 3 - 2 * ratio ) ) + a
 
 // @brief Even smoother interpolation fo a and b by ratio
@@ -169,7 +49,7 @@ typedef union mat4
 // @brief A huge number that should be larger tan any valid number used
 #define FZY_INFINITY 1e30f
 
-// @brief Smallest positive number where 1.0 + FLOAT_EPSILON != 0 
+// @brief Smallest positive number where 1.0 + FLOAT_EPSILON != 0
 #define FZY_EPSILON 1.192092896e-07f
 
 //----------------------------------------------------------------------------------------------------
@@ -223,7 +103,7 @@ FZY_API f32 fzy_abs( f32 v );
     @param v - the value to be interpreted
     @return true if is a power of 2
 */
-FZY_INLINE b8 is_power_of_2( u64 v ) {
+FZY_INLINE b8 fzy_is_power_of_2( u64 v ) {
     return (v != 0 ) && (( v & ( v - 1 ) ) == 0 );
 }
 
@@ -263,7 +143,7 @@ FZY_API f32 fzy_random_in_range_f32( f32 min, f32 max );
 FZY_API i32 fzy_floor( f32 v );
 
 // --------------------------------------------------------------------------------------------
-// ivec2 
+// ivec2
 // --------------------------------------------------------------------------------------------
 /*
     @brief Creates and returns a new ivec2
@@ -271,7 +151,7 @@ FZY_API i32 fzy_floor( f32 v );
     @param y - the value for the second element
     @return ivec2 - new 2-element vector
 */
-FZY_INLINE ivec2 ivec2_create( i32 x, i32 y )
+FZY_INLINE ivec2 fzy_ivec2_create( i32 x, i32 y )
 {
     ivec2 n;
     n.x = x;
@@ -285,7 +165,7 @@ FZY_INLINE ivec2 ivec2_create( i32 x, i32 y )
     @param b - the second vector
     @return ivec2 - new 2 element vector
 */
-FZY_INLINE ivec2 ivec2_add( ivec2 a, ivec2 b )
+FZY_INLINE ivec2 fzy_ivec2_add( ivec2 a, ivec2 b )
 {
     return (ivec2){ a.x + b.x, a.y + b.y };
 }
@@ -296,7 +176,7 @@ FZY_INLINE ivec2 ivec2_add( ivec2 a, ivec2 b )
     @param b - the second vector
     @return ivec2 - new 2 element vector
 */
-FZY_INLINE ivec2 ivec2_subtract( ivec2 a, ivec2 b )
+FZY_INLINE ivec2 fzy_ivec2_subtract( ivec2 a, ivec2 b )
 {
     return (ivec2){ a.x - b.x, a.y - b.y };
 }
@@ -307,13 +187,13 @@ FZY_INLINE ivec2 ivec2_subtract( ivec2 a, ivec2 b )
     @param b - the second vector
     @return ivec2 - new 2 element vector
 */
-FZY_INLINE ivec2 ivec2_multiply( ivec2 a, ivec2 b )
+FZY_INLINE ivec2 fzy_ivec2_multiply( ivec2 a, ivec2 b )
 {
     return (ivec2){ a.x * b.x, a.y * b.y };
 }
 
 //--------------------------------------------------------------------------------------------
-// vec2 
+// vec2
 // -------------------------------------------------------------------------------------------
 
 /*
@@ -322,7 +202,7 @@ FZY_INLINE ivec2 ivec2_multiply( ivec2 a, ivec2 b )
     @param y - the y value fo the vector
     @return vec2 - new 2 element vector with x and y values
 */
-FZY_INLINE vec2 vec2_create( f32 x, f32 y )
+FZY_INLINE vec2 fzy_vec2_create( f32 x, f32 y )
 {
     vec2 n;
     n.x = x;
@@ -333,7 +213,7 @@ FZY_INLINE vec2 vec2_create( f32 x, f32 y )
 /*
     @brief Creates a 2 element vector pointing up (0, 1 )
 */
-FZY_INLINE vec2 vec2_up() 
+FZY_INLINE vec2 fzy_vec2_up()
 {
     return (vec2){ 0.0f, 1.0f };
 }
@@ -341,7 +221,7 @@ FZY_INLINE vec2 vec2_up()
 /*
     @brief Creates a 2 element vector pointing down (0, -1 )
 */
-FZY_INLINE vec2 vec2_down() 
+FZY_INLINE vec2 fzy_vec2_down()
 {
     return (vec2){ 0.0f, -1.0f };
 }
@@ -349,7 +229,7 @@ FZY_INLINE vec2 vec2_down()
 /*
     @brief Creates a 2 element vector pointing left ( -1, 0 )
 */
-FZY_INLINE vec2 vec2_left() 
+FZY_INLINE vec2 fzy_vec2_left()
 {
     return (vec2){ -1.0f, 0.0f };
 }
@@ -357,7 +237,7 @@ FZY_INLINE vec2 vec2_left()
 /*
     @brief Creates a 2 element vector pointing right ( 1, 0 )
 */
-FZY_INLINE vec2 vec2_right() 
+FZY_INLINE vec2 fzy_vec2_right()
 {
     return (vec2){ 1.0f, 0.0f };
 }
@@ -368,7 +248,7 @@ FZY_INLINE vec2 vec2_right()
     @param b - the second vector
     @return vec2 - new 2 element vector that is the sum of a and b
 */
-FZY_INLINE vec2 vec2_add( vec2 a, vec2 b )
+FZY_INLINE vec2 fzy_vec2_add( vec2 a, vec2 b )
 {
     return (vec2){ a.x + b.x, a.y + b.y };
 }
@@ -379,7 +259,7 @@ FZY_INLINE vec2 vec2_add( vec2 a, vec2 b )
     @param b - the second vector
     @return vec2 - new 2 element vector that is the difference of a and b
 */
-FZY_INLINE vec2 vec2_subtract( vec2 a, vec2 b )
+FZY_INLINE vec2 fzy_vec2_subtract( vec2 a, vec2 b )
 {
     return (vec2){ a.x - b.x, a.y - b.y };
 }
@@ -390,7 +270,7 @@ FZY_INLINE vec2 vec2_subtract( vec2 a, vec2 b )
     @param b - the second vector
     @return vec2 - new 2 element vector that is the product of a and b
 */
-FZY_INLINE vec2 vec2_multiply( vec2 a, vec2 b )
+FZY_INLINE vec2 fzy_vec2_multiply( vec2 a, vec2 b )
 {
     return (vec2){ a.x * b.x, a.y * b.y };
 }
@@ -401,7 +281,7 @@ FZY_INLINE vec2 vec2_multiply( vec2 a, vec2 b )
     @param b - the denominator
     @return vec2 - new 2 element vector that is the quotient of a and b
 */
-FZY_INLINE vec2 vec2_divide( vec2 a, vec2 b )
+FZY_INLINE vec2 fzy_vec2_divide( vec2 a, vec2 b )
 {
     return (vec2){ a.x / b.x, a.y / b.y };
 }
@@ -412,18 +292,18 @@ FZY_INLINE vec2 vec2_divide( vec2 a, vec2 b )
     @param s - the scalar value
     @return vec2 - new 2 element vector that is v scaled by s
 */
-FZY_INLINE vec2 vec2_scale( vec2 v, f32 s )
+FZY_INLINE vec2 fzy_vec2_scale( vec2 v, f32 s )
 {
     return (vec2){ v.x * s, v.y * s };
-} 
+}
 
 /*
-    @brief Rotates the given vector by the angle 
+    @brief Rotates the given vector by the angle
     @param v - the vector to rotate
     @param degrees - the angle to rotate by in degrees
     @return vec2 - new vec2 that is v rotated by degrees
 */
-FZY_INLINE vec2 vec2_rotate( vec2 v, f32 degrees )
+FZY_INLINE vec2 fzy_vec2_rotate( vec2 v, f32 degrees )
 {
     f32 r = fzy_degrees_to_radian( degrees );
     f32 s = fzy_sin( r );
@@ -436,7 +316,7 @@ FZY_INLINE vec2 vec2_rotate( vec2 v, f32 degrees )
     @param v - the vec2 to get the squared length of
     @return f32 - the squared length of v
 */
-FZY_INLINE f32 vec2_length_squared( vec2 v )
+FZY_INLINE f32 fzy_vec2_length_squared( vec2 v )
 {
     return v.x * v.x + v.y * v.y;
 }
@@ -447,7 +327,7 @@ FZY_INLINE f32 vec2_length_squared( vec2 v )
     @param b - the second vector
     @return f32 - the dot product of the vectors
 */
-FZY_INLINE f32 vec2_dot( vec2 a, vec2 b )
+FZY_INLINE f32 fzy_vec2_dot( vec2 a, vec2 b )
 {
     return a.x * b.x + a.y * b.y;
 }
@@ -457,9 +337,9 @@ FZY_INLINE f32 vec2_dot( vec2 a, vec2 b )
     @param v - the vector
     @return f32 - the length of the vector
 */
-FZY_INLINE f32 vec2_length( vec2 v )
+FZY_INLINE f32 fzy_vec2_length( vec2 v )
 {
-    return fzy_sqrt( vec2_length_squared( v ) );
+    return fzy_sqrt( fzy_vec2_length_squared( v ) );
 }
 
 /*
@@ -467,9 +347,9 @@ FZY_INLINE f32 vec2_length( vec2 v )
     @param v - the vector to be normalized
     @return vec2 - a normalized version of v
 */
-FZY_INLINE vec2 vec2_normalize( vec2 v )
+FZY_INLINE vec2 fzy_vec2_normalize( vec2 v )
 {
-    f32 l = vec2_length( v );
+    f32 l = fzy_vec2_length( v );
     if( l <= 0 )
     {
         return (vec2){ 0.0f, 0.0f };
@@ -485,7 +365,7 @@ FZY_INLINE vec2 vec2_normalize( vec2 v )
     @param tolerance - the difference tolerance, typically FZY_EPSILON or similar
     @return true if within tolerance
 */
-FZY_INLINE b8 vec2_compare( vec2 a, vec2 b, f32 tolerance )
+FZY_INLINE b8 fzy_vec2_compare( vec2 a, vec2 b, f32 tolerance )
 {
     if( fzy_abs( a.x - b.x ) > tolerance ) {
         return false;
@@ -502,7 +382,7 @@ FZY_INLINE b8 vec2_compare( vec2 a, vec2 b, f32 tolerance )
     @param b - the second vector
     @return f32 - the squared distance between a and b
 */
-FZY_INLINE f32 vec2_distance_squared( vec2 a, vec2 b )
+FZY_INLINE f32 fzy_vec2_distance_squared( vec2 a, vec2 b )
 {
     return (( b.x - a.x ) * ( b.x - a.x ) + ( b.y - a.y ) * ( b.y - a.y ) );
 }
@@ -513,9 +393,9 @@ FZY_INLINE f32 vec2_distance_squared( vec2 a, vec2 b )
     @param b - the second vector
     @return f32 - the distance between a and b
 */
-FZY_INLINE f32 vec2_distance( vec2 a, vec2 b )
+FZY_INLINE f32 fzy_vec2_distance( vec2 a, vec2 b )
 {
-    f32 d = vec2_distance_squared( a, b );
+    f32 d = fzy_vec2_distance_squared( a, b );
     return fzy_sqrt( d );
 }
 
@@ -529,7 +409,7 @@ FZY_INLINE f32 vec2_distance( vec2 a, vec2 b )
     @param z = the z value
     @return vec3 - a new vec3 with the given values
 */
-FZY_INLINE vec3 vec3_create( f32 x, f32 y, f32 z )
+FZY_INLINE vec3 fzy_vec3_create( f32 x, f32 y, f32 z )
 {
     vec3 n;
     n.x = x;
@@ -542,7 +422,7 @@ FZY_INLINE vec3 vec3_create( f32 x, f32 y, f32 z )
     @brief Creates a vec3 with elements set to zero
     @return vec3 - a new vec3 with zero values
 */
-FZY_INLINE vec3 vec3_zero( void )
+FZY_INLINE vec3 fzy_vec3_zero( void )
 {
     return (vec3){ 0.0f, 0.0f, 0.0f };
 }
@@ -551,7 +431,7 @@ FZY_INLINE vec3 vec3_zero( void )
     @brief Creates a vec3 that represents the up direction
     @return vec3 - vec3 with y set to 1
 */
-FZY_INLINE vec3 vec3_up( void )
+FZY_INLINE vec3 fzy_vec3_up( void )
 {
     return (vec3){ 0.0f, 1.0f, 0.0f };
 }
@@ -560,7 +440,7 @@ FZY_INLINE vec3 vec3_up( void )
     @brief Creates a vec3 that represents the down direction
     @return vec3 - vec3 with y set to -1
 */
-FZY_INLINE vec3 vec3_down( void )
+FZY_INLINE vec3 fzy_vec3_down( void )
 {
     return (vec3){ 0.0f, -1.0f, 0.0f };
 }
@@ -569,7 +449,7 @@ FZY_INLINE vec3 vec3_down( void )
     @brief Creates a vec3 that represents the forward direction
     @return vec3 - vec3 with z set to -1
 */
-FZY_INLINE vec3 vec3_forward( void )
+FZY_INLINE vec3 fzy_vec3_forward( void )
 {
     return (vec3){ 0.0f, 0.0f, -1.0f };
 }
@@ -578,7 +458,7 @@ FZY_INLINE vec3 vec3_forward( void )
     @brief Creates a vec3 that represents the backward direction
     @return vec3 - vec3 with z set to 1
 */
-FZY_INLINE vec3 vec3_backward( void )
+FZY_INLINE vec3 fzy_vec3_backward( void )
 {
     return (vec3){ 0.0f, 0.0f, 1.0f };
 }
@@ -589,7 +469,7 @@ FZY_INLINE vec3 vec3_backward( void )
     @param b - the second vector
     @return vec3 - new vec3 that is the sum of the elements of a and b
 */
-FZY_INLINE vec3 vec3_add( vec3 a, vec3 b )
+FZY_INLINE vec3 fzy_vec3_add( vec3 a, vec3 b )
 {
     return (vec3){ a.x + b.x, a.y + b.y, a.z + b.z };
 }
@@ -600,7 +480,7 @@ FZY_INLINE vec3 vec3_add( vec3 a, vec3 b )
     @param b - the second vector
     @return vec3 - new vec3 that is the difference of the elements of a and b
 */
-FZY_INLINE vec3 vec3_subtract( vec3 a, vec3 b )
+FZY_INLINE vec3 fzy_vec3_subtract( vec3 a, vec3 b )
 {
     return (vec3){ a.x - b.x, a.y - b.y, a.z - b.z };
 }
@@ -611,7 +491,7 @@ FZY_INLINE vec3 vec3_subtract( vec3 a, vec3 b )
     @param b - the second vector
     @return vec3 - the product of a and b
 */
-FZY_INLINE vec3 vec3_multiply( vec3 a, vec3 b )
+FZY_INLINE vec3 fzy_vec3_multiply( vec3 a, vec3 b )
 {
     return (vec3){ a.x * b.x, a.y * b.y, a.z * b.z };
 }
@@ -622,7 +502,7 @@ FZY_INLINE vec3 vec3_multiply( vec3 a, vec3 b )
     @param s - the scalar to use
     @return vec3 - the product of scaling v by s
 */
-FZY_INLINE vec3 vec3_scale( vec3 v, f32 s )
+FZY_INLINE vec3 fzy_vec3_scale( vec3 v, f32 s )
 {
     return (vec3){ v.x * s, v.y * s, v.z * s };
 }
@@ -632,9 +512,9 @@ FZY_INLINE vec3 vec3_scale( vec3 v, f32 s )
     @param v - the vector to invert
     @return vec3 - the inverted copy of v
 */
-FZY_INLINE vec3 vec3_invert( vec3 v )
+FZY_INLINE vec3 fzy_vec3_invert( vec3 v )
 {
-    return vec3_scale( v, -1.0f );
+    return fzy_vec3_scale( v, -1.0f );
 }
 
 /*
@@ -644,7 +524,7 @@ FZY_INLINE vec3 vec3_invert( vec3 v )
     @param b - the second vector
     @return vec3 - Orthonanal vector to both a and b
 */
-FZY_INLINE vec3 vec3_cross( vec3 a, vec3 b )
+FZY_INLINE vec3 fzy_vec3_cross( vec3 a, vec3 b )
 {
     return (vec3){ a.y * b.z - a.z * b.y,
                    a.z * b.x - a.x * b.z,
@@ -657,17 +537,17 @@ FZY_INLINE vec3 vec3_cross( vec3 a, vec3 b )
     @param b - the second vector
     @return f32 - the dot product of a and b
 */
-FZY_INLINE f32 vec3_dot( vec3 a, vec3 b )
+FZY_INLINE f32 fzy_vec3_dot( vec3 a, vec3 b )
 {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-/* 
+/*
     @brief Calculates the squared length of the vector
     @param v - the vector
     @return f32 - the squared length of v
 */
-FZY_INLINE f32 vec3_length_squared( vec3 v )
+FZY_INLINE f32 fzy_vec3_length_squared( vec3 v )
 {
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }
@@ -677,7 +557,7 @@ FZY_INLINE f32 vec3_length_squared( vec3 v )
     @param v - the vector
     @return f32 - the length ( magnitude ) of the vector
 */
-FZY_INLINE f32 vec3_length( vec3 v )
+FZY_INLINE f32 fzy_vec3_length( vec3 v )
 {
     return fzy_sqrt( v.x * v.x + v.y * v.y + v.z * v.z );
 }
@@ -688,7 +568,7 @@ FZY_INLINE f32 vec3_length( vec3 v )
     @param b - the second vector
     @return f32 - the squared distance between a and b
 */
-FZY_INLINE f32 vec3_distance_squared( vec3 a, vec3 b )
+FZY_INLINE f32 fzy_vec3_distance_squared( vec3 a, vec3 b )
 {
     return (( b.x - a.x ) * ( b.x - a.x ) +
             ( b.y - a.y ) * ( b.y - a.y ) +
@@ -701,9 +581,9 @@ FZY_INLINE f32 vec3_distance_squared( vec3 a, vec3 b )
     @param b - the second vector
     @return f32 - the distance between a and b
 */
-FZY_INLINE f32 vec3_distance( vec3 a, vec3 b )
+FZY_INLINE f32 fzy_vec3_distance( vec3 a, vec3 b )
 {
-    return fzy_sqrt( vec3_distance_squared( a, b ) );
+    return fzy_sqrt( fzy_vec3_distance_squared( a, b ) );
 }
 
 /*
@@ -711,15 +591,15 @@ FZY_INLINE f32 vec3_distance( vec3 a, vec3 b )
     @param v - the vector to normalize
     @return vec3 - the normalized copy of v
 */
-FZY_INLINE vec3 vec3_normalize( vec3 v )
+FZY_INLINE vec3 fzy_vec3_normalize( vec3 v )
 {
-    f32 l = vec3_length( v );
+    f32 l = fzy_vec3_length( v );
     if( l > 0.0f )
     {
         l = 1.0f / l;
         return (vec3){ v.x * l, v.y * l, v.z * l };
     }
-    return vec3_zero();
+    return fzy_vec3_zero();
 }
 
 /*
@@ -728,9 +608,9 @@ FZY_INLINE vec3 vec3_normalize( vec3 v )
     @param normal - the noraml vector to reflect across
     @return vec3 - reflected vector
 */
-FZY_INLINE vec3 vec3_reflect( vec3 a, vec3 normal )
+FZY_INLINE vec3 fzy_vec3_reflect( vec3 a, vec3 normal )
 {
-    return vec3_subtract( a, vec3_scale( normal, 2 * vec3_dot( a, normal ) ) );
+    return fzy_vec3_subtract( a, fzy_vec3_scale( normal, 2 * fzy_vec3_dot( a, normal ) ) );
 }
 
 /*
@@ -739,9 +619,9 @@ FZY_INLINE vec3 vec3_reflect( vec3 a, vec3 normal )
     @param b - the vector to project onto
     @return vec3 - the projected a onto b
 */
-FZY_INLINE vec3 vec3_project( vec3 a, vec3 b )
+FZY_INLINE vec3 fzy_vec3_project( vec3 a, vec3 b )
 {
-    return vec3_subtract( a, vec3_scale( b, vec3_dot( a, b ) ) );
+    return fzy_vec3_subtract( a, fzy_vec3_scale( b, fzy_vec3_dot( a, b ) ) );
 }
 
 /*
@@ -751,7 +631,7 @@ FZY_INLINE vec3 vec3_project( vec3 a, vec3 b )
     @param tolerance - the difference tolerance.  Typically FZY_EPSILON or similar
     @return true - if within tolerance
 */
-FZY_INLINE b8 vec3_compare( vec3 a, vec3 b, f32 tolerance )
+FZY_INLINE b8 fzy_vec3_compare( vec3 a, vec3 b, f32 tolerance )
 {
     if( fzy_abs( a.x - b.x ) > tolerance ){ return false; }
     if( fzy_abs( a.y - b.y ) > tolerance ){ return false; }
@@ -760,21 +640,21 @@ FZY_INLINE b8 vec3_compare( vec3 a, vec3 b, f32 tolerance )
 }
 
 /*
-    @brief Transform a point by a 4x4 matrix. 
+    @brief Transform a point by a 4x4 matrix.
         NOTE: It is assumed by this function that the vector v is a point, not a direction,
               and is calcualted as if a w component with a value of 1.0f is there
     @param v - the point vector
     @param m - the transform matrix
     @return vec3 - a copy of v transformed by m
 */
-FZY_INLINE vec3 vec3_transform( vec3 v, mat4 m )
+FZY_INLINE vec3 fzy_vec3_transform( vec3 v, mat4 m )
 {
     vec3 r;
     r.x = v.x * m.xx + v.y * m.yx + v.z * m.zx + m.wx;
     r.y = v.x * m.xy + v.y * m.yy + v.z * m.zy + m.wy;
     r.z = v.x * m.xz + v.y * m.yz + v.z * m.zz + m.wz;
-    return r; 
-} 
+    return r;
+}
 
 /*
     @brief Transforms a vector by 3x3 matrix.
@@ -782,7 +662,7 @@ FZY_INLINE vec3 vec3_transform( vec3 v, mat4 m )
     @param m - the matrix to transform by
     @return vec3 - copy of v transformed by m
 */
-FZY_INLINE vec3 vec3_transform_mat3( vec3 v, mat3 m )
+FZY_INLINE vec3 fzy_vec3_transform_mat3( vec3 v, mat3 m )
 {
     vec3 r;
     r.x = v.x * m.xx + v.y * m.yx + v.z * m.zx;
@@ -802,7 +682,7 @@ FZY_INLINE vec3 vec3_transform_mat3( vec3 v, mat3 m )
     @param w - the w value of the vector
     @return vec4 - new vec4 with the given values
 */
-FZY_INLINE vec4 vec4_create( f32 x, f32 y, f32 z, f32 w )
+FZY_INLINE vec4 fzy_vec4_create( f32 x, f32 y, f32 z, f32 w )
 {
     return (vec4){ x, y, z, w };
 }
@@ -811,7 +691,7 @@ FZY_INLINE vec4 vec4_create( f32 x, f32 y, f32 z, f32 w )
     @brief Creates an identity quaternion
     @return vec4 - a identity quaternion
 */
-FZY_INLINE vec4 vec4_identity()
+FZY_INLINE vec4 fzy_vec4_identity()
 {
     return (vec4){ 0.0f, 0.0f, 0.0f, 1.0f };
 }
@@ -821,7 +701,7 @@ FZY_INLINE vec4 vec4_identity()
     @param a - the vector to retrieve the length of
     @return f32 - the length of the vector
 */
-FZY_INLINE f32 vec4_length( vec4 v )
+FZY_INLINE f32 fzy_vec4_length( vec4 v )
 {
     return fzy_sqrt( v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w );
 }
@@ -831,15 +711,15 @@ FZY_INLINE f32 vec4_length( vec4 v )
     @param q - the quaternion to normalize
     @return vec4 - a normalized copy of q
 */
-FZY_INLINE vec4 vec4_normalize( vec4 q )
+FZY_INLINE vec4 fzy_vec4_normalize( vec4 q )
 {
-    f32 l = vec4_length(q);
+    f32 l = fzy_vec4_length(q);
     if( l > 0.0 )
     {
         l = 1.0f / l;
         return (vec4){ q.x * l, q.y * l, q.z * l, q.w * l };
     }
-    return vec4_create( 0, 0, 0, 0 );
+    return fzy_vec4_create( 0, 0, 0, 0 );
 }
 
 /*
@@ -848,7 +728,7 @@ FZY_INLINE vec4 vec4_normalize( vec4 q )
     @param q - the quaternion to obtain the conjugate of.
     @return vec4 - the conjuage quaternion
 */
-FZY_INLINE vec4 vec4_conjugate( vec4 q )
+FZY_INLINE vec4 fzy_vec4_conjugate( vec4 q )
 {
     return (vec4){ q.x * -1.0f, q.y * -1.0f, q.z * -1.0f, q.w };
 }
@@ -858,9 +738,9 @@ FZY_INLINE vec4 vec4_conjugate( vec4 q )
     @param q - the quaternion to invert
     @return vec4 - the inverse copy of the provided quaternion
 */
-FZY_INLINE vec4 vec4_inverse( vec4 q )
+FZY_INLINE vec4 fzy_vec4_inverse( vec4 q )
 {
-    return vec4_normalize( vec4_conjugate( q ) );
+    return fzy_vec4_normalize( fzy_vec4_conjugate( q ) );
 }
 
 /*
@@ -869,7 +749,7 @@ FZY_INLINE vec4 vec4_inverse( vec4 q )
     @param b - the second quaternion
     @return vec4 - the product of a and b
 */
-FZY_INLINE vec4 vec4_multiply( vec4 a, vec4 b )
+FZY_INLINE vec4 fzy_vec4_multiply( vec4 a, vec4 b )
 {
     return (vec4){
         ( a.x * b.w + a.y * b.z - a.z * b.y + a.w * b.x ),
@@ -885,7 +765,7 @@ FZY_INLINE vec4 vec4_multiply( vec4 a, vec4 b )
     @param b - the second quaternion
     @return f32 - The dot product of the provided quaternions
 */
-FZY_INLINE f32 vec4_dot( vec4 a, vec4 b )
+FZY_INLINE f32 fzy_vec4_dot( vec4 a, vec4 b )
 {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
@@ -896,7 +776,7 @@ FZY_INLINE f32 vec4_dot( vec4 a, vec4 b )
     @param angle - the angle of the rotation in degrees
     @param normalize - indicates if the quaternion should be normalized
 */
-FZY_INLINE vec4 vec4_from_axis_angle( vec3 axis, f32 angle, b8 normalize )
+FZY_INLINE vec4 fzy_vec4_from_axis_angle( vec3 axis, f32 angle, b8 normalize )
 {
     const f32 half_angle = 0.5f * angle;
     f32 s = fzy_sin( half_angle );
@@ -905,7 +785,7 @@ FZY_INLINE vec4 vec4_from_axis_angle( vec3 axis, f32 angle, b8 normalize )
     vec4 q = (vec4){ s * axis.x, s * axis.y, s * axis.z, c };
     if( normalize )
     {
-        return vec4_normalize( q );
+        return fzy_vec4_normalize( q );
     }
     return q;
 }
@@ -918,16 +798,16 @@ FZY_INLINE vec4 vec4_from_axis_angle( vec3 axis, f32 angle, b8 normalize )
     @param percentage - the percentage of interpolation, typically a value from 0.0f to 1.0f
     @return vec4 - a quaternion representing a interpolated with b by percentage
 */
-FZY_INLINE vec4 vec4_slerp( vec4 a, vec4 b, f32 percentage )
+FZY_INLINE vec4 fzy_vec4_slerp( vec4 a, vec4 b, f32 percentage )
 {
     vec4 out_quaternion;
     // only unit quaternions are valid rotations.  Normalize to avoid undefined behavior
-    vec4 v0 = vec4_normalize(a);
-    vec4 v1 = vec4_normalize(b);
+    vec4 v0 = fzy_vec4_normalize(a);
+    vec4 v1 = fzy_vec4_normalize(b);
     // compute the cosine of the angle between the two vectors
-    f32 dot = vec4_dot(a,b);
+    f32 dot = fzy_vec4_dot(a,b);
     // if dot is negative, slerp wont take the shorter path.  Note that v1 and -v1 are
-    // equivalent when the negation is applied to all four components.  Fix by 
+    // equivalent when the negation is applied to all four components.  Fix by
     // reversing one quaternion.
     if( dot < 0.0f )
     {
@@ -945,7 +825,7 @@ FZY_INLINE vec4 vec4_slerp( vec4 a, vec4 b, f32 percentage )
                                  v0.y + ((v1.y - v0.y) * percentage),
                                  v0.z + ((v1.z - v0.z) * percentage),
                                  v0.w + ((v1.w - v0.w) * percentage) };
-        return vec4_normalize( out_quaternion );
+        return fzy_vec4_normalize( out_quaternion );
     }
     // since dot is in range [ 0, DOT_THRESHOLD ], acos is safe
     f32 theta_0 = fzy_acos(dot); // theta_0 = angle between input vectors
@@ -969,7 +849,7 @@ FZY_INLINE vec4 vec4_slerp( vec4 a, vec4 b, f32 percentage )
     @param tolerance - the difference tolerance.  Typically FZY_EPSILON
     @return true if within tolerance
 */
-FZY_INLINE const b8 vec4_compare( vec4 a, vec4 b, f32 tolerance )
+FZY_INLINE const b8 fzy_vec4_compare( vec4 a, vec4 b, f32 tolerance )
 {
     if( fzy_abs( a.x - b.x ) > tolerance ) { return false; }
     if( fzy_abs( a.y - b.y ) > tolerance ) { return false; }
@@ -986,7 +866,7 @@ FZY_INLINE const b8 vec4_compare( vec4 a, vec4 b, f32 tolerance )
     @param xx - zz - the individual values of each fo the elements
     @return mat3 - a new matrix with elements set to the given values
 */
-FZY_INLINE mat3 mat3_create( f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, f32 zy, f32 zz )
+FZY_INLINE mat3 fzy_mat3_create( f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32 zx, f32 zy, f32 zz )
 {
     return (mat3){ xx, xy, xz, yx, yy, yz, zx, zy, zz };
 }
@@ -995,7 +875,7 @@ FZY_INLINE mat3 mat3_create( f32 xx, f32 xy, f32 xz, f32 yx, f32 yy, f32 yz, f32
     @brief Creates a matrix that is set to the identity matrix
     @return mat3 - identity matrix
 */
-FZY_INLINE mat3 mat3_identity( void )
+FZY_INLINE mat3 fzy_mat3_identity( void )
 {
     return (mat3){ 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 }
@@ -1004,7 +884,7 @@ FZY_INLINE mat3 mat3_identity( void )
     @brief Creates a matrix with all elements set to zero
     @return mat3 - zero matrix
 */
-FZY_INLINE mat3 mat3_zero( void )
+FZY_INLINE mat3 fzy_mat3_zero( void )
 {
     return (mat3){ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 }
@@ -1015,7 +895,7 @@ FZY_INLINE mat3 mat3_zero( void )
     @param b - the second matrix
     @return mat3 - the result
 */
-FZY_INLINE mat3 mat3_multiply( mat3 a, mat3 b )
+FZY_INLINE mat3 fzy_mat3_multiply( mat3 a, mat3 b )
 {
     return (mat3){
         a.xx * b.xx + a.xy * b.yx + a.xz * b.zx,
@@ -1035,7 +915,7 @@ FZY_INLINE mat3 mat3_multiply( mat3 a, mat3 b )
     @param m - the matrix to transpose
     @return mat3 - the transposed copy of the matrix
 */
-FZY_INLINE mat3 mat3_transpose( mat3 m )
+FZY_INLINE mat3 fzy_mat3_transpose( mat3 m )
 {
   mat3 r;
   r.xx = m.xx;
@@ -1055,11 +935,11 @@ FZY_INLINE mat3 mat3_transpose( mat3 m )
     @param v - the vector to set a skew sysmmetric for
     @return mat3 - a skew symmetric matrix
 */
-FZY_INLINE mat3 mat3_skew_symmetric( vec3 v )
+FZY_INLINE mat3 fzy_mat3_skew_symmetric( vec3 v )
 {
-    return mat3_create( 0, -v.z, v.y,
-                        v.z, 0, -v.x,
-                       -v.y, v.x, 0 );
+    return fzy_mat3_create( 0, -v.z, v.y,
+                            v.z, 0, -v.x,
+                           -v.y, v.x, 0 );
 }
 
 /*
@@ -1067,14 +947,14 @@ FZY_INLINE mat3 mat3_skew_symmetric( vec3 v )
     @param m - the matrix to calculate the inverse of
     @return mat3 - the inverse matrix
 */
-FZY_INLINE mat3 mat3_inverse( mat3 m )
+FZY_INLINE mat3 fzy_mat3_inverse( mat3 m )
 {
     f32 det = ((m.xx * m.yy * m.zz) - (m.xx * m.yz * m.zy) -
                (m.xy * m.yx * m.zz) + (m.xz * m.yx * m.zy) +
                (m.xy * m.zx * m.yz) - (m.xz * m.zx * m.yy) );
-    if( det == 0 ) 
-    { 
-        return mat3_zero(); 
+    if( det == 0 )
+    {
+        return fzy_mat3_zero();
     }
     f32 f = 1.0f / det;
     return (mat3){
@@ -1097,7 +977,7 @@ FZY_INLINE mat3 mat3_inverse( mat3 m )
     @brief Creates an identity matrix
     @return mat4 - the new matrix
 */
-FZY_INLINE mat4 mat4_identity( void )
+FZY_INLINE mat4 fzy_mat4_identity( void )
 {
     return (mat4){1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 }
@@ -1106,7 +986,7 @@ FZY_INLINE mat4 mat4_identity( void )
     @brief Creates a matrix with all elements set to zero
     @return mat4 - zero matrix
 */
-FZY_INLINE mat4 mat4_zero( void )
+FZY_INLINE mat4 fzy_mat4_zero( void )
 {
     return (mat4){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 }
@@ -1117,7 +997,7 @@ FZY_INLINE mat4 mat4_zero( void )
     @param b - the second matrix
     @return mat4 - the product matrix
 */
-FZY_INLINE mat4 mat4_multiply( mat4 a, mat4 b )
+FZY_INLINE mat4 fzy_mat4_multiply( mat4 a, mat4 b )
 {
     mat4 r;
     r.xx = a.xx * b.xx + a.xy * b.yx + a.xz * b.zx + a.xw * b.wx;
@@ -1153,8 +1033,8 @@ FZY_INLINE mat4 mat4_multiply( mat4 a, mat4 b )
   @param far_clip - The far clipping plane distance.
   @return mat4 - A new orthographic projection matrix.
 */
-FZY_INLINE mat4 mat4_orthographic(f32 left, f32 right, f32 bottom, f32 top, f32 near_clip, f32 far_clip) {
-    mat4 out = mat4_identity();
+FZY_INLINE mat4 fzy_mat4_orthographic(f32 left, f32 right, f32 bottom, f32 top, f32 near_clip, f32 far_clip) {
+    mat4 out = fzy_mat4_identity();
 
     f32 a = 2.0f / (right - left);
     f32 b = 2.0f / (top - bottom);
@@ -1194,10 +1074,10 @@ FZY_INLINE mat4 mat4_orthographic(f32 left, f32 right, f32 bottom, f32 top, f32 
   @param far_clip - The far clipping plane distance.
   @return mat4 - A new perspective matrix.
 */
-FZY_INLINE mat4 mat4_perspective(f32 fov_radians, f32 aspect_ratio, f32 near_clip, f32 far_clip)
+FZY_INLINE mat4 fzy_mat4_perspective(f32 fov_radians, f32 aspect_ratio, f32 near_clip, f32 far_clip)
 {
     f32 half_tan_fov = fzy_tan(fov_radians * 0.5f);
-    mat4 out = mat4_zero();
+    mat4 out = fzy_mat4_zero();
     out.xx = 1.0f / (aspect_ratio * half_tan_fov);
     out.yy = 1.0f / half_tan_fov;
     out.zz = -((far_clip + near_clip) / (far_clip - near_clip));
@@ -1214,7 +1094,7 @@ FZY_INLINE mat4 mat4_perspective(f32 fov_radians, f32 aspect_ratio, f32 near_cli
   @param up - The up vector.
   @return mat4 - matrix looking at target from the perspective of position.
 */
-FZY_INLINE mat4 mat4_look_at(vec3 position, vec3 target, vec3 up)
+FZY_INLINE mat4 fzy_mat4_look_at(vec3 position, vec3 target, vec3 up)
 {
     mat4 out;
     vec3 z_axis;
@@ -1222,9 +1102,9 @@ FZY_INLINE mat4 mat4_look_at(vec3 position, vec3 target, vec3 up)
     z_axis.y = target.y - position.y;
     z_axis.z = target.z - position.z;
 
-    z_axis = vec3_normalize( z_axis );
-    vec3 x_axis = vec3_normalize( vec3_cross( z_axis, up ) );
-    vec3 y_axis = vec3_cross( x_axis, z_axis );
+    z_axis = fzy_vec3_normalize( z_axis );
+    vec3 x_axis = fzy_vec3_normalize( fzy_vec3_cross( z_axis, up ) );
+    vec3 y_axis = fzy_vec3_cross( x_axis, z_axis );
 
     out.xx = x_axis.x;
     out.xy = y_axis.x;
@@ -1238,9 +1118,9 @@ FZY_INLINE mat4 mat4_look_at(vec3 position, vec3 target, vec3 up)
     out.zy = y_axis.z;
     out.zz = -z_axis.z;
     out.zw = 0;
-    out.wx = -vec3_dot(x_axis, position);
-    out.wy = -vec3_dot(y_axis, position);
-    out.wz = vec3_dot(z_axis, position);
+    out.wx = -fzy_vec3_dot(x_axis, position);
+    out.wy = -fzy_vec3_dot(y_axis, position);
+    out.wz = fzy_vec3_dot(z_axis, position);
     out.ww = 1.0f;
 
     return out;
@@ -1252,7 +1132,7 @@ FZY_INLINE mat4 mat4_look_at(vec3 position, vec3 target, vec3 up)
   @param matrix - The matrix to be transposed.
   @return mat4 - transposed copy of of the provided matrix.
 */
-FZY_INLINE mat4 mat4_transpose( mat4 a )
+FZY_INLINE mat4 fzy_mat4_transpose( mat4 a )
 {
     mat4 out;
     out.xx = a.xx;
@@ -1283,7 +1163,7 @@ FZY_INLINE mat4 mat4_transpose( mat4 a )
     @param matrix - The matrix to be inverted.
     @return mat4 - inverted copy of the provided matrix.
  */
-FZY_INLINE mat4 mat4_inverse( mat4 matrix )
+FZY_INLINE mat4 fzy_mat4_inverse( mat4 matrix )
 {
     const f32* m = matrix.elements;
 
@@ -1347,9 +1227,9 @@ FZY_INLINE mat4 mat4_inverse( mat4 matrix )
     @param position - The position to be used to create the matrix.
     @return mat4 - A newly created translation matrix.
 */
-FZY_INLINE mat4 mat4_translation(vec3 position )
+FZY_INLINE mat4 fzy_mat4_translation(vec3 position )
 {
-    mat4 out = mat4_identity();
+    mat4 out = fzy_mat4_identity();
     out.wx = position.x;
     out.wy = position.y;
     out.wz = position.z;
@@ -1363,7 +1243,7 @@ FZY_INLINE mat4 mat4_translation(vec3 position )
     @param vec - The vec3 to rotate
     @return vec3 - vector that is rotated by the matrix
 */
-FZY_INLINE vec3 mat4_rotate_vec3( mat4 *matrix, vec3 vec )
+FZY_INLINE vec3 fzy_mat4_rotate_vec3( mat4 *matrix, vec3 vec )
 {
     vec3 r;
     r.x = vec.x * matrix->elements[0] + vec.y * matrix->elements[4] + vec.z * matrix->elements[8];
@@ -1377,9 +1257,9 @@ FZY_INLINE vec3 mat4_rotate_vec3( mat4 *matrix, vec3 vec )
     @param scale - The 3-component scale.
     @return mat4 - scale matrix.
 */
-FZY_INLINE mat4 mat4_scale( vec3 scale )
+FZY_INLINE mat4 fzy_mat4_scale( vec3 scale )
 {
-    mat4 out = mat4_identity();
+    mat4 out = fzy_mat4_identity();
     out.xx = scale.x;
     out.yy = scale.y;
     out.zz = scale.z;
@@ -1392,13 +1272,13 @@ FZY_INLINE mat4 mat4_scale( vec3 scale )
     @param a - The matrix from which to base the vector.
     @return vec3 - A 3-component directional vector.
 */
-FZY_INLINE vec3 mat4_forward( mat4 a )
+FZY_INLINE vec3 fzy_mat4_forward( mat4 a )
 {
     vec3 forward;
     forward.x = -a.xz;
     forward.y = -a.yz;
     forward.z = -a.zz;
-    return vec3_normalize( forward );
+    return fzy_vec3_normalize( forward );
 }
 
 /*
@@ -1406,13 +1286,13 @@ FZY_INLINE vec3 mat4_forward( mat4 a )
     @param a  - The matrix from which to base the vector.
     @return vec3 - A 3-component directional vector.
 */
-FZY_INLINE vec3 mat4_backward( mat4 a )
+FZY_INLINE vec3 fzy_mat4_backward( mat4 a )
 {
     vec3 backward;
     backward.x = a.xz;
     backward.y = a.yz;
     backward.z = a.zz;
-    return vec3_normalize( backward );
+    return fzy_vec3_normalize( backward );
 }
 
 /*
@@ -1420,13 +1300,13 @@ FZY_INLINE vec3 mat4_backward( mat4 a )
     @param a - The matrix from which to base the vector.
     @return vec3 - A 3-component directional vector.
 */
-FZY_INLINE vec3 mat4_up( mat4 a )
+FZY_INLINE vec3 fzy_mat4_up( mat4 a )
 {
     vec3 up;
     up.x = a.xy;
     up.y = a.yy;
     up.z = a.zy;
-    return vec3_normalize( up );
+    return fzy_vec3_normalize( up );
 }
 
 /*
@@ -1434,13 +1314,13 @@ FZY_INLINE vec3 mat4_up( mat4 a )
     @param a - The matrix from which to base the vector.
     @return vec3 - A 3-component directional vector.
 */
-FZY_INLINE vec3 mat4_down( mat4 a )
+FZY_INLINE vec3 fzy_mat4_down( mat4 a )
 {
     vec3 down;
     down.x = -a.xy;
     down.y = -a.yy;
     down.z = -a.zy;
-    return vec3_normalize( down );
+    return fzy_vec3_normalize( down );
 }
 
 /*
@@ -1448,13 +1328,13 @@ FZY_INLINE vec3 mat4_down( mat4 a )
     @param a - The matrix from which to base the vector.
     @return vec3 - A 3-component directional vector.
 */
-FZY_INLINE vec3 mat4_left( mat4 a )
+FZY_INLINE vec3 fzy_mat4_left( mat4 a )
 {
     vec3 left;
     left.x = -a.xx;
     left.y = -a.yx;
     left.z = -a.zx;
-    return vec3_normalize( left );
+    return fzy_vec3_normalize( left );
 }
 
 /*
@@ -1462,13 +1342,13 @@ FZY_INLINE vec3 mat4_left( mat4 a )
     @param a - The matrix from which to base the vector.
     @return vec3 - A 3-component directional vector.
 */
-FZY_INLINE vec3 mat4_right(mat4 a )
+FZY_INLINE vec3 fzy_mat4_right(mat4 a )
 {
     vec3 right;
     right.x = a.xx;
     right.y = a.yx;
     right.z = a.zx;
-    return vec3_normalize( right );
+    return fzy_vec3_normalize( right );
 }
 
 
@@ -1479,16 +1359,16 @@ FZY_INLINE vec3 mat4_right(mat4 a )
     @param rotation - Rotation to use
     @return mat4 - A transformation mat4
 */
-FZY_INLINE mat4 mat4_create_transform( vec3 position, vec3 scale, vec3 rotation )
+FZY_INLINE mat4 fzy_mat4_create_transform( vec3 position, vec3 scale, vec3 rotation )
 {
-    vec4 x = vec4_create( 1, 0, 0, rotation.x );
-    vec4 y = vec4_create( 0, 1, 0, rotation.y );
-    vec4 z = vec4_create( 0, 0, 1, rotation.z );
-    vec4 n = vec4_multiply( z, y );
-    n = vec4_multiply( n, x );
-    n = vec4_normalize( n );
+    vec4 x = fzy_vec4_create( 1, 0, 0, rotation.x );
+    vec4 y = fzy_vec4_create( 0, 1, 0, rotation.y );
+    vec4 z = fzy_vec4_create( 0, 0, 1, rotation.z );
+    vec4 n = fzy_vec4_multiply( z, y );
+    n = fzy_vec4_multiply( n, x );
+    n = fzy_vec4_normalize( n );
 
-    mat4 out = mat4_identity();
+    mat4 out = fzy_mat4_identity();
 
     out.xx = ( 1.0f - 2.0f * n.y * n.y - 2.0f * n.z * n.z ) * scale.x;
     out.xy = ( 2.0f * n.x * n.y - 2.0f * n.z * n.w ) * scale.x;
@@ -1515,13 +1395,13 @@ FZY_INLINE mat4 mat4_create_transform( vec3 position, vec3 scale, vec3 rotation 
     @param q - The quaternion to be used.
     @return mat4 - A rotation matrix.
 */
-FZY_INLINE mat4 vec4_to_mat4( vec4 q )
+FZY_INLINE mat4 fzy_vec4_to_mat4( vec4 q )
 {
-    mat4 out = mat4_identity();
+    mat4 out = fzy_mat4_identity();
 
     // https://stackoverflow.com/questions/1556260/convert-quaternion-rotation-to-rotation-matrix
 
-    vec4 n = vec4_normalize( q );
+    vec4 n = fzy_vec4_normalize( q );
 
     out.xx = 1.0f - 2.0f * n.y * n.y - 2.0f * n.z * n.z;
     out.xy = 2.0f * n.x * n.y - 2.0f * n.z * n.w;
@@ -1545,7 +1425,7 @@ FZY_INLINE mat4 vec4_to_mat4( vec4 q )
     @param center - The center point.
     @return mat4 - A rotation matrix.
 */
-FZY_INLINE mat4 vec4_to_rotation_matrix(vec4 q, vec3 center )
+FZY_INLINE mat4 fzy_vec4_to_rotation_matrix(vec4 q, vec3 center )
 {
     mat4 out;
 
@@ -1579,7 +1459,7 @@ FZY_INLINE mat4 vec4_to_rotation_matrix(vec4 q, vec3 center )
     @param v - The vector to transfrom
     @return vec3 - copy of the vector transformed by m
 */
-FZY_INLINE vec3 mat4_transform_vec3( mat4 m, vec3 v )
+FZY_INLINE vec3 fzy_mat4_transform_vec3( mat4 m, vec3 v )
 {
     vec3 result;
     result.x = v.x * m.xx + v.y * m.yx + v.z * m.zx + m.wx;
@@ -1588,9 +1468,9 @@ FZY_INLINE vec3 mat4_transform_vec3( mat4 m, vec3 v )
     return result;
 }
 
-FZY_INLINE vec3 mat4_transform_transpose_vec3( mat4 m, vec3 v )
+FZY_INLINE vec3 fzy_mat4_transform_transpose_vec3( mat4 m, vec3 v )
 {
-    vec3 t = vec3_create( v.x - m.wx, v.y - m.wy, v.z - m.wz );
+    vec3 t = fzy_vec3_create( v.x - m.wx, v.y - m.wy, v.z - m.wz );
     return (vec3){ t.x * m.xx + t.y * m.xy + t.z * m.xz,
                     t.x * m.yx + t.y * m.yy + t.z * m.yz,
                     t.x * m.zx + t.y * m.zy + t.z * m.zz };

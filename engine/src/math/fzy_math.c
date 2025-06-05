@@ -1,5 +1,4 @@
 #include "math/fzy_math.h"
-#include "core/logger.h"
 
 #include <math.h>
 #include <stdlib.h>

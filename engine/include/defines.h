@@ -104,7 +104,127 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 
   /** @brief No-inline qualifier */
   #define FZY_NOINLINE /* fallback: no-op */
-  
+
 #endif
+
+/*
+    @Brief Defines the mathematics types used in the engine
+*/
+/* @brief a 2 element vector holding int values */
+typedef union ivec2
+{
+    i32 elments[ 2 ];
+    struct
+    {
+        union
+        {
+            // first element by different identifiers
+            i32 x, w;
+        };
+        union
+        {
+            // second element by different identifiers
+            i32 y, h;
+        };
+    };
+} ivec2;
+
+/* @brief a 2 element vector holding float values */
+typedef union vec2
+{
+    f32 elements[ 2 ];
+    struct
+    {
+        union
+        {
+            // first element by different identifiers
+            f32 x, r, s, u;
+        };
+        union
+        {
+            // second element by different identifiers
+            f32 y, g, t, v;
+        };
+    };
+} vec2;
+
+/* @brief a 3 element vector holding float values */
+typedef union vec3
+{
+    f32 elements[ 3 ];
+    struct
+    {
+        union
+        {
+            // first element by different identifiers
+            f32 x, r, s, u;
+        };
+        union
+        {
+            // second element by different identifiers
+            f32 y, g, t, v;
+        };
+        union
+        {
+            // third element by different identifiers
+            f32 z, b;
+        };
+    };
+} vec3;
+
+/* @brief a 4 element vector holding float values ( Quaternion )*/
+typedef union vec4
+{
+    f32 elements[ 4 ];
+    struct
+    {
+        union
+        {
+            // first element by different identifiers
+            f32 x, r, s, u;
+        };
+        union
+        {
+            // second element by different identifiers
+            f32 y, g, t, v;
+        };
+        union
+        {
+            // third element by different identifiers
+            f32 z, b;
+        };
+        union
+        {
+            // forth element by different identifiers
+            f32 w, a;
+        };
+    };
+} vec4;
+
+/* @brief a 3x3 matrix, typically used to represent inertia tensors. */
+typedef union mat3
+{
+    f32 elements[ 9 ];
+    struct
+    {
+        f32 xx, xy, xz;
+        f32 yx, yy, yz;
+        f32 zx, zy, zz;
+    };
+
+} mat3;
+
+/* @brief a 4x4 matrix, typically used to represnt object transformations */
+typedef union mat4
+{
+    f32 elements[ 16 ];
+    struct
+    {
+        f32 xx, xy, xz, xw;
+        f32 yx, yy, yz, yw;
+        f32 zx, zy, zz, zw;
+        f32 wx, wy, wz, ww;
+    };
+} mat4;
 
 #endif // FZY_DEFINES_H

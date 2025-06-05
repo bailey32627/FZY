@@ -17,10 +17,12 @@
 
 b8 logger_initialize( )
 {
+  FZY_INFO( "Logger initialized" );
   return true;
 } // -----------------------------------------------------------------
 void logger_shutdown( )
 {
+  FZY_INFO( "Logger Shutdown" );
   // todo:: clean up logger / write queued entries
 } // -----------------------------------------------------------------
 

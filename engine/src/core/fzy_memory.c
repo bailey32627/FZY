@@ -1,4 +1,5 @@
 #include "core/fzy_memory.h"
+
 #include "core/logger.h"
 
 // TODO: custom string lib
@@ -9,15 +10,14 @@
 struct memory_stats
 {
   u64 total_allocated;
-  u64 tagged_allocations[MEMORY_TAG_MAX_TAGS];
+  u64 tagged_allocations[MEM_TAG_MAX_TAGS];
 };
 
 static struct memory_stats stats;
 
 
-static const char* memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
+static const char* memory_tag_strings[MEM_TAG_MAX_TAGS] = {
   "UNKNOWN    ",
-  "APPLICATION",
   "RENDERER   ",
   "TEXTURE    ",
   "SHADER     ",
@@ -49,19 +49,21 @@ static void delete( void *block, b8 aligned )
   free( block );
 } // -----------------------------------------------------------------------
 
-void memory_initialize( )
+b8 memory_initialize( )
 {
-
+  FZY_INFO( "memory initialized" );
+  return true;
 } // -----------------------------------------------------------------------
 
-void memory_shutdown( )
+b8 memory_shutdown( )
 {
-
+  FZY_INFO( "memory shutdown" );
+  return true;
 } // -----------------------------------------------------------------------
 
-void* memory_allocate( u64 size, memory_tag tag )
+void* fzy_memory_allocate( u64 size, fzy_memory_tag tag )
 {
-  if( tag == MEMORY_TAG_UNKNOWN )
+  if( tag == MEM_TAG_UNKNOWN )
     FZY_WARNING( "memory_allocate called using MEMORY_TAG_UNKNOWN.  Re-class this allocation." );
 
   stats.total_allocated += size;
@@ -69,13 +71,13 @@ void* memory_allocate( u64 size, memory_tag tag )
 
   // TODO : memory alignment
   void *block = allocate( size, false );
-  return memory_zero( block, size );
+  return fzy_memory_zero( block, size );
 } // -----------------------------------------------------------------------
 
-void memory_delete( void *block, u64 size, memory_tag tag )
+void fzy_memory_delete( void *block, u64 size, fzy_memory_tag tag )
 {
-  if( tag == MEMORY_TAG_UNKNOWN )
-    FZY_WARNING( "memory_free called using MEMORY_TAG_UNKNOWN.  Re-class this allocation." );
+  if( tag == MEM_TAG_UNKNOWN )
+    FZY_WARNING( "memory_free called using MEM_TAG_UNKNOWN.  Re-class this allocation." );
 
   stats.total_allocated -= size;
   i64 remove = (i64)stats.tagged_allocations - size;
@@ -88,10 +90,10 @@ void memory_delete( void *block, u64 size, memory_tag tag )
   block = 0;
 } // -----------------------------------------------------------------------
 
-void* memory_reallocate( void* block, u64 old_size, u64 new_size, memory_tag tag )
+void* memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory_tag tag )
 {
-  if( tag == MEMORY_TAG_UNKNOWN )
-    FZY_WARNING( "memory_reallocate called using MEMORY_TAG_UNKNOWN.  Re-class this allocation." );
+  if( tag == MEM_TAG_UNKNOWN )
+    FZY_WARNING( "memory_reallocate called using MEM_TAG_UNKNOWN.  Re-class this allocation." );
 
   i64 change = new_size - old_size;
   stats.total_allocated += change;
@@ -102,27 +104,27 @@ void* memory_reallocate( void* block, u64 old_size, u64 new_size, memory_tag tag
   return block;
 } // -----------------------------------------------------------------------
 
-i32 memory_compare( void* add1, void *add2, u64 size )
+i32 fzy_memory_compare( void* add1, void *add2, u64 size )
 {
   return memcmp( add1, add2, size );
 } // ----------------------------------------------------------------------
 
-void* memory_zero( void *block, u64 size )
+void* fzy_memory_zero( void *block, u64 size )
 {
   return memset( block, 0, size );
 } // -----------------------------------------------------------------------
 
-void* memory_copy( void *dest, const void *source, u64 size )
+void* fzy_memory_copy( void *dest, const void *source, u64 size )
 {
   return memcpy( dest, source, size );
 } // -----------------------------------------------------------------------
 
-void *memory_set( void *dest, i32 value, u64 size )
+void *fzy_memory_set( void *dest, i32 value, u64 size )
 {
   return memset( dest, value, size );
 } // -----------------------------------------------------------------------
 
-char* memory_get_usage_str( )
+char* fzy_memory_get_usage_str( )
 {
   const u64 gib = 1024 * 1024 * 1024;
   const u64 mib = 1024 * 1024;
@@ -131,7 +133,7 @@ char* memory_get_usage_str( )
   char buffer[ 8000 ] = "System memory usage (tagged):\n";
   u64 offset = strlen( buffer );
 
-  for( u32 i = 0; i < MEMORY_TAG_MAX_TAGS; i++ )
+  for( u32 i = 0; i < MEM_TAG_MAX_TAGS; i++ )
   {
     char unit[ 4 ] = "xiB";
     float amount = 1.0f;

@@ -9,42 +9,42 @@
 
 const u32 max_buffer = 32000;
 
-u64 string_length( const char *str )
+u64 fzy_string_length( const char *str )
 {
     return strlen( str );
 } // ---------------------------------------------------------------------------------------------------------------
 
-char *string_duplicate( const char* str )
+char *fzy_string_duplicate( const char* str )
 {
-    u64 length = string_length( str );
-    char* copy = memory_allocate( length + 1, MEMORY_TAG_STRING );
-    memory_copy( copy, str, length );
+    u64 length = fzy_string_length( str );
+    char* copy = fzy_memory_allocate( length + 1, MEM_TAG_STRING );
+    fzy_memory_copy( copy, str, length );
     copy[ length ] = 0;
     return copy;
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_free( char* str )
+void fzy_string_free( char* str )
 {
     if( str )
     {
-        memory_delete( str, string_length( str ) + 1, MEMORY_TAG_STRING );
+        fzy_memory_delete( str, fzy_string_length( str ) + 1, MEM_TAG_STRING );
         str = NULL;
         return;
     }
     FZY_WARNING( "string_free :: passed a null pointer." );
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_is_equal( const char* str0, const char* str1 )
+b8 fzy_string_is_equal( const char* str0, const char* str1 )
 {
     return strcmp( str0, str1 ) == 0;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_n_is_equal( const char* str0, const char* str1, i32 length )
+b8 fzy_string_n_is_equal( const char* str0, const char* str1, i32 length )
 {
     return strncmp( str0, str1, length ) == 0;
 } // ---------------------------------------------------------------------------------------------------------------
 
-i32 string_format( char* dest, const char* format, ... )
+i32 fzy_string_format( char* dest, const char* format, ... )
 {
     if( dest )
     {
@@ -52,12 +52,12 @@ i32 string_format( char* dest, const char* format, ... )
         #ifdef FZY_PLATFORM_WINDOWS
             va_list args;
             va_start(args, format);
-            written = string_format_v( dest, format, args );
+            written = fzy_string_format_v( dest, format, args );
             va_end(args);
         #else
             __builtin_va_list arg_ptr;
             va_start( arg_ptr, format );
-            written = string_format_v( dest, format, arg_ptr );
+            written = fzy_string_format_v( dest, format, arg_ptr );
             va_end( arg_ptr );
         #endif
 
@@ -66,7 +66,7 @@ i32 string_format( char* dest, const char* format, ... )
     return -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-i32 string_format_v( char* dest, const char* format, va_list  args )
+i32 fzy_string_format_v( char* dest, const char* format, va_list  args )
 {
     if (dest)
     {
@@ -74,14 +74,14 @@ i32 string_format_v( char* dest, const char* format, va_list  args )
         char buffer[32000];
         i32 written = vsnprintf(buffer, 32000, format, args );
         buffer[written] = 0;
-        memory_copy( dest, buffer, written + 1 );
+        fzy_memory_copy( dest, buffer, written + 1 );
 
         return written;
     }
     return -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-char* string_empty( char* str )
+char* fzy_string_empty( char* str )
 {
     if (str)
     {
@@ -91,24 +91,24 @@ char* string_empty( char* str )
     return str;
 } // ---------------------------------------------------------------------------------------------------------------
 
-char* string_copy( char* dest, u64 dest_size, const char* src )
+char* fzy_string_copy( char* dest, u64 dest_size, const char* src )
 {
     strcpy_s( dest, dest_size, src );
     return dest;
 } // ---------------------------------------------------------------------------------------------------------------
 
-char* string_n_copy( char* dest, u64 dest_size, const char* src, i32 length )
+char* fzy_string_n_copy( char* dest, u64 dest_size, const char* src, i32 length )
 {
     strncpy_s( dest, dest_size, src, length );
     return dest;
 } // ---------------------------------------------------------------------------------------------------------------
 
-char* string_trim(char* str) 
+char* fzy_string_trim(char* str)
 {
     if (!str) return NULL;
 
     char* end;
-    
+
     // Trim leading space
     while (isspace((unsigned char)*str)) str++;
 
@@ -128,13 +128,13 @@ char* string_trim(char* str)
     return str;
 }// ---------------------------------------------------------------------------------------------------------------
 
-void string_substring( char* dest, const char* src, i32 start, i32 length )
+void fzy_string_substring( char* dest, const char* src, i32 start, i32 length )
 {
     if( length == 0 )
     {
         return;
     }
-    u64 src_length = string_length( src );
+    u64 src_length = fzy_string_length( src );
     if( start >= src_length )
     {
         dest[0] = 0;
@@ -158,13 +158,13 @@ void string_substring( char* dest, const char* src, i32 start, i32 length )
     }
 } // ---------------------------------------------------------------------------------------------------------------
 
-i32 string_index_of( char* str, char c )
+i32 fzy_string_index_of( char* str, char c )
 {
     if( !str )
     {
         return -1;
     }
-    u64 length = string_length( str );
+    u64 length = fzy_string_length( str );
     if( length > 0 )
     {
         for( u32 i = 0; i < length; ++i )
@@ -179,42 +179,42 @@ i32 string_index_of( char* str, char c )
     return -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_vec4( char* str, vec4* out )
+b8 fzy_string_to_vec4( char* str, vec4* out )
 {
     if( !str )
     {
         return false;
     }
-    memory_zero( out, sizeof( vec4 ) );
+    fzy_memory_zero( out, sizeof( vec4 ) );
     i32 result = sscanf( str, "%f %f %f %f", &out->x, &out->y, &out->z, &out->w );
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_vec3( char* str, vec3* out )
+b8 fzy_string_to_vec3( char* str, vec3* out )
 {
     if( !str )
     {
         return false;
     }
 
-    memory_zero( out, sizeof( vec3 ) );
+    fzy_memory_zero( out, sizeof( vec3 ) );
     i32 result = sscanf( str, "%f %f %f", &out->x, &out->y, &out->z );
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_vec2( char* str, vec2* out )
+b8 fzy_string_to_vec2( char* str, vec2* out )
 {
     if( !str )
     {
         return false;
     }
 
-    memory_zero( out, sizeof( vec2 ) );
+    fzy_memory_zero( out, sizeof( vec2 ) );
     i32 result = sscanf(str, "%f %f", &out->x, &out->y);
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_f32( char* str, f32* f )
+b8 fzy_string_to_f32( char* str, f32* f )
 {
     if( !str )
     {
@@ -226,7 +226,7 @@ b8 string_to_f32( char* str, f32* f )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_f64( char* str, f64* f )
+b8 fzy_string_to_f64( char* str, f64* f )
 {
     if( !str )
     {
@@ -238,7 +238,7 @@ b8 string_to_f64( char* str, f64* f )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_i8( char* str, i8* i )
+b8 fzy_string_to_i8( char* str, i8* i )
 {
     if( !str )
     {
@@ -250,7 +250,7 @@ b8 string_to_i8( char* str, i8* i )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_i16( char* str, i16* i )
+b8 fzy_string_to_i16( char* str, i16* i )
 {
     if( !str )
     {
@@ -262,7 +262,7 @@ b8 string_to_i16( char* str, i16* i )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_i32( char* str, i32* i )
+b8 fzy_string_to_i32( char* str, i32* i )
 {
     if( !str )
     {
@@ -274,7 +274,7 @@ b8 string_to_i32( char* str, i32* i )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_i64( char* str, i64* i )
+b8 fzy_string_to_i64( char* str, i64* i )
 {
     if( !str )
     {
@@ -286,7 +286,7 @@ b8 string_to_i64( char* str, i64* i )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_u8( char* str, u8* u )
+b8 fzy_string_to_u8( char* str, u8* u )
 {
     if( !str )
     {
@@ -298,7 +298,7 @@ b8 string_to_u8( char* str, u8* u )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_u16( char* str, u16* u )
+b8 fzy_string_to_u16( char* str, u16* u )
 {
     if( !str )
     {
@@ -310,7 +310,7 @@ b8 string_to_u16( char* str, u16* u )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_u32( char* str, u32* u )
+b8 fzy_string_to_u32( char* str, u32* u )
 {
     if( !str )
     {
@@ -322,7 +322,7 @@ b8 string_to_u32( char* str, u32* u )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_u64( char* str, u64* u )
+b8 fzy_string_to_u64( char* str, u64* u )
 {
     if( !str )
     {
@@ -334,43 +334,43 @@ b8 string_to_u64( char* str, u64* u )
     return result != -1;
 } // ---------------------------------------------------------------------------------------------------------------
 
-b8 string_to_bool( char* str, b8* b )
+b8 fzy_string_to_bool( char* str, b8* b )
 {
     if( !str )
     {
         return false;
     }
 
-    *b = string_is_equal( str, "1" ) || string_is_equal( str, "true" );
+    *b = fzy_string_is_equal( str, "1" ) || fzy_string_is_equal( str, "true" );
     return *b;
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_append_string( char* dest, const char* source, const char* append )
+void fzy_string_append_string( char* dest, const char* source, const char* append )
 {
     sprintf_s(dest, max_buffer, "%s%s", source, append);
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_append_int( char* dest, const char* source, i64 i )
+void fzy_string_append_int( char* dest, const char* source, i64 i )
 {
     sprintf_s(dest, max_buffer, "%s%lli", source, i);
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_append_float( char* dest, const char* source, f32 f )
+void fzy_string_append_float( char* dest, const char* source, f32 f )
 {
     sprintf_s(dest, max_buffer, "%s%f", source, f);
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_append_bool( char* dest, const char* source, b8 b )
+void fzy_string_append_bool( char* dest, const char* source, b8 b )
 {
     sprintf_s(dest, max_buffer, "%s%s", source, b ? "true" : "false");
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_append_char( char* dest, const char* source, char c )
+void fzy_string_append_char( char* dest, const char* source, char c )
 {
     sprintf_s(dest, max_buffer, "%s%c", source, c);
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_directory_from_path( char* dest, const char* path )
+void fzy_string_directory_from_path( char* dest, const char* path )
 {
     u64 length = strlen( path );
     for (i64 i = (i64)length - 1; i >= 0; --i)
@@ -378,13 +378,13 @@ void string_directory_from_path( char* dest, const char* path )
         char c = path[i];
         if( c == '/' || c == '\\' )
         {
-        strncpy_s(dest, string_length( dest), path, i + 1);
+        strncpy_s(dest, fzy_string_length( dest), path, i + 1);
         return;
         }
     }
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_filename_from_path( char* dest, const char* path )
+void fzy_string_filename_from_path( char* dest, const char* path )
 {
     u64 length = strlen( path );
     for( u64 i = length; i >= 0; --i )
@@ -392,13 +392,13 @@ void string_filename_from_path( char* dest, const char* path )
         char c = path[i];
         if( c == '/' || c == '\\' )
         {
-        strcpy_s( dest, string_length( dest ), path + i + 1 );
+        strcpy_s( dest, fzy_string_length( dest ), path + i + 1 );
         return;
         }
     }
 } // ---------------------------------------------------------------------------------------------------------------
 
-void string_filename_no_extension_from_path( char* dest, const char* path )
+void fzy_string_filename_no_extension_from_path( char* dest, const char* path )
 {
     u64 length = strlen( path );
     u64 start = 0;
@@ -417,5 +417,5 @@ void string_filename_no_extension_from_path( char* dest, const char* path )
         }
     }
 
-    string_substring(dest, path, (i32)start, (i32)(end - start));
+    fzy_string_substring(dest, path, (i32)start, (i32)(end - start));
 } // ---------------------------------------------------------------------------------------------------------------
