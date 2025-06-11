@@ -6,3 +6,11 @@
 [2025-06-11 14:39:09] [ INFO ]: Event system shutdown.
 [2025-06-11 14:39:09] [ INFO ]: memory shutdown
 [2025-06-11 14:39:09] [ INFO ]: Logger Shutdown
+[2025-06-11 15:13:35] [ INFO ]: Logger initialized
+[2025-06-11 15:13:35] [ INFO ]: memory initialized
+[2025-06-11 15:13:35] [ INFO ]: Event System initialized.
+[2025-06-11 15:13:35] [ INFO ]: Input system initialized.
+[2025-06-11 15:13:38] [ INFO ]: Input system shutdown.
+[2025-06-11 15:13:38] [ INFO ]: Event system shutdown.
+[2025-06-11 15:13:38] [ INFO ]: memory shutdown
+[2025-06-11 15:13:38] [ INFO ]: Logger Shutdown
