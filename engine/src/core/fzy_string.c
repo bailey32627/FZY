@@ -1,6 +1,6 @@
 #include "core/fzy_string.h"
 #include "core/fzy_memory.h"
-#include "core/logger.h"
+#include "core/fzy_logger.h"
 
 #include <string.h>
 #include <stdio.h>

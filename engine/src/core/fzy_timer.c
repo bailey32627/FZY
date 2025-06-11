@@ -1,7 +1,7 @@
-#include "core/timer.h"
+#include "core/fzy_timer.h"
 
 
-void timer_start( timer *t, f32 duration, b8 repeating )
+void fzy_timer_start( timer *t, f32 duration, b8 repeating )
 {
   t->duration = duration;
   t->elasped = 0.0f;
@@ -9,7 +9,7 @@ void timer_start( timer *t, f32 duration, b8 repeating )
   t->active = true;
 } // -------------------------------------------------------------------------
 
-b8 timer_update( timer *t, f32 delta_time )
+b8 fzy_timer_update( timer *t, f32 delta_time )
 {
   if( !t->active ) return false;
 
@@ -29,12 +29,12 @@ b8 timer_update( timer *t, f32 delta_time )
   return false;
 } // -------------------------------------------------------------------------
 
-void timer_stop( timer *t )
+void fzy_timer_stop( timer *t )
 {
   t->active = false;
 } // -------------------------------------------------------------------------
 
-void timer_reset( timer *t )
+void fzy_timer_reset( timer *t )
 {
   t->elasped = 0.0f;
 } // -------------------------------------------------------------------------
