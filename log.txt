@@ -1,10 +1,8 @@
-
-[2025-06-05 09:53:50] [ INFO ]: Logger initialized
-[2025-06-05 09:53:50] [ INFO ]: memory initialized
-[2025-06-05 09:53:51] [ INFO ]: Error from editor.
-[2025-06-05 09:53:51] [ INFO ]: memory shutdown
-[2025-06-05 09:53:51] [ INFO ]: Logger Shutdown
-[2025-06-05 09:54:52] [ INFO ]: Logger initialized
-[2025-06-05 09:54:52] [ INFO ]: memory initialized
-[2025-06-05 09:55:03] [ INFO ]: memory shutdown
-[2025-06-05 09:55:03] [ INFO ]: Logger Shutdown
+[2025-06-11 14:39:06] [ INFO ]: Logger initialized
+[2025-06-11 14:39:06] [ INFO ]: memory initialized
+[2025-06-11 14:39:06] [ INFO ]: Event System initialized.
+[2025-06-11 14:39:06] [ INFO ]: Input system initialized.
+[2025-06-11 14:39:09] [ INFO ]: Input system shutdown.
+[2025-06-11 14:39:09] [ INFO ]: Event system shutdown.
+[2025-06-11 14:39:09] [ INFO ]: memory shutdown
+[2025-06-11 14:39:09] [ INFO ]: Logger Shutdown

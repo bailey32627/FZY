@@ -1,4 +1,4 @@
-#include "core/logger.h"
+#include "core/fzy_logger.h"
 #include <time.h>
 
 // todo :: temporary
@@ -15,12 +15,12 @@
 #include <limits.h> // PATH_MAX
 #endif
 
-b8 logger_initialize( )
+b8 fzy_logger_initialize( )
 {
   FZY_INFO( "Logger initialized" );
   return true;
 } // -----------------------------------------------------------------
-void logger_shutdown( )
+void fzy_logger_shutdown( )
 {
   FZY_INFO( "Logger Shutdown" );
   // todo:: clean up logger / write queued entries

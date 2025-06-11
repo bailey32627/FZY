@@ -1,5 +1,5 @@
-#include "renderer/window.h"
-#include "core/logger.h"
+#include "renderer/fzy_window.h"
+#include "core/fzy_logger.h"
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
 
@@ -9,7 +9,7 @@ static SDL_GLContext gl_context = NULL;
 static i32 window_width = 0;
 static i32 window_height = 0;
 
-b8 window_initialize( const char *title, i32 width, i32 height )
+b8 fzy_window_initialize( const char *title, i32 width, i32 height )
 {
   if( initialized )
   {
@@ -62,7 +62,7 @@ b8 window_initialize( const char *title, i32 width, i32 height )
   return true;
 } // -------------------------------------------------------------------------
 
-void window_shutdown( void )
+void fzy_window_shutdown( void )
 {
   if( gl_context )
   {
@@ -74,27 +74,27 @@ void window_shutdown( void )
   }
 } // -------------------------------------------------------------------------
 
-void window_swap_buffers( void )
+void fzy_window_swap_buffers( void )
 {
   SDL_GL_SwapWindow( window );
 } // -------------------------------------------------------------------------
 
-i32 window_get_width( void )
+i32 fzy_window_get_width( void )
 {
   return window_width;
 } // -------------------------------------------------------------------------
 
-i32 window_get_height( void )
+i32 fzy_window_get_height( void )
 {
   return window_height;
 } // -------------------------------------------------------------------------
 
-f32 window_get_aspect_ratio( void )
+f32 fzy_window_get_aspect_ratio( void )
 {
   return ( window_height != 0 ) ? (f32)window_width / (f32)window_height : 1.0f;
 } // -------------------------------------------------------------------------
 
-void window_set_width_height( i32 width, i32 height )
+void fzy_window_set_width_height( i32 width, i32 height )
 {
   window_width = width;
   window_height = height;

@@ -1,6 +1,6 @@
 #include "core/fzy_memory.h"
 
-#include "core/logger.h"
+#include "core/fzy_logger.h"
 
 // TODO: custom string lib
 #include <string.h>
@@ -49,13 +49,13 @@ static void delete( void *block, b8 aligned )
   free( block );
 } // -----------------------------------------------------------------------
 
-b8 memory_initialize( )
+b8 fzy_memory_initialize( )
 {
   FZY_INFO( "memory initialized" );
   return true;
 } // -----------------------------------------------------------------------
 
-b8 memory_shutdown( )
+b8 fzy_memory_shutdown( )
 {
   FZY_INFO( "memory shutdown" );
   return true;
@@ -90,7 +90,7 @@ void fzy_memory_delete( void *block, u64 size, fzy_memory_tag tag )
   block = 0;
 } // -----------------------------------------------------------------------
 
-void* memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory_tag tag )
+void* fzy_memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory_tag tag )
 {
   if( tag == MEM_TAG_UNKNOWN )
     FZY_WARNING( "memory_reallocate called using MEM_TAG_UNKNOWN.  Re-class this allocation." );

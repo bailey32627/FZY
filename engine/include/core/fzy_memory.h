@@ -29,12 +29,12 @@ typedef enum fzy_memory_tag {
 /*
   @brief Initializes the memory system
 */
-b8 memory_initialize( );
+b8 fzy_memory_initialize( );
 
 /*
   @brief Shutdowns the memory system
 */
-b8 memory_shutdown( );
+b8 fzy_memory_shutdown( );
 
 /*
   @brief Preforms a memory allocation from the host of the given size. Tracked by memory_tag

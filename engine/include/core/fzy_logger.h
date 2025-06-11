@@ -1,7 +1,7 @@
 #ifndef FZY_LOGGER_H
 #define FZY_LOGGER_H
 
-#include "../defines.h"
+#include "defines.h"
 
 #define LOG_WARNING_ENABLED 1
 #define LOG_INFO_ENABLED 1
@@ -27,12 +27,12 @@
   @brief initalizes the logger system and return true if initialized correctly
   @return true if successful otherwise false
   */
-  b8 logger_initialize( );
+  b8 fzy_logger_initialize( );
 
   /*
   @brief Shuts down the logger system and ensures the log is written to a file
   */
-  void logger_shutdown( );
+  void fzy_logger_shutdown( );
 
   FZY_API void logger_output( log_level level, const char *fmt, ... );
 
