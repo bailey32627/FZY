@@ -39,7 +39,7 @@ typedef struct hashtable_t
 static u32 hash( hashtable *table, const char* key )
 {
   u32 value = 0;
-  u32 key_len = (u32)fzy_string_length( key );
+  u32 key_len = (u32)string_length( key );
 
   for( u32 i = 0; i < key_len; i++ )
   {
@@ -54,10 +54,10 @@ static u32 hash( hashtable *table, const char* key )
 static entry *hashtable_pair( const char* key, void* value )
 {
   // allocate the entry
-  entry *e = fzy_memory_allocate( sizeof( entry ), MEM_TAG_HASHTABLE );
+  entry *e = memory_allocate( sizeof( entry ), MEM_TAG_HASHTABLE );
 
   // copy the key and value in place
-  fzy_string_n_copy( e->key, (u64)MAX_ENTRY_NAME, key, MAX_ENTRY_NAME );
+  string_n_copy( e->key, (u64)MAX_ENTRY_NAME, key, MAX_ENTRY_NAME );
   e->value = value;
 
   // next starts out null but may be set later
@@ -73,11 +73,11 @@ hashtable *hashtable_create( u32 capacity, void(*destroy_func)(void*) )
     FZY_ERROR( "hashtable_create :: destroy func cannot be 0" );
     return 0;
   }
-  hashtable* table = fzy_memory_allocate( sizeof( hashtable ), MEM_TAG_HASHTABLE );
+  hashtable* table = memory_allocate( sizeof( hashtable ), MEM_TAG_HASHTABLE );
   table->capacity = capacity;
   table->destroy = destroy_func;
-  table->entries = fzy_memory_allocate( sizeof( entry* ) * capacity, MEM_TAG_HASHTABLE );
-  fzy_memory_zero( table->entries, sizeof( entry*)* capacity );
+  table->entries = memory_allocate( sizeof( entry* ) * capacity, MEM_TAG_HASHTABLE );
+  memory_zero( table->entries, sizeof( entry*)* capacity );
   return table;
 } // --------------------------------------------------------------------------
 
@@ -100,12 +100,12 @@ void hashtable_destroy( hashtable *table )
           // free the value
 
           table->destroy( tmp->value );
-          fzy_memory_delete(tmp, sizeof( entry ), MEM_TAG_HASHTABLE );
+          memory_delete(tmp, sizeof( entry ), MEM_TAG_HASHTABLE );
         }
       }
     }
-    fzy_memory_delete( table->entries, sizeof( entry* )* table->capacity, MEM_TAG_HASHTABLE );
-    fzy_memory_delete( table, sizeof( hashtable), MEM_TAG_HASHTABLE );
+    memory_delete( table->entries, sizeof( entry* )* table->capacity, MEM_TAG_HASHTABLE );
+    memory_delete( table, sizeof( hashtable), MEM_TAG_HASHTABLE );
   }
 } // --------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ void hashtable_set( hashtable* table, const char* key, void* value)
   while (e != 0)
   {
     // check key
-    if (fzy_string_n_is_equal(e->key, key, MAX_ENTRY_NAME ) == 0)
+    if (string_n_is_equal(e->key, key, MAX_ENTRY_NAME ) == 0)
     {
       // match found, replace value
       table->destroy( e->value );
@@ -151,9 +151,9 @@ void* hashtable_get( hashtable* table, const char* key)
 {
   if (!table || !key) return 0;
 
-  if (fzy_string_length(key) >= MAX_ENTRY_NAME)
+  if (string_length(key) >= MAX_ENTRY_NAME)
   {
-    FZY_WARN("hashtable_set :: key truncated: '%s'", key);
+    FZY_WARNING("hashtable_set :: key truncated: '%s'", key);
   }
 
   u32 slot = hash(table, key);
@@ -171,7 +171,7 @@ void* hashtable_get( hashtable* table, const char* key)
   while( e )
   {
     // return value if found
-    if (fzy_string_n_is_equal( e->key, key, MAX_ENTRY_NAME ) == 0 )
+    if (string_n_is_equal( e->key, key, MAX_ENTRY_NAME ) == 0 )
     {
       return e->value;
     }
@@ -186,7 +186,7 @@ void* hashtable_get( hashtable* table, const char* key)
 
 void hashtable_remove( hashtable* table, const char* key )
 {
-  if (!table || !key) return 0;
+  if (!table || !key) return;
 
   u32 bucket = hash(table, key);
 
@@ -200,7 +200,7 @@ void hashtable_remove( hashtable* table, const char* key )
   while( e )
   {
     // check key
-    if (fzy_string_n_is_equal(e->key, key, MAX_ENTRY_NAME ) == 0)
+    if (string_n_is_equal(e->key, key, MAX_ENTRY_NAME ) == 0)
     {
       // first item and no next entry
       if (e->next == 0 && idx == 0)
@@ -228,7 +228,7 @@ void hashtable_remove( hashtable* table, const char* key )
 
       // free the deleted entry
       table->destroy( e->value );
-      fzy_memory_delete( e, sizeof( entry ), MEM_TAG_HASHTABLE );
+      memory_delete( e, sizeof( entry ), MEM_TAG_HASHTABLE );
 
       return;
     }

@@ -15,14 +15,13 @@
 #include <limits.h> // PATH_MAX
 #endif
 
-b8 fzy_logger_initialize( )
+b8 logger_initialize( )
 {
-  FZY_INFO( "Logger initialized" );
   return true;
 } // -----------------------------------------------------------------
-void fzy_logger_shutdown( )
+
+void logger_shutdown( )
 {
-  FZY_INFO( "Logger Shutdown" );
   // todo:: clean up logger / write queued entries
 } // -----------------------------------------------------------------
 

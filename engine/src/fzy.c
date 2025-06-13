@@ -36,13 +36,13 @@ b8 fzy_initialize( void )
 {
   if( initialized ) FZY_ERROR( "fzy_initialize :: initialized called more than once" );
 
-  if( !fzy_logger_initialize( ) )
+  if( !logger_initialize( ) )
   {
     FZY_ERROR( "Failed to initialize the logger" );
     return false;
   }
 
-  if( !fzy_memory_initialize() )
+  if( !memory_initialize() )
   {
     FZY_ERROR( "Failed to initialize the memory manager" );
     return false;
@@ -55,20 +55,20 @@ b8 fzy_initialize( void )
     return false;
   }
 
-  if( !fzy_event_system_initialize( ) )
+  if( !event_system_initialize( ) )
   {
     FZY_ERROR( "fzy_initialize :: Failed to initialize the event system." );
     return false;
   }
 
-  if( !fzy_input_system_initialize() )
+  if( !input_system_initialize() )
   {
     FZY_ERROR( "fzy_initialize :: Failed to initialize the input system." );
     return false;
   }
 
   // this opens a window, can be moved to renderer if possible
-  if( !fzy_window_initialize( "FZY Editor", 800, 600 ) )
+  if( !window_initialize( "FZY Editor", 800, 600 ) )
   {
      FZY_ERROR( "application_initialize :: Failed to initialize the SDL window" );
      return false;
@@ -89,7 +89,7 @@ FZY_API b8 fzy_update( f32 deltaTime )
     // for testing
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    fzy_window_swap_buffers();
+    window_swap_buffers();
   }
 
   return true;
@@ -98,14 +98,14 @@ FZY_API b8 fzy_update( f32 deltaTime )
 FZY_API void fzy_shutdown( void )
 {
   // shutdown the window
-  fzy_window_shutdown();
+  window_shutdown();
 
-  if( !fzy_input_system_shutdown() ) FZY_ERROR( "fzy_shutdown :: failed to shutdown the input system." );
+  if( !input_system_shutdown() ) FZY_ERROR( "fzy_shutdown :: failed to shutdown the input system." );
 
-  if( !fzy_event_system_shutdown() ) FZY_ERROR( "fzy_shutdown :: failed to shutdown the event system." );
+  if( !event_system_shutdown() ) FZY_ERROR( "fzy_shutdown :: failed to shutdown the event system." );
 
-  if( !fzy_memory_shutdown() ) FZY_ERROR( "Failed to shutdown the memory manager" );
+  if( !memory_shutdown() ) FZY_ERROR( "Failed to shutdown the memory manager" );
 
   SDL_Quit();
-  fzy_logger_shutdown();
+  logger_shutdown();
 } // --------------------------------------------------------------------------

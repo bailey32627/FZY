@@ -268,86 +268,86 @@ typedef enum keys
   @brief Initializes the input system
   @return b8 - true if successful
 */
-b8 fzy_input_system_initialize( void );
+b8 input_system_initialize( void );
 
 /*
   @brief Shuts down the input system and frees memory held by it
   @return b8 - true if successful
 */
-b8 fzy_input_system_shutdown( void );
+b8 input_system_shutdown( void );
 
 /*
   @brief Updates the input system, process keys / other inputs
 */
-void fzy_input_system_update( void );
+void input_system_update( void );
 
 /*
   @brief Indicates the press status of the key
   @param key - the key to check the status of
   @param b8 - the pressed status to update for the key
 */
-FZY_API void fzy_input_process_key( keys key, b8 pressed );
+FZY_API void input_process_key( keys key, b8 pressed );
 
 /*
   @brief Indicates the press status of the key
   @param key - the key to check the status of
   @return b8 - true if key is down
 */
-FZY_API b8 fzy_input_is_key_down( keys key );
+FZY_API b8 input_is_key_down( keys key );
 
 /*
   @brief Indicates if the key is down
   @param key - the key to check
   @return b8 - true if key is up
 */
-FZY_API b8 fzy_input_is_key_up( keys key );
+FZY_API b8 input_is_key_up( keys key );
 
 /*
   @brief Checks the status of the mouse position
   @param x - the x position of the mouse
   @param y - the y position of the mouse
 */
-FZY_API void fzy_input_mouse_move( i16 x, i16 y );
+FZY_API void input_mouse_move( i16 x, i16 y );
 
 /*
   @brief Sets the pressed state of the given mouse button
   @param button - the button to set the state of
   @param pressed - the pressed state of the button
 */
-FZY_API void fzy_input_process_button( buttons button, b8 pressed );
+FZY_API void input_process_button( buttons button, b8 pressed );
 
 /*
   @brief Checks if the mouse button is down
   @param button - the button to check
   @return b8 - true if button is down
 */
-FZY_API b8 fzy_input_is_button_down( buttons button );
+FZY_API b8 input_is_button_down( buttons button );
 
 /*
   @brief Checks if the mouse button is up
   @param button - the button to check
   @return b8 - true if button is up
 */
-FZY_API b8 fzy_input_is_button_up( buttons button );
+FZY_API b8 input_is_button_up( buttons button );
 
 /*
   @brief Gets the mouse position
   @param x - variable to set to the x location of the mouse
   @param y - variable to set to the y location of the mouse
 */
-FZY_API void fzy_input_get_mouse_position( i32 *x, i32 *y );
+FZY_API void input_get_mouse_position( i32 *x, i32 *y );
 
 /*
   @brief Gets the change of the mouse position from last frame
   @param x - variable to set the delta x of the mouse to
   @param y - variable to set the delta y of the mouse to
 */
-FZY_API void fzy_input_get_mouse_delta( i32 *x, i32 *y );
+FZY_API void input_get_mouse_delta( i32 *x, i32 *y );
 
 /*
     TODO: implement
 */
-FZY_API void fzy_input_process_mouse_wheel( i8 z_delta );
+FZY_API void input_process_mouse_wheel( i8 z_delta );
 
 /*
   @brief Determin if the mouse in in the given rectangle area
@@ -357,6 +357,6 @@ FZY_API void fzy_input_process_mouse_wheel( i8 z_delta );
   @param height - the height of the rectangle
   @return b8 - true if mouse is in the area
 */
-FZY_API b8 fzy_input_is_mouse_in_rectangle( u16 x, u16 y, u16 width, u16 height );
+FZY_API b8 input_is_mouse_in_rectangle( u16 x, u16 y, u16 width, u16 height );
 
 #endif // FZY_INPUT_H

@@ -22,10 +22,13 @@ elseif(UNIX)
     add_definitions(-DFZY_PLATFORM_LINUX)
 endif()
 
+
 # Default all options to OFF
 option(BUILD_EDITOR "Build the game editor" OFF)
 option(BUILD_GAME "Build the game executable" OFF)
 option(BUILD_TESTS "Build tests" OFF)
+option(SUPPORT_OPENGL "Enable OpenGL backend" ON)
+option(SUPPORT_VULKAN "Enable Vulkan backend" OFF)
 
 # Enable options based on TARGET_NAME
 if(DEFINED TARGET_NAME)

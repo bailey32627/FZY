@@ -6,16 +6,11 @@
 /* @brief Represents a vector in the engine. Holds what memory type it belongs to */
 typedef struct vector_t
 {
-  /* @brief The size of each element in the array */
-  u64 size;
-  /* @brief The capacity of the array */
-  u32 capacity;
-  /* @brief The number of elements in the array */
-  u32 count;
-  /* @brief The memory group the vector belongs to */
-  u16 memory_tag;
-  /* @brief The data array */
-  void *data;
+  u64 size;        // The size of each element in the array
+  u32 capacity;    // The capacity of the array
+  u32 count;       // The number of elements in the array
+  u16 memory_tag;  // The memeory group the vector belongs to
+  void *data;      // The data array
 
 } vector;
 
@@ -25,36 +20,36 @@ static inline void *vector_offset( vector *vector, u64 idx )
   return (void*)((u8*)vector->data + (idx * vector->size ) );
 } // ---------------------------------------------------------------------------
 
-vector* fzy_vector_create(u64 element_size, u32 capacity, u16 memory_tag)
+vector* vector_create(u64 element_size, u32 capacity, u16 memory_tag)
 {
-  vector* v = fzy_memory_allocate(sizeof(vector), memory_tag);
+  vector* v = memory_allocate(sizeof(vector), memory_tag);
   if (!v) return 0;
 
   v->size = element_size;
   v->count = 0;
   v->capacity = capacity;
   v->memory_tag = memory_tag;
-  v->data = fzy_memory_allocate(v->size * v->capacity, memory_tag);
+  v->data = memory_allocate(v->size * v->capacity, memory_tag);
   if (!v->data) {
-      fzy_memory_delete(v, sizeof(vector), memory_tag);
+      memory_delete(v, sizeof(vector), memory_tag);
       return 0;
   }
   return v;
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_destroy( vector *vector )
+void vector_destroy( vector *vector )
 {
   if( !vector ) return;
   if( vector->data )
   {
-    fzy_memory_delete(vector->data, vector->size * vector->capacity, vector->memory_tag);
+    memory_delete(vector->data, vector->size * vector->capacity, vector->memory_tag);
     vector->data = 0;
   }
-  fzy_memory_delete(vector, sizeof(vector), vector->memory_tag);
+  memory_delete(vector, sizeof(vector), vector->memory_tag);
 
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_push( vector *vector, void *element )
+void vector_push( vector *vector, void *element )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_push :: vector is null." );
@@ -65,7 +60,7 @@ void fzy_vector_push( vector *vector, void *element )
   if( vector->count == vector->capacity )
   {
     u64 new_size = vector->size * vector->capacity * 2;
-    void *new_data = fzy_memory_reallocate( vector->data, vector->size * vector->capacity, new_size, vector->memory_tag );
+    void *new_data = memory_reallocate( vector->data, vector->size * vector->capacity, new_size, vector->memory_tag );
     if( !new_data )
     {
       FZY_ERROR( "fzy_vector_push :: failed to reallocate data array." );
@@ -75,7 +70,7 @@ void fzy_vector_push( vector *vector, void *element )
   }
 
   pos = (u8*)vector->data + (vector->count * vector->size );
-  pos = fzy_memory_copy( pos, element, vector->size );
+  pos = memory_copy( pos, element, vector->size );
   if( !pos )
   {
     FZY_ERROR( "fzy_vector_push :: failed to copy the element into the data array." );
@@ -83,14 +78,14 @@ void fzy_vector_push( vector *vector, void *element )
   vector->count++;
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_pop( vector *vector )
+void vector_pop( vector *vector )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_pop :: vector is null." );
   #endif
 
   if( vector->count > 0 )
-    fzy_vector_remove_index( vector, fzy_vector_size( vector ) - 1 );
+    vector_remove_index( vector, vector_size( vector ) - 1 );
 } // ---------------------------------------------------------------------------
 
 void *_vector_get( vector *vector, u32 index )
@@ -105,7 +100,7 @@ void *_vector_get( vector *vector, u32 index )
   return 0;
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_remove( vector *vector, void *element )
+void vector_remove( vector *vector, void *element )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_remove :: vector is null." );
@@ -114,11 +109,11 @@ void fzy_vector_remove( vector *vector, void *element )
   u8* pos = (u8*)vector->data;
   for (u32 i = 0; i < vector->count; ++i)
   {
-    if (fzy_memory_compare(pos, element, vector->size) == 0)
+    if (memory_compare(pos, element, vector->size) == 0)
     {
       u32 count = vector->capacity - i - 1;
       u64 remainder = count * vector->size;
-      if (!fzy_memory_copy(pos, pos + vector->size, remainder))
+      if (!memory_copy(pos, pos + vector->size, remainder))
       {
         FZY_ERROR("fzy_vector_remove :: failed to copy memory.");
       }
@@ -129,7 +124,7 @@ void fzy_vector_remove( vector *vector, void *element )
   }
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_remove_index( vector *vector, u32 index )
+void vector_remove_index( vector *vector, u32 index )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_remove_index :: vector is null." );
@@ -140,7 +135,7 @@ void fzy_vector_remove_index( vector *vector, u32 index )
     u8 *pos = (u8*)vector_offset( vector, index );
     u32 count = vector->capacity - index - 1;
     u64 remainder = count * vector->size;
-    pos = fzy_memory_copy( pos, pos + vector->size, remainder );
+    pos = memory_copy( pos, pos + vector->size, remainder );
     if( !pos )
     {
       FZY_ERROR( "fzy_vector_remove_index :: failed to copy memory" );
@@ -149,7 +144,7 @@ void fzy_vector_remove_index( vector *vector, u32 index )
   }
 } // ---------------------------------------------------------------------------
 
-u32 fzy_vector_size( vector *vector )
+u32 vector_size( vector *vector )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_size :: vector is null." );
@@ -157,7 +152,7 @@ u32 fzy_vector_size( vector *vector )
   return vector->count;
 } // ---------------------------------------------------------------------------
 
-u32 fzy_vector_capacity( vector *vector )
+u32 vector_capacity( vector *vector )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_capacity :: vector is null." );
@@ -165,7 +160,7 @@ u32 fzy_vector_capacity( vector *vector )
   return vector->capacity;
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_clear( vector *vector )
+void vector_clear( vector *vector )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_clear :: vector is null." );
@@ -173,7 +168,7 @@ void fzy_vector_clear( vector *vector )
   vector->count = 0;
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_shrink( vector *vector )
+void vector_shrink( vector *vector )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_shrink :: vector is null." );
@@ -183,10 +178,10 @@ void fzy_vector_shrink( vector *vector )
     return;
   }
 
-  void* new_data = fzy_memory_reallocate( vector->data,
-                                          vector->size * vector->capacity,
-                                          vector->size * vector->count,
-                                          vector->memory_tag );
+  void* new_data = memory_reallocate( vector->data,
+                                      vector->size * vector->capacity,
+                                      vector->size * vector->count,
+                                      vector->memory_tag );
 
   if( new_data )
   {
@@ -195,7 +190,7 @@ void fzy_vector_shrink( vector *vector )
   }
 } // ---------------------------------------------------------------------------
 
-void fzy_vector_fill( vector *vector, void *data, u32 count )
+void vector_fill( vector *vector, void *data, u32 count )
 {
   #ifdef FZY_CONFIG_DEBUG
     if( vector == 0 ) FZY_ERROR( "fzy_vector_fill :: vector is null." );
@@ -205,17 +200,17 @@ void fzy_vector_fill( vector *vector, void *data, u32 count )
   {
     u64 new_size = vector->size * count;
     vector->capacity = count;
-    void* new_data = fzy_memory_reallocate( vector->data, vector->size * vector->capacity, new_size, vector->memory_tag );
+    void* new_data = memory_reallocate( vector->data, vector->size * vector->capacity, new_size, vector->memory_tag );
     if( !new_data )
     {
       FZY_ERROR( "fzy_vector_fill :: failed to reallocate data array." );
     }
-    fzy_memory_copy( vector->data, new_data, vector->size * count );
+    memory_copy( vector->data, new_data, vector->size * count );
     vector->count = count;
   }
 } // ---------------------------------------------------------------------------
 
-u32 fzy_vector_stride( vector* vector )
+u32 vector_stride( vector* vector )
 {
   return (u32)vector->size;
 } // ---------------------------------------------------------------------------

@@ -27,12 +27,12 @@
   @brief initalizes the logger system and return true if initialized correctly
   @return true if successful otherwise false
   */
-  b8 fzy_logger_initialize( );
+  b8 logger_initialize( );
 
   /*
   @brief Shuts down the logger system and ensures the log is written to a file
   */
-  void fzy_logger_shutdown( );
+  void logger_shutdown( );
 
   FZY_API void logger_output( log_level level, const char *fmt, ... );
 
