@@ -153,7 +153,7 @@ void* hashtable_get( hashtable* table, const char* key)
 
   if (fzy_string_length(key) >= MAX_ENTRY_NAME)
   {
-    FZY_WARN("hashtable_set :: key truncated: '%s'", key);
+    FZY_WARNING("hashtable_set :: key truncated: '%s'", key);
   }
 
   u32 slot = hash(table, key);
@@ -186,7 +186,7 @@ void* hashtable_get( hashtable* table, const char* key)
 
 void hashtable_remove( hashtable* table, const char* key )
 {
-  if (!table || !key) return 0;
+  if (!table || !key) return;
 
   u32 bucket = hash(table, key);
 

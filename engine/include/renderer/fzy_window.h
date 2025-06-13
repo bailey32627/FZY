@@ -46,4 +46,10 @@ f32 fzy_window_get_aspect_ratio( void );
 */
 void fzy_window_set_width_height( i32 width, i32 height );
 
+/*
+  @brief Toggles the fullscreen window
+  @param b8 - true to enter fullscreen
+*/
+void fzy_window_set_fullscreen( b8 fullscreen );
+
 #endif // FZY_WINDOW_H

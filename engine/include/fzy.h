@@ -16,6 +16,7 @@
 
 /*
   @brief Initalizes all the subsystems of the engine
+  @brief backend - Defines the renderer backend to use
   @return true if successful
 */
 FZY_API b8 fzy_initialize( void );

@@ -73,6 +73,7 @@ b8 fzy_initialize( void )
      FZY_ERROR( "application_initialize :: Failed to initialize the SDL window" );
      return false;
   }
+  fzy_window_set_fullscreen( true );
 
   initialized = true;
   state.is_running = true;
