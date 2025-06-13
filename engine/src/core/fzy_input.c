@@ -37,51 +37,51 @@ static input_state* state_ptr = 0;
 // ----------------------------------------------------------------------------
 
 
-b8 fzy_input_system_initialize( void )
+b8 input_system_initialize( void )
 {
   if( state_ptr )
     return false;
 
-  state_ptr = fzy_memory_allocate( sizeof( input_state ), MEM_TAG_INPUTS );
+  state_ptr = memory_allocate( sizeof( input_state ), MEM_TAG_INPUTS );
 
-  fzy_memory_zero( state_ptr->keyboard_current.keys, sizeof( state_ptr->keyboard_current.keys ) );
-  fzy_memory_zero( state_ptr->keyboard_previous.keys, sizeof( state_ptr->keyboard_previous.keys ) );
-  fzy_memory_zero( state_ptr->mouse_current.buttons, sizeof( state_ptr->mouse_current.buttons ) );
-  fzy_memory_zero( state_ptr->mouse_previous.buttons, sizeof( state_ptr->mouse_previous.buttons ) );
+  memory_zero( state_ptr->keyboard_current.keys, sizeof( state_ptr->keyboard_current.keys ) );
+  memory_zero( state_ptr->keyboard_previous.keys, sizeof( state_ptr->keyboard_previous.keys ) );
+  memory_zero( state_ptr->mouse_current.buttons, sizeof( state_ptr->mouse_current.buttons ) );
+  memory_zero( state_ptr->mouse_previous.buttons, sizeof( state_ptr->mouse_previous.buttons ) );
 
   FZY_INFO( "Input system initialized." );
   return true;
 } // ----------------------------------------------------------------------------
 
-b8 fzy_input_system_shutdown( void )
+b8 input_system_shutdown( void )
 {
   if( !state_ptr )
     return false;
 
-  fzy_memory_delete( state_ptr, sizeof( input_state ), MEM_TAG_INPUTS );
+  memory_delete( state_ptr, sizeof( input_state ), MEM_TAG_INPUTS );
   FZY_INFO( "Input system shutdown." );
   return true;
 } // ----------------------------------------------------------------------------
 
-void fzy_input_system_update( void )
+void input_system_update( void )
 {
-  fzy_memory_copy( &state_ptr->keyboard_previous, &state_ptr->keyboard_current, sizeof( keyboard_state ) );
-  fzy_memory_copy( &state_ptr->mouse_previous, &state_ptr->mouse_current, sizeof( mouse_state ) );
+  memory_copy( &state_ptr->keyboard_previous, &state_ptr->keyboard_current, sizeof( keyboard_state ) );
+  memory_copy( &state_ptr->mouse_previous, &state_ptr->mouse_current, sizeof( mouse_state ) );
 
   f32 x,y;
   u32 buttons = SDL_GetMouseState( &x, &y );
-  fzy_input_mouse_move( (i16)x, (i16)y );
+  input_mouse_move( (i16)x, (i16)y );
   for( i32 i = 0; i < MAX_BUTTONS; i++ )
   {
-    fzy_input_process_button( i+1, buttons & SDL_BUTTON_MASK( i + 1 ) );
+    input_process_button( i+1, buttons & SDL_BUTTON_MASK( i + 1 ) );
   }
 
   const Uint8* keys_state = SDL_GetKeyboardState( NULL );
   for( i32 i = FZY_KEY_FIRST; i < KEY_COUNT; i++ )
-    fzy_input_process_key( i, keys_state[ i ] );
+    input_process_key( i, keys_state[ i ] );
 } // ----------------------------------------------------------------------------
 
-void fzy_input_process_key( keys key, b8 pressed )
+void input_process_key( keys key, b8 pressed )
 {
   // only handle this if the state actually changed
   if( state_ptr->keyboard_current.keys[ key ] != pressed )
@@ -92,21 +92,21 @@ void fzy_input_process_key( keys key, b8 pressed )
     // fire event
     event_context context;
     context.data.u16[0] = key;
-    fzy_event_fire( pressed ? FZY_EVENT_CODE_KEY_PRESSED : FZY_EVENT_CODE_KEY_RELEASED, 0, context );
+    event_fire( pressed ? FZY_EVENT_CODE_KEY_PRESSED : FZY_EVENT_CODE_KEY_RELEASED, 0, context );
   }
 } // ----------------------------------------------------------------------------
 
-b8 fzy_input_is_key_down( keys key )
+b8 input_is_key_down( keys key )
 {
   return state_ptr->keyboard_current.keys[ key ] == true;
 } // ----------------------------------------------------------------------------
 
-b8 fzy_input_is_key_up( keys key )
+b8 input_is_key_up( keys key )
 {
   return state_ptr->keyboard_current.keys[ key ] == false;
 } // ----------------------------------------------------------------------------
 
-void fzy_input_mouse_move( i16 x, i16 y )
+void input_mouse_move( i16 x, i16 y )
 {
   // only process if actually different
   if( state_ptr->mouse_current.x != x || state_ptr->mouse_current.y != y )
@@ -119,11 +119,11 @@ void fzy_input_mouse_move( i16 x, i16 y )
     event_context context;
     context.data.u16[0] = x;
     context.data.u16[1] = y;
-    fzy_event_fire( FZY_EVENT_CODE_MOUSE_MOVED, 0, context );
+    event_fire( FZY_EVENT_CODE_MOUSE_MOVED, 0, context );
   }
 } // ----------------------------------------------------------------------------
 
-void fzy_input_process_button( buttons button, b8 pressed )
+void input_process_button( buttons button, b8 pressed )
 {
   // if the state changed, fire an event
   if( state_ptr->mouse_current.buttons[ button] != pressed )
@@ -133,40 +133,40 @@ void fzy_input_process_button( buttons button, b8 pressed )
     // fire the event
     event_context context;
     context.data.u16[ 0 ] = button;
-    fzy_event_fire( pressed ? FZY_EVENT_CODE_BUTTON_PRESSED : FZY_EVENT_CODE_BUTTON_RELEASED, 0, context );
+    event_fire( pressed ? FZY_EVENT_CODE_BUTTON_PRESSED : FZY_EVENT_CODE_BUTTON_RELEASED, 0, context );
   }
 } // ----------------------------------------------------------------------------
 
-b8 fzy_input_is_button_down( buttons button )
+b8 input_is_button_down( buttons button )
 {
   return state_ptr->mouse_current.buttons[ button ] == true;
 } // ----------------------------------------------------------------------------
 
-b8 fzy_input_is_button_up( buttons button )
+b8 input_is_button_up( buttons button )
 {
   return state_ptr->mouse_current.buttons[ button ] == false;
 } // ----------------------------------------------------------------------------
 
-void fzy_input_get_mouse_position( i32 *x, i32 *y )
+void input_get_mouse_position( i32 *x, i32 *y )
 {
   *x = state_ptr->mouse_current.x;
   *y = state_ptr->mouse_current.y;
 } // ----------------------------------------------------------------------------
 
-void fzy_input_get_mouse_delta( i32 *x, i32 *y )
+void input_get_mouse_delta( i32 *x, i32 *y )
 {
   *x = state_ptr->mouse_previous.x - state_ptr->mouse_current.x;
   *y = state_ptr->mouse_previous.y - state_ptr->mouse_current.y;
 } // ----------------------------------------------------------------------------
 
-void fzy_input_process_mouse_wheel( i8 z_delta )
+void input_process_mouse_wheel( i8 z_delta )
 {
   event_context context;
   context.data.i8[0] = z_delta;
-  fzy_event_fire( FZY_EVENT_CODE_MOUSE_WHEEL, 0, context );
+  event_fire( FZY_EVENT_CODE_MOUSE_WHEEL, 0, context );
 } // ----------------------------------------------------------------------------
 
-b8 fzy_input_is_mouse_in_rectangle( u16 x, u16 y, u16 width, u16 height )
+b8 input_is_mouse_in_rectangle( u16 x, u16 y, u16 width, u16 height )
 {
   i16 minx = x;
   i16 miny = y;

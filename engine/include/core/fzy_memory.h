@@ -29,12 +29,12 @@ typedef enum fzy_memory_tag {
 /*
   @brief Initializes the memory system
 */
-b8 fzy_memory_initialize( );
+b8 memory_initialize( );
 
 /*
   @brief Shutdowns the memory system
 */
-b8 fzy_memory_shutdown( );
+b8 memory_shutdown( );
 
 /*
   @brief Preforms a memory allocation from the host of the given size. Tracked by memory_tag
@@ -42,7 +42,7 @@ b8 fzy_memory_shutdown( );
   @param tag - indicates the use of the block
   @returns Pointer to the allocated memory
 */
-FZY_API void* fzy_memory_allocate( u64 size, fzy_memory_tag tag );
+FZY_API void* memory_allocate( u64 size, fzy_memory_tag tag );
 
 /*
   @brief Frees the block of memory
@@ -50,7 +50,7 @@ FZY_API void* fzy_memory_allocate( u64 size, fzy_memory_tag tag );
   @param size - size in bytes to be freed
   @param tag - indicates the use of the memory block
 */
-FZY_API void fzy_memory_delete( void *block, u64 size, fzy_memory_tag tag );
+FZY_API void memory_delete( void *block, u64 size, fzy_memory_tag tag );
 
 /*
   @brief Reallocates the memory to the new size
@@ -60,7 +60,7 @@ FZY_API void fzy_memory_delete( void *block, u64 size, fzy_memory_tag tag );
   @param tag The memory tag for the allocation
   @return Pointer to the memory block
 */
-FZY_API void* fzy_memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory_tag tag );
+FZY_API void* memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory_tag tag );
 
 /*
   @brief Compares the data at the two address and returns 0 if equal
@@ -68,7 +68,7 @@ FZY_API void* fzy_memory_reallocate( void* block, u64 old_size, u64 new_size, fz
   @param add2 Pointer to the address of the 2nd element
   @return 0 if equal, - or + otherwise
 */
-FZY_API i32 fzy_memory_compare( void* add1, void *add2, u64 size );
+FZY_API i32 memory_compare( void* add1, void *add2, u64 size );
 
 /*
   @brief Set the memory block to zero
@@ -76,7 +76,7 @@ FZY_API i32 fzy_memory_compare( void* add1, void *add2, u64 size );
   @param size - size in bytes to be zeroed
   @return Pointer to the zeroed memory
 */
-FZY_API void* fzy_memory_zero( void *block, u64 size );
+FZY_API void* memory_zero( void *block, u64 size );
 
 /*
   @brief Copy the memory from the source to the dest
@@ -85,7 +85,7 @@ FZY_API void* fzy_memory_zero( void *block, u64 size );
   @param size - size in bytes to copy
   @return Pointer to the dest
 */
-FZY_API void* fzy_memory_copy( void *dest, const void *source, u64 size );
+FZY_API void* memory_copy( void *dest, const void *source, u64 size );
 
 /*
   @brief Sets the memory to the value given
@@ -94,13 +94,13 @@ FZY_API void* fzy_memory_copy( void *dest, const void *source, u64 size );
   @param size - size of the memory in bytes to set
   @return Pointer to the dest
 */
-FZY_API void *fzy_memory_set( void *dest, i32 value, u64 size );
+FZY_API void *memory_set( void *dest, i32 value, u64 size );
 
 /*
   @brief Obtains a string containing a "printout" of memory usage, categorized by
     memory tag. The memory should be freed by the caller.
   @returns The total count of allocations since the system's initialization.
 */
-FZY_API char* fzy_memory_get_usage_str( );
+FZY_API char* memory_get_usage_str( );
 
 #endif // FZY_MEMORY_H

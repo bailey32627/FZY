@@ -20,6 +20,13 @@ typedef struct hashtable_t hashtable;
 FZY_API hashtable *hashtable_create( u32 capacity, void (*destroy_func)(void*) );
 
 /**
+  @brief Frees the hashtable, has ability to provide a free function for the
+    data stored in the table
+  @param table - The table to be freed
+*/
+FZY_API void hashtable_destroy( hashtable *table );
+
+/**
   @brief Frees the hashtable, has the ability to provide a free function for the data
     stored in the table
   @param table - The table to be freed

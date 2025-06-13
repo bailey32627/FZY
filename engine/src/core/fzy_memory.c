@@ -49,19 +49,17 @@ static void delete( void *block, b8 aligned )
   free( block );
 } // -----------------------------------------------------------------------
 
-b8 fzy_memory_initialize( )
+b8 memory_initialize( )
 {
-  FZY_INFO( "memory initialized" );
   return true;
 } // -----------------------------------------------------------------------
 
-b8 fzy_memory_shutdown( )
+b8 memory_shutdown( )
 {
-  FZY_INFO( "memory shutdown" );
   return true;
 } // -----------------------------------------------------------------------
 
-void* fzy_memory_allocate( u64 size, fzy_memory_tag tag )
+void* memory_allocate( u64 size, fzy_memory_tag tag )
 {
   if( tag == MEM_TAG_UNKNOWN )
     FZY_WARNING( "memory_allocate called using MEMORY_TAG_UNKNOWN.  Re-class this allocation." );
@@ -71,10 +69,10 @@ void* fzy_memory_allocate( u64 size, fzy_memory_tag tag )
 
   // TODO : memory alignment
   void *block = allocate( size, false );
-  return fzy_memory_zero( block, size );
+  return memory_zero( block, size );
 } // -----------------------------------------------------------------------
 
-void fzy_memory_delete( void *block, u64 size, fzy_memory_tag tag )
+void memory_delete( void *block, u64 size, fzy_memory_tag tag )
 {
   if( tag == MEM_TAG_UNKNOWN )
     FZY_WARNING( "memory_free called using MEM_TAG_UNKNOWN.  Re-class this allocation." );
@@ -90,7 +88,7 @@ void fzy_memory_delete( void *block, u64 size, fzy_memory_tag tag )
   block = 0;
 } // -----------------------------------------------------------------------
 
-void* fzy_memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory_tag tag )
+void* memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory_tag tag )
 {
   if( tag == MEM_TAG_UNKNOWN )
     FZY_WARNING( "memory_reallocate called using MEM_TAG_UNKNOWN.  Re-class this allocation." );
@@ -104,27 +102,27 @@ void* fzy_memory_reallocate( void* block, u64 old_size, u64 new_size, fzy_memory
   return block;
 } // -----------------------------------------------------------------------
 
-i32 fzy_memory_compare( void* add1, void *add2, u64 size )
+i32 memory_compare( void* add1, void *add2, u64 size )
 {
   return memcmp( add1, add2, size );
 } // ----------------------------------------------------------------------
 
-void* fzy_memory_zero( void *block, u64 size )
+void* memory_zero( void *block, u64 size )
 {
   return memset( block, 0, size );
 } // -----------------------------------------------------------------------
 
-void* fzy_memory_copy( void *dest, const void *source, u64 size )
+void* memory_copy( void *dest, const void *source, u64 size )
 {
   return memcpy( dest, source, size );
 } // -----------------------------------------------------------------------
 
-void *fzy_memory_set( void *dest, i32 value, u64 size )
+void *memory_set( void *dest, i32 value, u64 size )
 {
   return memset( dest, value, size );
 } // -----------------------------------------------------------------------
 
-char* fzy_memory_get_usage_str( )
+char* memory_get_usage_str( )
 {
   const u64 gib = 1024 * 1024 * 1024;
   const u64 mib = 1024 * 1024;

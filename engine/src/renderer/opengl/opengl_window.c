@@ -14,7 +14,7 @@ static SDL_GLContext gl_context = NULL;
 static i32 window_width = 0;
 static i32 window_height = 0;
 
-b8 fzy_window_initialize( const char *title, i32 width, i32 height )
+b8 window_initialize( const char *title, i32 width, i32 height )
 {
   if( initialized )
   {
@@ -34,9 +34,9 @@ b8 fzy_window_initialize( const char *title, i32 width, i32 height )
 
   window = SDL_CreateWindow(
         "An SDL3 window",                  // window title
-        1280,                               // width, in pixels
-        800,                               // height, in pixels
-        SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE
+        width,                               // width, in pixels
+        height,                               // height, in pixels
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
     );
 
   if( !window )
@@ -64,12 +64,11 @@ b8 fzy_window_initialize( const char *title, i32 width, i32 height )
     return false;
   }
 
-  SDL_SetWindowFullscreen( window, true );
   initialized = true;
   return true;
 } // -------------------------------------------------------------------------
 
-void fzy_window_shutdown( void )
+void window_shutdown( void )
 {
   if( gl_context )
   {
@@ -81,35 +80,35 @@ void fzy_window_shutdown( void )
   }
 } // -------------------------------------------------------------------------
 
-void fzy_window_swap_buffers( void )
+void window_swap_buffers( void )
 {
   SDL_GL_SwapWindow( window );
 } // -------------------------------------------------------------------------
 
-i32 fzy_window_get_width( void )
+i32 window_get_width( void )
 {
   return window_width;
 } // -------------------------------------------------------------------------
 
-i32 fzy_window_get_height( void )
+i32 window_get_height( void )
 {
   return window_height;
 } // -------------------------------------------------------------------------
 
-f32 fzy_window_get_aspect_ratio( void )
+f32 window_get_aspect_ratio( void )
 {
   return ( window_height != 0 ) ? (f32)window_width / (f32)window_height : 1.0f;
 } // -------------------------------------------------------------------------
 
-void fzy_window_set_width_height( i32 width, i32 height )
+void window_set_width_height( i32 width, i32 height )
 {
   window_width = width;
   window_height = height;
 } // -------------------------------------------------------------------------
 
-void fzy_window_set_fullscreen( b8 fullscreen )
+void window_set_fullscreen( b8 fullscreen )
 {
-  SDL_SetWindowFullscreen( window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0 );
-}
+  SDL_SetWindowFullscreen( window, fullscreen );
+} // --------------------------------------------------------------------------
 
 #endif

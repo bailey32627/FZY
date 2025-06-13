@@ -38,11 +38,11 @@ typedef struct event_system_state
 static event_system_state* state_ptr = 0;
 // ---------------------------------------------------------------------------
 
-b8 fzy_event_system_initialize( void )
+b8 event_system_initialize( void )
 {
   if( !state_ptr )
   {
-    state_ptr = fzy_memory_allocate( sizeof( struct event_system_state ), MEM_TAG_EVENT );
+    state_ptr = memory_allocate( sizeof( struct event_system_state ), MEM_TAG_EVENT );
     for( i32 i = 0; i < MAX_MESSAGES_CODES; i++ )
     {
       state_ptr->registered[ i ].events = 0;
@@ -53,7 +53,7 @@ b8 fzy_event_system_initialize( void )
   return false;
 } // ---------------------------------------------------------------------------
 
-b8 fzy_event_system_shutdown( void )
+b8 event_system_shutdown( void )
 {
   if( state_ptr )
   {
@@ -61,10 +61,10 @@ b8 fzy_event_system_shutdown( void )
     {
       if( state_ptr->registered[ i ].events != 0 )
       {
-        fzy_vector_destroy( state_ptr->registered[ i ].events );
+        vector_destroy( state_ptr->registered[ i ].events );
       }
     }
-    fzy_memory_delete( state_ptr, sizeof( struct event_system_state ), MEM_TAG_EVENT );
+    memory_delete( state_ptr, sizeof( struct event_system_state ), MEM_TAG_EVENT );
     state_ptr = 0;
     FZY_INFO( "Event system shutdown." );
     return true;
@@ -72,20 +72,20 @@ b8 fzy_event_system_shutdown( void )
   return false;
 } // ---------------------------------------------------------------------------
 
-b8 fzy_event_add_listener( u16 code, void *listener, on_event on_event )
+b8 event_add_listener( u16 code, void *listener, on_event on_event )
 {
   if( !state_ptr ) return false;
 
   if( state_ptr->registered[ code ].events == 0 )
   {
-    state_ptr->registered[ code ].events = fzy_vector_create( sizeof( struct registered_event ), 1, MEM_TAG_EVENT );
+    state_ptr->registered[ code ].events = vector_create( sizeof( struct registered_event ), 1, MEM_TAG_EVENT );
   }
 
-  u32 registered_count = fzy_vector_size( state_ptr->registered[ code ].events );
+  u32 registered_count = vector_size( state_ptr->registered[ code ].events );
   registered_event* e = 0;
   for( u32 i = 0; i < registered_count; i++ )
   {
-    e = fzy_vector_get( registered_event, state_ptr->registered[ code ].events, i );
+    e = vector_get( registered_event, state_ptr->registered[ code ].events, i );
     if( e->listener == listener && e->callback == on_event )
     {
       FZY_WARNING( "fzy_event_add_listener :: Event has already been registered with the code %hu and the call back of %p", code, on_event );
@@ -97,11 +97,11 @@ b8 fzy_event_add_listener( u16 code, void *listener, on_event on_event )
   registered_event event;
   event.listener = listener;
   event.callback = on_event;
-  fzy_vector_push( state_ptr->registered[ code ].events, &event );
+  vector_push( state_ptr->registered[ code ].events, &event );
   return true;
 } // ---------------------------------------------------------------------------
 
-b8 fzy_event_remove_listener( u16 code, void* listener, on_event on_event )
+b8 event_remove_listener( u16 code, void* listener, on_event on_event )
 {
   if( !state_ptr ) return false;
 
@@ -112,33 +112,33 @@ b8 fzy_event_remove_listener( u16 code, void* listener, on_event on_event )
     return false;
   }
 
-  u32 registered_count = fzy_vector_size( state_ptr->registered[ code ].events );
+  u32 registered_count = vector_size( state_ptr->registered[ code ].events );
   registered_event* e = 0;
   for( u32 i = 0; i < registered_count; i++ )
   {
-    e = fzy_vector_get( registered_event, state_ptr->registered[ code ].events, i );
+    e = vector_get( registered_event, state_ptr->registered[ code ].events, i );
     if( e->listener == listener && e->callback == on_event )
     {
-      fzy_vector_remove_index( state_ptr->registered[ code ].events, i );
+      vector_remove_index( state_ptr->registered[ code ].events, i );
       return true;
     }
   }
   return false;
 } // ---------------------------------------------------------------------------
 
-b8 fzy_event_fire( u16 code, void *sender, event_context context )
+b8 event_fire( u16 code, void *sender, event_context context )
 {
   if( !state_ptr ) return false;
 
   // if nothing i sregistered for the code, boot out
   if( state_ptr->registered[ code ].events == 0 ) return false;
 
-  u32 registered_count = fzy_vector_size( state_ptr->registered[ code ].events );
+  u32 registered_count = vector_size( state_ptr->registered[ code ].events );
 
   registered_event* e = 0;
   for( u32 i = 0; i < registered_count; i++ )
   {
-    e = fzy_vector_get( registered_event, state_ptr->registered[ code ].events, i );
+    e = vector_get( registered_event, state_ptr->registered[ code ].events, i );
     if( e->callback( code, sender, e->listener, context ) )
     {
       // message has been handled, do not send to the other listeners
