@@ -21,3 +21,11 @@
 [2025-06-16 12:19:13] [ INFO ]: Input system initialized.
 [2025-06-16 12:19:15] [ INFO ]: Input system shutdown.
 [2025-06-16 12:19:15] [ INFO ]: Event system shutdown.
+[2025-06-16 13:08:51] [ INFO ]: Event System initialized.
+[2025-06-16 13:08:51] [ INFO ]: Input system initialized.
+[2025-06-16 13:08:55] [ INFO ]: Input system shutdown.
+[2025-06-16 13:08:55] [ INFO ]: Event system shutdown.
+[2025-06-30 13:56:38] [ INFO ]: Event System initialized.
+[2025-06-30 13:56:38] [ INFO ]: Input system initialized.
+[2025-06-30 13:56:41] [ INFO ]: Input system shutdown.
+[2025-06-30 13:56:41] [ INFO ]: Event system shutdown.
